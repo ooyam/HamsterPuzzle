@@ -1156,7 +1156,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 407553688}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -2191,7 +2191,7 @@ RectTransform:
   m_Father: {fileID: 1495263824}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.4, y: 0}
+  m_AnchorMin: {x: 0.39999998, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -2828,7 +2828,7 @@ RectTransform:
   m_Father: {fileID: 858092692}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.4, y: 0}
+  m_AnchorMin: {x: 0.39999998, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -3164,8 +3164,8 @@ RectTransform:
   m_Father: {fileID: 1555791678}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: -0.02, y: -1}
-  m_AnchorMax: {x: 0.03, y: 0.1}
+  m_AnchorMin: {x: -0.01999998, y: -1}
+  m_AnchorMax: {x: 0.029999971, y: 0.1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3731,7 +3731,7 @@ RectTransform:
   m_Father: {fileID: 1388991738}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.4, y: 0}
+  m_AnchorMin: {x: 0.39999998, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
@@ -3993,7 +3993,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1038760342}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -4030,10 +4030,10 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -4047,7 +4047,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 1547266310}
   m_FillRect: {fileID: 382648171}
   m_HandleRect: {fileID: 1547266309}
@@ -5870,8 +5870,8 @@ RectTransform:
   m_Father: {fileID: 1555791678}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.293, y: -1}
-  m_AnchorMax: {x: 0.373, y: 0.1}
+  m_AnchorMin: {x: 0.29299998, y: -1}
+  m_AnchorMax: {x: 0.37300003, y: 0.1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -7471,11 +7471,17 @@ MonoBehaviour:
   - {fileID: 4408249636892025871, guid: acae3d9aadd6ba246928ac7adab6dc6c, type: 3}
   - {fileID: 7418445444469891856, guid: b651b96374d76b447ba796699c405b03, type: 3}
   - {fileID: 4108475952800589985, guid: af59a9e15b4ad57419ad3f5d3dd578d1, type: 3}
-  - {fileID: 8392585803501913539, guid: ed5bce89b61b9d24a8115419f73d335c, type: 3}
+  - {fileID: 2000225117195141411, guid: ed5bce89b61b9d24a8115419f73d335c, type: 3}
+  - {fileID: 4118035384259598210, guid: a80d96a8715864443b9fa14a733a14a0, type: 3}
   - {fileID: 2021482695860959166, guid: a8adda7d7b1a7464b8ec791fe14a893b, type: 3}
   - {fileID: 851655504981249095, guid: daa332496bb2445498a0ea077fdcf6dc, type: 3}
   textBoxTra: {fileID: 1613997928}
+  statusBoardTra: {fileID: 1089666901}
   hand: {fileID: 407553688}
+  calGaugeTra: {fileID: 1038760343}
+  turnTra: {fileID: 411043913}
+  targetTra: {fileID: 1214500318}
+  harvestTra: {fileID: 529629740}
 --- !u!1 &1889689093
 GameObject:
   m_ObjectHideFlags: 0

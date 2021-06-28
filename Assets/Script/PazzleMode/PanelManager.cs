@@ -32,8 +32,6 @@ public class PanelManager : MonoBehaviour
     [System.NonSerialized]
     public int PanelNum;                   //パネルの総数
     private bool tutorial = false;         //チュートリアル?
-    private bool tutorial_1 = false;       //チュートリアル1回目の移動
-    private bool tutorial_2 = false;       //チュートリアル2回目の移動
 
     private GameObject HamsterPanel;                  //生成ハムスターパネル
     private HamsterPanelController HamsterPanelScr;   //生成ハムスターパネルスクリプト
@@ -455,11 +453,9 @@ public class PanelManager : MonoBehaviour
             }
             if (tutorial)
             {
-                tutorialCon.frontBoxObj.SetActive(true);
-                tutorialCon.TextDisplay(3);
-                StartCoroutine(tutorialCon.DescriptionStart());
-                calGauge.transform.SetParent(tutorialCon.frontBoxTra, false);
-                Debug.Log("体力説明");
+                if (tutorialCon.ColDescription)
+                    tutorial = false;
+                tutorialCon.HarvestComplete();
             }
         }
     }

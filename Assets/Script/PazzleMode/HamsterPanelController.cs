@@ -14,9 +14,10 @@ public class HamsterPanelController : MonoBehaviour
     private float MaxX;                    //ハムスター追従限界値
     private float MinY;                    //ハムスター追従限界値
     private float MaxY;                    //ハムスター追従限界値
-    private bool tutorial = false;         //チュートリアル?
     [System.NonSerialized]
-    public bool description = false;      //説明中？
+    public bool tutorial = false;          //チュートリアル?
+    [System.NonSerialized]
+    public bool description = false;       //説明中？
 
     private RectTransform Tra;  //RectTransform取得
     [System.NonSerialized]
@@ -41,21 +42,7 @@ public class HamsterPanelController : MonoBehaviour
         DifferenceX = CanvasTra.sizeDelta.x / 2;
         DifferenceY = CanvasTra.sizeDelta.y / 2;
         Tra = GetComponent<RectTransform>();
-
-        if (!tutorial)
-        {
-            MaxX = -PanelMangerScr.PanelPosList[0].x;
-            MinX = -MaxX;
-            MinY = PanelMangerScr.PanelPosList[PanelMangerScr.PanelNum - 1].y;
-            MaxY = PanelMangerScr.PanelPosList[0].y;
-        }
-        else
-        {
-            MaxX = Tra.anchoredPosition.x;
-            MinX = MaxX;
-            MinY = PanelMangerScr.PanelPosList[14].y;
-            MaxY = Tra.anchoredPosition.y;
-        }
+        MovingLimit(true);
     }
 
     // Update is called once per frame
@@ -82,7 +69,7 @@ public class HamsterPanelController : MonoBehaviour
     //タップした時
     public void PushPanel()
     {
-        if (!Harvest && !gameOver && !gameClear)
+        if (!Harvest && !gameOver && !gameClear && !description)
         {
             Push = true;
             PanelMangerScr.HamsterMoving = true;
@@ -91,7 +78,7 @@ public class HamsterPanelController : MonoBehaviour
     //離した時
     public void ReleasePanel()
     {
-        if (!Harvest && !gameOver && !gameClear)
+        if (!Harvest && !gameOver && !gameClear && !description)
         {
             Push = false;
             Tra.anchoredPosition = PanelMangerScr.PanelPosList[HamPosNum];
@@ -105,21 +92,51 @@ public class HamsterPanelController : MonoBehaviour
         HamPosNum = panelPosNum;
         if (tutorial)
         {
-            if (tutorialCon.tupNum == 2)
+            if (tutorialCon.tupNum == 2 || panelPosNum == 12)
             {
-                tutorialCon.description = false;
-                tutorialCon.TimeScaleChange(0.0f);
-                Debug.Log("にんじん並んだテキスト表示");
-                tutorialCon.TextDestroy(false);
-                tutorialCon.TextDisplay(2);
-                tutorialCon.FilterDestroy(0);
-                tutorialCon.FilterDisplay(1);
-                PushPanel();
+                int textIndex = 2;
+                int filterIndex = 1;
+                if (panelPosNum == 12)
+                {
+                    textIndex *= 3;
+                    filterIndex *= 3;
+                    Debug.Log("にんじん並んだテキスト表示");
+                }
+                else
+                {
+                    Debug.Log("ブロッコリー並んだテキスト表示");
+                }
+                tutorialCon.HamsterMovingComplete(textIndex, filterIndex);
+                ReleasePanel();
             }
-            else if(panelPosNum == 12)
+        }
+    }
+
+    //移動制限指定
+    public void MovingLimit(bool first)
+    {
+        if (!tutorial)
+        {
+            MinX = PanelMangerScr.PanelPosList[0].x;
+            MaxX = -MinX;
+            MinY = PanelMangerScr.PanelPosList[PanelMangerScr.PanelNum - 1].y;
+            MaxY = PanelMangerScr.PanelPosList[0].y;
+        }
+        else
+        {
+            if (first)
             {
-                tutorialCon.description = false;
-                PushPanel();
+                MinX = Tra.anchoredPosition.x;
+                MaxX = MinX;
+                MinY = PanelMangerScr.PanelPosList[14].y;
+                MaxY = Tra.anchoredPosition.y;
+            }
+            else
+            {
+                MinX = PanelMangerScr.PanelPosList[12].x;
+                MaxX = Tra.anchoredPosition.x;
+                MinY = Tra.anchoredPosition.y;
+                MaxY = MinY;
             }
         }
     }
