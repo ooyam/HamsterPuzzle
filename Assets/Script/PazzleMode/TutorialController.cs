@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TutorialController : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class TutorialController : MonoBehaviour
     [Header("テキストボックス")]
     public GameObject[] textBox;
     private GameObject textObj;
+    private Transform textTra;
+    private Text textText;
     [Header("テキスト格納ボックス")]
     public Transform textBoxTra;
     [Header("ステータスボード")]
@@ -30,6 +33,7 @@ public class TutorialController : MonoBehaviour
     public Transform harvestTra;
 
     private HamsterPanelController HamsterCon;   //ハムスターパネルスクリプト
+    private PanelManager PanelMan;               //PanelManger
     [System.NonSerialized]
     public int tupNum = 0;               //タップ回数
     private bool waiting = false;        //待機中？
@@ -37,6 +41,10 @@ public class TutorialController : MonoBehaviour
     private float displayTime = 2.0f;    //説明の最低表示時間
     [System.NonSerialized]
     public bool ColDescription = false;  //体力説明完了？
+
+    private bool textDestroy = false;    //テキスト消去中？
+    private bool textDisplay = false;    //テキスト表示途中？
+    private float[] textColAlpha = new float[] { 1.0f, 0.0f };   //テキストのアルファ値
 
     //手の位置
     private Vector2[] handStartPos = new Vector2[] { new Vector2(0.0f, 0.0f), new Vector2(0.0f, -170.0f) };
@@ -49,6 +57,7 @@ public class TutorialController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        PanelMan = GameObject.FindWithTag("PanelManager").GetComponent<PanelManager>();
         frontBoxTra = frontBoxObj.transform;
         handTra = hand.GetComponent<RectTransform>();
         TextDisplay(0);
@@ -63,106 +72,155 @@ public class TutorialController : MonoBehaviour
         {
             if (!description)
             {
-                if (waiting)
-                {
-                    Debug.Log("待機中");
-                }
-                else
+                if (!waiting)
                 {
                     tupNum++;
-                    Debug.Log(tupNum);
-                    switch (tupNum)
-                    {
-                        case 1:
-                            Debug.Log("フィルター１表示");
-                            frontBoxObj.SetActive(false);
-                            TextDestroy(true);
-                            TextDisplay(1);
-                            FilterDisplay(0);
-                            hand.SetActive(true);
-                            HamsterCon.description = true;
-                            break;
-                        case 2:
-                        case 6:
-                            Debug.Log("手消し");
-                            HamsterCon.description = false;
-                            hand.SetActive(false);
-                            description = true;
-                            break;
-                        case 3:
-                            Debug.Log("時間戻し収穫待ち");
-                            TimeScaleChange(1.0f);
-                            TextDestroy(false);
-                            FilterDestroy(1);
-                            description = true;
-                            break;
-                        case 4:
-                            Debug.Log("ターン説明");
-                            calGaugeTra.SetParent(statusBoardTra, true);
-                            turnTra.SetParent(frontBoxTra, true);
-                            handTra.anchoredPosition = handDesPos[1];
-                            TimeScaleChange(1.0f);
-                            TextDestroy(false);
-                            TextDisplay(4);
-                            FilterDestroy(1);
-                            StartCoroutine(DescriptionStart());
-                            break;
-                        case 5:
-                            Debug.Log("フィルター表示");
-                            turnTra.SetParent(statusBoardTra, true);
-                            hand.SetActive(true);
-                            handTra.anchoredPosition = handStartPos[1];
-                            HamsterCon.MovingLimit(false);
-                            frontBoxObj.SetActive(false);
-                            TextDestroy(false);
-                            TextDisplay(5);
-                            FilterDisplay(2);
-                            break;
-                        case 7:
-                            Debug.Log("列説明");
-                            TextDestroy(false);
-                            TextDisplay(7);
-                            StartCoroutine(DescriptionStart());
-                            break;
-                        case 8:
-                            Debug.Log("時間戻し収穫待ち");
-                            TimeScaleChange(1.0f);
-                            TextDestroy(false);
-                            FilterDestroy(3);
-                            description = true;
-                            break;
-                        case 9:
-                            Debug.Log("最後の声援");
-                            TextDestroy(false);
-                            TextDisplay(9);
-                            StartCoroutine(DescriptionStart());
-                            break;
-                        case 10:
-                            Debug.Log("終了");
-                            targetTra.SetParent(statusBoardTra, true);
-                            harvestTra.SetParent(statusBoardTra, true);
-                            HamsterCon.tutorial = false;
-                            HamsterCon.MovingLimit(false);
-                            this.gameObject.SetActive(false);
-                            break;
-                    }
+                    StartCoroutine(NextDescription(tupNum));
                 }
             }
         }
     }
 
+    //次の説明
+    IEnumerator NextDescription(int descriptionNum)
+    {
+        switch (descriptionNum)
+        {
+            case 1:
+                frontBoxObj.SetActive(false);
+                FilterDisplay(0);
+                StartCoroutine(TextDestroy(true));
+                yield return new WaitWhile(() => textDestroy == true);
+                hand.SetActive(true);
+                HamsterCon.description = true;
+                TextDisplay(1);
+                yield return new WaitWhile(() => textDisplay == true);
+                break;
+            case 2:
+            case 6:
+                HamsterCon.description = false;
+                hand.SetActive(false);
+                description = true;
+                break;
+            case 3:
+                TimeScaleChange(1.0f);
+                FilterDestroy(1);
+                StartCoroutine(TextDestroy(false));
+                yield return new WaitWhile(() => textDestroy == true);
+                description = true;
+                break;
+            case 4:
+                calGaugeTra.SetParent(statusBoardTra, true);
+                turnTra.SetParent(frontBoxTra, true);
+                handTra.anchoredPosition = handDesPos[1];
+                TimeScaleChange(1.0f);
+                StartCoroutine(TextDestroy(false));
+                yield return new WaitWhile(() => textDestroy == true);
+                FilterDestroy(1);
+                StartCoroutine(DescriptionStart()); ;
+                TextDisplay(4);
+                yield return new WaitWhile(() => textDisplay == true);
+                break;
+            case 5:
+                turnTra.SetParent(statusBoardTra, true);
+                hand.SetActive(true);
+                handTra.anchoredPosition = handStartPos[1];
+                HamsterCon.MovingLimit(false);
+                frontBoxObj.SetActive(false);
+                StartCoroutine(TextDestroy(false));
+                yield return new WaitWhile(() => textDestroy == true);
+                FilterDisplay(2);
+                TextDisplay(5);
+                yield return new WaitWhile(() => textDisplay == true);
+                break;
+            case 7:
+                StartCoroutine(TextDestroy(false));
+                yield return new WaitWhile(() => textDestroy == true);
+                StartCoroutine(DescriptionStart());
+                TextDisplay(7);
+                yield return new WaitWhile(() => textDisplay == true);
+                break;
+            case 8:
+                TimeScaleChange(1.0f);
+                FilterDestroy(3);
+                StartCoroutine(TextDestroy(false));
+                yield return new WaitWhile(() => textDestroy == true);
+                description = true;
+                break;
+            case 9:
+                StartCoroutine(TextDestroy(false));
+                yield return new WaitWhile(() => textDestroy == true);
+                StartCoroutine(DescriptionStart());
+                TextDisplay(9);
+                yield return new WaitWhile(() => textDisplay == true);
+                break;
+            case 10:
+                targetTra.SetParent(statusBoardTra, true);
+                harvestTra.SetParent(statusBoardTra, true);
+                HamsterCon.tutorial = false;
+                HamsterCon.MovingLimit(false);
+                PanelMan.tutorial = false;
+                this.gameObject.SetActive(false);
+                break;
+        }
+
+    }
+
     //テキスト表示
     public void TextDisplay(int textIndex)
     {
+        textColAlpha[1] = 0.0f;
         textObj = Instantiate(textBox[textIndex]);
-        textObj.transform.SetParent(textBoxTra, false);
+        textTra = textObj.transform;
+        textText = textTra.GetChild(0).gameObject.GetComponent<Text>();
+        textText.color = new Color(0, 0, 0, 0);
+        textTra.SetParent(textBoxTra, false);
+        textDisplay = true;
+        StartCoroutine(TextFade());
     }
     //テキスト消去
-    public void TextDestroy(bool firstDes)
+    public IEnumerator TextDestroy(bool firstDes)
     {
         if (firstDes) HamsterCon = GameObject.FindWithTag("Hamster").GetComponent<HamsterPanelController>();
-        Destroy(textObj);
+        textColAlpha[0] = 1.0f;
+        textDestroy = true;
+        StartCoroutine(TextFade());
+        waiting = true;
+        yield return new WaitWhile(() => textDestroy == true);
+        waiting = false;
+        if (textObj != null) Destroy(textObj);
     }
+
+    //テキストフェード
+    IEnumerator TextFade()
+    {
+        float oneFlameTime = 0.02f;
+        while (true)
+        {
+            if (textDestroy)
+            {
+                textColAlpha[0] -= oneFlameTime * 2;
+                if (textObj != null) textText.color = new Color(0, 0, 0, textColAlpha[0]);
+                if (textColAlpha[0] <= 0.0f)
+                {
+                    textDestroy = false;
+                    break;
+                }
+            }
+            if (textDisplay)
+            {
+                textColAlpha[1] += oneFlameTime * 2;
+                if (textObj != null) textText.color = new Color(0, 0, 0, textColAlpha[1]);
+                if (textColAlpha[1] >= 1.0f)
+                {
+                    textDestroy = false;
+                    break;
+                }
+            }
+            yield return new WaitForSecondsRealtime(oneFlameTime);
+        }
+    }
+
     //フィルター表示
     public void FilterDisplay(int filterIndex)
     {
@@ -182,12 +240,12 @@ public class TutorialController : MonoBehaviour
         waiting = false;
     }
     //時間変更
-    public void TimeScaleChange(float timeScale)
+    void TimeScaleChange(float timeScale)
     {
         Time.timeScale = timeScale;
     }
     //収穫完了
-    public void HarvestComplete()
+    public IEnumerator HarvestComplete()
     {
         if (!ColDescription)
         {
@@ -195,11 +253,11 @@ public class TutorialController : MonoBehaviour
             frontBoxObj.SetActive(true);
             hand.SetActive(true);
             handTra.anchoredPosition = handDesPos[0];
-            TextDisplay(3);
             StartCoroutine(DescriptionStart());
             calGaugeTra.SetParent(frontBoxTra, true);
             ColDescription = true;
-            Debug.Log("体力説明");
+            TextDisplay(3);
+            yield return new WaitWhile(() => textDisplay == true);
         }
         else
         {
@@ -209,19 +267,21 @@ public class TutorialController : MonoBehaviour
             harvestTra.SetParent(frontBoxTra, true);
             hand.SetActive(true);
             handTra.anchoredPosition = handDesPos[2];
-            TextDisplay(8);
             StartCoroutine(DescriptionStart());
-            Debug.Log("目標説明");
+            TextDisplay(8);
+            yield return new WaitWhile(() => textDisplay == true);
         }
     }
     //ハムスター移動完了
-    public void HamsterMovingComplete(int textIndex, int filterIndex)
+    public IEnumerator HamsterMovingComplete(int textIndex, int filterIndex)
     {
         description = false;
+        StartCoroutine(TextDestroy(false));
+        yield return new WaitWhile(() => textDestroy == true);
         TimeScaleChange(0.0f);
-        TextDestroy(false);
-        TextDisplay(textIndex);
         FilterDestroy(filterIndex - 1);
         FilterDisplay(filterIndex);
+        TextDisplay(textIndex);
+        yield return new WaitWhile(() => textDisplay == true);
     }
 }

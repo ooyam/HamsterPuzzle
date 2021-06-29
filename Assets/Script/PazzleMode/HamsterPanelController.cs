@@ -100,13 +100,8 @@ public class HamsterPanelController : MonoBehaviour
                 {
                     textIndex *= 3;
                     filterIndex *= 3;
-                    Debug.Log("にんじん並んだテキスト表示");
                 }
-                else
-                {
-                    Debug.Log("ブロッコリー並んだテキスト表示");
-                }
-                tutorialCon.HamsterMovingComplete(textIndex, filterIndex);
+                StartCoroutine(tutorialCon.HamsterMovingComplete(textIndex, filterIndex));
                 ReleasePanel();
             }
         }
