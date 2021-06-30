@@ -23,6 +23,7 @@ public class TutorialController : MonoBehaviour
     [Header("手取得")]
     public GameObject hand;
     private RectTransform handTra;
+    private Image handIma;
     [Header("カロリーゲージ")]
     public Transform calGaugeTra;
     [Header("ターン表示")]
@@ -60,9 +61,10 @@ public class TutorialController : MonoBehaviour
         PanelMan = GameObject.FindWithTag("PanelManager").GetComponent<PanelManager>();
         frontBoxTra = frontBoxObj.transform;
         handTra = hand.GetComponent<RectTransform>();
+        handIma = hand.GetComponent<Image>();
         TextDisplay(0);
         frontBoxObj.SetActive(true);
-        DescriptionStart();
+        StartCoroutine(DescriptionStart());
     }
 
     // Update is called once per frame
@@ -70,13 +72,10 @@ public class TutorialController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (!description)
+            if (!description && !waiting && !textDestroy)
             {
-                if (!waiting)
-                {
-                    tupNum++;
-                    StartCoroutine(NextDescription(tupNum));
-                }
+                tupNum++;
+                StartCoroutine(NextDescription(tupNum));
             }
         }
     }
@@ -91,7 +90,10 @@ public class TutorialController : MonoBehaviour
                 FilterDisplay(0);
                 StartCoroutine(TextDestroy(true));
                 yield return new WaitWhile(() => textDestroy == true);
+                StartCoroutine(DescriptionStart());
                 hand.SetActive(true);
+                handTra.anchoredPosition = handStartPos[0];
+                StartCoroutine(HandMove(0));
                 HamsterCon.description = true;
                 TextDisplay(1);
                 yield return new WaitWhile(() => textDisplay == true);
@@ -107,17 +109,17 @@ public class TutorialController : MonoBehaviour
                 FilterDestroy(1);
                 StartCoroutine(TextDestroy(false));
                 yield return new WaitWhile(() => textDestroy == true);
+                StartCoroutine(DescriptionStart());
                 description = true;
                 break;
             case 4:
                 calGaugeTra.SetParent(statusBoardTra, true);
                 turnTra.SetParent(frontBoxTra, true);
                 handTra.anchoredPosition = handDesPos[1];
-                TimeScaleChange(1.0f);
+                StartCoroutine(DescriptionStart());
                 StartCoroutine(TextDestroy(false));
                 yield return new WaitWhile(() => textDestroy == true);
                 FilterDestroy(1);
-                StartCoroutine(DescriptionStart()); ;
                 TextDisplay(4);
                 yield return new WaitWhile(() => textDisplay == true);
                 break;
@@ -125,10 +127,13 @@ public class TutorialController : MonoBehaviour
                 turnTra.SetParent(statusBoardTra, true);
                 hand.SetActive(true);
                 handTra.anchoredPosition = handStartPos[1];
+                StartCoroutine(HandMove(1));
                 HamsterCon.MovingLimit(false);
+                HamsterCon.description = true;
                 frontBoxObj.SetActive(false);
                 StartCoroutine(TextDestroy(false));
                 yield return new WaitWhile(() => textDestroy == true);
+                StartCoroutine(DescriptionStart());
                 FilterDisplay(2);
                 TextDisplay(5);
                 yield return new WaitWhile(() => textDisplay == true);
@@ -145,12 +150,13 @@ public class TutorialController : MonoBehaviour
                 FilterDestroy(3);
                 StartCoroutine(TextDestroy(false));
                 yield return new WaitWhile(() => textDestroy == true);
+                StartCoroutine(DescriptionStart());
                 description = true;
                 break;
             case 9:
+                StartCoroutine(DescriptionStart());
                 StartCoroutine(TextDestroy(false));
                 yield return new WaitWhile(() => textDestroy == true);
-                StartCoroutine(DescriptionStart());
                 TextDisplay(9);
                 yield return new WaitWhile(() => textDisplay == true);
                 break;
@@ -164,6 +170,50 @@ public class TutorialController : MonoBehaviour
                 break;
         }
 
+    }
+
+    //手フェード
+    IEnumerator HandMove(int posIndex)
+    {
+        float oneFlameTime = 0.02f;
+        bool fadeStart = false;
+        float moveSpeed = 0.0f;
+        float handColAlpha = 1.0f;
+        handIma.color = new Color(1, 1, 1, handColAlpha);
+
+        while (hand.activeSelf)
+        {
+            if (!fadeStart)
+            {
+                moveSpeed += oneFlameTime * 1.5f;
+                handTra.anchoredPosition = Vector3.Lerp(handStartPos[posIndex], handEndPos[posIndex], moveSpeed);
+                if (posIndex == 0)
+                {
+                    if (handTra.anchoredPosition.y <= handEndPos[posIndex].y)
+                        fadeStart = true;
+                }
+                else
+                {
+                    if (handTra.anchoredPosition.x <= handEndPos[posIndex].x)
+                        fadeStart = true;
+                }
+            }
+            else
+            {
+                handColAlpha -= oneFlameTime * 2.5f;
+                handIma.color = new Color(1, 1, 1, handColAlpha);
+                if (handColAlpha <= 0.0f)
+                {
+                    fadeStart = false;
+                    moveSpeed = 0.0f;
+                    handColAlpha = 1.0f;
+                    handIma.color = new Color(1, 1, 1, handColAlpha);
+                    handTra.anchoredPosition = handStartPos[posIndex];
+                }
+            }
+            yield return new WaitForSecondsRealtime(oneFlameTime);
+        }
+        handIma.color = new Color(1, 1, 1, 1);
     }
 
     //テキスト表示
@@ -185,9 +235,7 @@ public class TutorialController : MonoBehaviour
         textColAlpha[0] = 1.0f;
         textDestroy = true;
         StartCoroutine(TextFade());
-        waiting = true;
         yield return new WaitWhile(() => textDestroy == true);
-        waiting = false;
         if (textObj != null) Destroy(textObj);
     }
 
@@ -199,7 +247,7 @@ public class TutorialController : MonoBehaviour
         {
             if (textDestroy)
             {
-                textColAlpha[0] -= oneFlameTime * 2;
+                textColAlpha[0] -= oneFlameTime * 2.5f;
                 if (textObj != null) textText.color = new Color(0, 0, 0, textColAlpha[0]);
                 if (textColAlpha[0] <= 0.0f)
                 {
@@ -209,7 +257,7 @@ public class TutorialController : MonoBehaviour
             }
             if (textDisplay)
             {
-                textColAlpha[1] += oneFlameTime * 2;
+                textColAlpha[1] += oneFlameTime * 2.5f;
                 if (textObj != null) textText.color = new Color(0, 0, 0, textColAlpha[1]);
                 if (textColAlpha[1] >= 1.0f)
                 {
@@ -225,7 +273,6 @@ public class TutorialController : MonoBehaviour
     public void FilterDisplay(int filterIndex)
     {
         filter[filterIndex].SetActive(true);
-        StartCoroutine(DescriptionStart());
     }
     //フィルター消去
     public void FilterDestroy(int filterIndex)
@@ -278,6 +325,7 @@ public class TutorialController : MonoBehaviour
         description = false;
         StartCoroutine(TextDestroy(false));
         yield return new WaitWhile(() => textDestroy == true);
+        StartCoroutine(DescriptionStart());
         TimeScaleChange(0.0f);
         FilterDestroy(filterIndex - 1);
         FilterDisplay(filterIndex);
