@@ -143,7 +143,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 2e1cb2df74eb7824ea0fdd3774a9c7a0, type: 3}
-    m_FontSize: 55
+    m_FontSize: 54
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
@@ -154,7 +154,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u6A2A\u306B\u4E00\u5217\u63C3\u3063\u305F\u3068\u304D\u306F\u30BF\u30FC\u30F3\u6570\u304C1\u30BF\u30FC\u30F3\u56DE\u5FA9\u3059\u308B\u3088\uFF61\n\u7A4D\u6975\u7684\u306B\u72D9\u3063\u3066\u3044\u3053\u3046!!"
+  m_Text: "\u540C\u69D8\u306B\u6A2A\u4E00\u5217\u3067\u63C3\u3063\u305F\u3068\u304D\u306F\u30BF\u30FC\u30F3\u6570\u304C1\u30BF\u30FC\u30F3\u56DE\u5FA9\u3059\u308B\u3093\u3060\uFF61\n\u7A4D\u6975\u7684\u306B\u72D9\u3063\u3066\u3044\u3053\u3046!!"
 --- !u!1 &4118035385013307485
 GameObject:
   m_ObjectHideFlags: 0

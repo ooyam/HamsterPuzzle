@@ -21,7 +21,6 @@ public class TurnController : MonoBehaviour
     private Image hamsterImage;       //ハムスターの表情
     private int imageNum = 3;         //Imegeの個数
     private int nowTurn;              //残りターン数
-    private bool startDisplay = true; //初期表示？
     [System.NonSerialized]
     public bool effectStart = false;  //ゲームオーバーエフェクト開始
 
@@ -38,16 +37,15 @@ public class TurnController : MonoBehaviour
             numberImage[i] = tra.GetChild(i).gameObject.GetComponent<Image>();
         }
         hamsterImage = GameObject.FindWithTag("HamsterFace").GetComponent<Image>();
-        TurnCalculation();
+        TurnCalculation(false);
         HamsterSpriteChange(-1);
     }
 
     //ターン計算
-    public void TurnCalculation()
+    public void TurnCalculation(bool reduceTurn)
     {
         int ten = 10;
-        if (!startDisplay) nowTurn--;
-        else startDisplay = false;
+        if (reduceTurn) nowTurn--;
         if (nowTurn < ten)
         {
             numberImage[0].sprite = numbers[nowTurn];
@@ -69,6 +67,14 @@ public class TurnController : MonoBehaviour
         }
         HamsterSpriteChange(-1);
     }
+
+    //ターン回復
+    public void TurnRecovery()
+    {
+        nowTurn++;
+        TurnCalculation(false);
+    }
+
     //ハムスタースプライトチェンジ
     public void HamsterSpriteChange(int spriteIndex)
     {

@@ -251,13 +251,51 @@ public class PanelManager : MonoBehaviour
         for (int i = 0; i < PanelNum; i++)
         { HarvestDecision(i, false); }
 
+        int harvestIndexCount = HarvestIndex.Count;
+        bool reduceTurn = true;
+        //体力回復判定(縦一列)
+        if (harvestIndexCount >= PanelLines)
+        {
+            for (int a = 0; a < PanelColumns; a++)
+            {
+                string panelTag = PanelListTag[a];
+                for (int i = 0; i < PanelLines; i++)
+                {
+                    if (!(HarvestIndex.Contains(i * PanelColumns + a) && panelTag == PanelListTag[i * PanelColumns + a]))
+                        break;
+                    else if (i == PanelLines - 1)
+                        calGauge.VegetableHarvest(true);
+                }
+            }
+
+            //ターン回復判定(横一列)
+            if (harvestIndexCount >= PanelColumns)
+            {
+                for (int b = 0; b < PanelLines; b++)
+                {
+                    int posNum = PanelColumns * b;
+                    string panelTag = PanelListTag[posNum];
+                    for (int i = 0; i < PanelColumns; i++)
+                    {
+                        if (!(HarvestIndex.Contains(posNum + i) && panelTag == PanelListTag[posNum + i]))
+                            break;
+                        else if (i == PanelColumns - 1)
+                        {
+                            reduceTurn = false;
+                            TurnCon.TurnRecovery();
+                        }
+                    }
+                }
+            }
+        }
+
         if (HamsterPosChange)
         {
-            TurnCon.TurnCalculation();
+            TurnCon.TurnCalculation(reduceTurn);
             HamsterPosChange = false;
         }
 
-        if (HarvestIndex.Count > 0)
+        if (harvestIndexCount > 0)
         {
             if (calorieZero) calorieZero = false;
             HamsterPanelScr.Harvest = true;
@@ -433,7 +471,7 @@ public class PanelManager : MonoBehaviour
     public void HarvestComplete(string VegetableTag)
     {
         HarvestCompNum++;
-        calGauge.VegetableHarvest();
+        calGauge.VegetableHarvest(false);
         ScoreMan.HarvestVegetable(VegetableTag);
         if (HarvestCompNum == HarvestIndex.Count)
         {
@@ -483,7 +521,6 @@ public class PanelManager : MonoBehaviour
         {
             calorieZero = true;
             HamsterPanelScr.ReleasePanel();
-            HamsterRelease();
         }
     }
 }

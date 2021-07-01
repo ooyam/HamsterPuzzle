@@ -32,9 +32,15 @@ public class CalorieGauge : MonoBehaviour
     }
 
     //野菜収穫時
-    public void VegetableHarvest()
+    public void VegetableHarvest(bool calRecovery)
     {
-        if (remainingCalorie < maxCalorie) remainingCalorie++;
+        if (calRecovery)
+        {
+            remainingCalorie += 10;
+            if (remainingCalorie > maxCalorie)
+                remainingCalorie = maxCalorie;
+        }
+        else if (remainingCalorie < maxCalorie) remainingCalorie++;
         spriteTra.localRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
         sliderGauge.value = remainingCalorie;
     }
