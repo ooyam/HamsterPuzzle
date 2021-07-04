@@ -10,9 +10,16 @@ public class GameClearGraphic : MonoBehaviour
     private Vector2 startScale = new Vector2(0.0f, 0.0f);
     private bool moveEnd = false;
 
+    private GameObject soundManObj; //SoundManager
+    private SoundManager soundMan;  //SoundManager
+
     void OnEnable()
     {
-        if (tra == null) tra = GetComponent<RectTransform>();
+        tra = GetComponent<RectTransform>();
+        soundManObj = GameObject.FindWithTag("SoundManager");
+        soundMan = soundManObj.GetComponent<SoundManager>();
+        soundMan.BGM_Stop();
+        soundMan.GameClearSE();
         tra.localScale = startScale;
         moveSpeed = 0.0f;
         moveEnd = false;
@@ -35,8 +42,9 @@ public class GameClearGraphic : MonoBehaviour
 
     IEnumerator ResultScreenDisplay()
     {
-        float waitTime = 1.0f;
+        float waitTime = 3.0f;
         yield return new WaitForSeconds(waitTime);
+        Destroy(soundManObj);
         SceneNavigator.Instance.Change("TitleScene", 1.0f);
     }
 }

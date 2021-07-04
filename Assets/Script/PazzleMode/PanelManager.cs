@@ -22,6 +22,7 @@ public class PanelManager : MonoBehaviour
     private CalorieGauge calGauge;   //カロリーゲージ
     private TurnController TurnCon;  //TurnController取得
     private ScoreManager ScoreMan;   //ScoreManager取得
+    private SoundManager SoundMan;   //SoundManager
 
     private Camera CameraMain;             //メインカメラの取得
     private float ScreenWidth = 1080.0f;   //画面幅
@@ -72,6 +73,7 @@ public class PanelManager : MonoBehaviour
         TurnCon = GameObject.FindWithTag("Turn").GetComponent<TurnController>();
         ScoreMan = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager>();
         calGauge = GameObject.FindWithTag("CalorieGauge").GetComponent<CalorieGauge>();
+        SoundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
         PanelNum = PanelLines * PanelColumns;
         PanelList = new GameObject[PanelNum];
         PanelListTag = new string[PanelNum];
@@ -115,6 +117,12 @@ public class PanelManager : MonoBehaviour
     {
         if (FirstGaneration)
         {
+            int bgmIndex = 0;
+            int stageNum = PuzzleMainController.stageNum;
+            if (stageNum >= 3 && stageNum <= 6) bgmIndex = 1;
+            else if (stageNum >= 7 && stageNum <= 8) bgmIndex = 2;
+            StartCoroutine(SoundMan.BGM_Start(bgmIndex));
+
             float PosX = ScreenWidth / PanelColumns;
             float PosFixX = PosX * 2.5f;
             float PosY = (ScreenHight / PanelLines) * 0.45f;
@@ -252,7 +260,8 @@ public class PanelManager : MonoBehaviour
         { HarvestDecision(i, false); }
 
         int harvestIndexCount = HarvestIndex.Count;
-        bool reduceTurn = true;
+        bool strengthRecovery = false;
+        bool turnRecovery = false;
         //体力回復判定(縦一列)
         if (harvestIndexCount >= PanelLines)
         {
@@ -264,7 +273,10 @@ public class PanelManager : MonoBehaviour
                     if (!(HarvestIndex.Contains(i * PanelColumns + a) && panelTag == PanelListTag[i * PanelColumns + a]))
                         break;
                     else if (i == PanelLines - 1)
+                    {
                         calGauge.VegetableHarvest(true);
+                        strengthRecovery = true;
+                    }
                 }
             }
 
@@ -281,7 +293,7 @@ public class PanelManager : MonoBehaviour
                             break;
                         else if (i == PanelColumns - 1)
                         {
-                            reduceTurn = false;
+                            turnRecovery = true;
                             TurnCon.TurnRecovery();
                         }
                     }
@@ -291,12 +303,15 @@ public class PanelManager : MonoBehaviour
 
         if (HamsterPosChange)
         {
-            TurnCon.TurnCalculation(reduceTurn);
+            TurnCon.TurnCalculation(!turnRecovery);
             HamsterPosChange = false;
         }
 
         if (harvestIndexCount > 0)
         {
+            if (!turnRecovery && !strengthRecovery) SoundMan.HarvestSE(0);
+            if (turnRecovery) SoundMan.HarvestSE(1);
+            if (strengthRecovery) SoundMan.HarvestSE(2);
             if (calorieZero) calorieZero = false;
             HamsterPanelScr.Harvest = true;
             TurnCon.HamsterSpriteChange(3);
@@ -473,6 +488,7 @@ public class PanelManager : MonoBehaviour
         HarvestCompNum++;
         calGauge.VegetableHarvest(false);
         ScoreMan.HarvestVegetable(VegetableTag);
+        SoundMan.EatSE();
         if (HarvestCompNum == HarvestIndex.Count)
         {
             if(gameClear)
@@ -502,6 +518,7 @@ public class PanelManager : MonoBehaviour
     {
         HamsterPosChange = true;
         NowHamsterPosIndex = HamsterPanelScr.HamPosNum;
+        SoundMan.PanelChangeSE();
 
         PanelListScr[ReferencePosNumber].PanelPosChange(NowHamsterPosIndex);
         PanelListTra[ReferencePosNumber].anchoredPosition = PanelPosList[NowHamsterPosIndex];

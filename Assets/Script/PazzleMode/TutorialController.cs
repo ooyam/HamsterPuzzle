@@ -35,6 +35,7 @@ public class TutorialController : MonoBehaviour
 
     private HamsterPanelController HamsterCon;   //ハムスターパネルスクリプト
     private PanelManager PanelMan;               //PanelManger
+    private SoundManager SoundMan;               //SoundManager
     [System.NonSerialized]
     public int tupNum = 0;               //タップ回数
     private bool waiting = false;        //待機中？
@@ -59,6 +60,7 @@ public class TutorialController : MonoBehaviour
     void Start()
     {
         PanelMan = GameObject.FindWithTag("PanelManager").GetComponent<PanelManager>();
+        SoundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
         frontBoxTra = frontBoxObj.transform;
         handTra = hand.GetComponent<RectTransform>();
         handIma = hand.GetComponent<Image>();
@@ -86,6 +88,7 @@ public class TutorialController : MonoBehaviour
         switch (descriptionNum)
         {
             case 1:
+                SoundMan.YesTapSE();
                 frontBoxObj.SetActive(false);
                 FilterDisplay(0);
                 StartCoroutine(TextDestroy(true));
@@ -100,11 +103,13 @@ public class TutorialController : MonoBehaviour
                 break;
             case 2:
             case 6:
+                SoundMan.YesTapSE();
                 HamsterCon.description = false;
                 hand.SetActive(false);
                 description = true;
                 break;
             case 3:
+                SoundMan.YesTapSE();
                 TimeScaleChange(1.0f);
                 FilterDestroy(1);
                 StartCoroutine(TextDestroy(false));
@@ -113,6 +118,7 @@ public class TutorialController : MonoBehaviour
                 description = true;
                 break;
             case 4:
+                SoundMan.YesTapSE();
                 calGaugeTra.SetParent(statusBoardTra, true);
                 turnTra.SetParent(frontBoxTra, true);
                 handTra.anchoredPosition = handDesPos[1];
@@ -124,6 +130,7 @@ public class TutorialController : MonoBehaviour
                 yield return new WaitWhile(() => textDisplay == true);
                 break;
             case 5:
+                SoundMan.YesTapSE();
                 turnTra.SetParent(statusBoardTra, true);
                 hand.SetActive(true);
                 handTra.anchoredPosition = handStartPos[1];
@@ -139,6 +146,7 @@ public class TutorialController : MonoBehaviour
                 yield return new WaitWhile(() => textDisplay == true);
                 break;
             case 7:
+                SoundMan.YesTapSE();
                 StartCoroutine(TextDestroy(false));
                 yield return new WaitWhile(() => textDestroy == true);
                 StartCoroutine(DescriptionStart());
@@ -146,6 +154,7 @@ public class TutorialController : MonoBehaviour
                 yield return new WaitWhile(() => textDisplay == true);
                 break;
             case 8:
+                SoundMan.YesTapSE();
                 TimeScaleChange(1.0f);
                 FilterDestroy(3);
                 StartCoroutine(TextDestroy(false));
@@ -154,6 +163,7 @@ public class TutorialController : MonoBehaviour
                 description = true;
                 break;
             case 9:
+                SoundMan.YesTapSE();
                 StartCoroutine(DescriptionStart());
                 StartCoroutine(TextDestroy(false));
                 yield return new WaitWhile(() => textDestroy == true);
@@ -161,6 +171,7 @@ public class TutorialController : MonoBehaviour
                 yield return new WaitWhile(() => textDisplay == true);
                 break;
             case 10:
+                SoundMan.YesTapSE();
                 targetTra.SetParent(statusBoardTra, true);
                 harvestTra.SetParent(statusBoardTra, true);
                 HamsterCon.tutorial = false;

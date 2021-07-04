@@ -9,11 +9,18 @@ public class GameOverGraphic : MonoBehaviour
     private Vector2 startPos = new Vector2(0.0f, 1700.0f);
     private Vector2 endPos = Vector2.zero;
     private bool moveEnd = false;
-    private GameObject resultScreen; 
+    private GameObject resultScreen;
+
+    private GameObject soundManObj; //SoundManager
+    private SoundManager soundMan;  //SoundManager
 
     void OnEnable()
     {
-        if (tra == null) tra = GetComponent<RectTransform>();
+        tra = GetComponent<RectTransform>();
+        soundManObj = GameObject.FindWithTag("SoundManager");
+        soundMan = soundManObj.GetComponent<SoundManager>();
+        soundMan.BGM_Stop();
+        soundMan.GameOverSE(0);
         tra.anchoredPosition = startPos;
         moveEnd = false;
     }
@@ -32,6 +39,7 @@ public class GameOverGraphic : MonoBehaviour
             tra.anchoredPosition = Vector2.MoveTowards(tra.anchoredPosition, endPos, speed);
             if (tra.anchoredPosition.y <= endPos.y)
             {
+                soundMan.GameOverSE(1);
                 moveEnd = true;
                 StartCoroutine(ResultScreenDisplay());
             }

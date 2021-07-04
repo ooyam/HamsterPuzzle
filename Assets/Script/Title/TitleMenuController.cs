@@ -22,6 +22,8 @@ public class TitleMenuController : MonoBehaviour
     [Header("選択画面に戻るボタン")]
     public GameObject selectBuckObject;
     private Button selectBackButton;
+    [Header("SoundManager")]
+    public SoundManager soundMan;
 
     // Start is called before the first frame update
     void Start()
@@ -60,6 +62,7 @@ public class TitleMenuController : MonoBehaviour
 
     void OnClickGameStart(TargetVegetable[] targetVeg, int vegetableNum, int[] targetNum, int turnNum, int stageNum)
     {
+        soundMan.YesTapSE();
         SceneNavigator.Instance.Change("PuzzleMode", 0.5f);
 
         PuzzleMainController.tartgetVeg = new PuzzleMainController.TargetVegetable[vegetableNum];
@@ -71,6 +74,7 @@ public class TitleMenuController : MonoBehaviour
         }
         PuzzleMainController.vegetableNum = vegetableNum;
         PuzzleMainController.turnNum = turnNum;
+        PuzzleMainController.stageNum = stageNum;
         PuzzleMainController.tutorial = (stageNum == 0) ? true : false;
     }
     void OnClickSelectMode(bool selectMode)
@@ -81,5 +85,7 @@ public class TitleMenuController : MonoBehaviour
             ButtonObj.SetActive(selectMode);
         }
         selectBuckObject.SetActive(selectMode);
+        if(selectMode) soundMan.YesTapSE();
+        else soundMan.NoTapSE();
     }
 }
