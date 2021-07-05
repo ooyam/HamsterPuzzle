@@ -3058,6 +3058,10 @@ MonoBehaviour:
   - {fileID: 5091473874560304164, guid: 22aea4fa03462804f9cc5e7768c9efe6, type: 3}
   HamsterPanelPre: {fileID: 6058738892298119553, guid: afe7b91794faf2243a88deabce436385,
     type: 3}
+  ColumnEffect: {fileID: 307844931565147153, guid: 310a3ccf185aa4c45ad639a95545be95,
+    type: 3}
+  LineEffect: {fileID: 6061719638682723820, guid: a430e48c3eae4ec4a9af897227c55b85,
+    type: 3}
   tutorialObj: {fileID: 1882428073}
 --- !u!4 &727303722
 Transform:

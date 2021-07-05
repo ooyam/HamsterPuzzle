@@ -1805,8 +1805,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: ccb1c9d6001d7874e80ca3e6a8a49619, type: 3}
   - {fileID: 8300000, guid: bea3f492cb1e03244bbe8331e028ffad, type: 3}
   gameClear: {fileID: 8300000, guid: 90cb69eee359ddc41b26b3de4c730589, type: 3}
-  audio_SE: {fileID: 1013144071}
-  audio_BGM: {fileID: 1654237246}
 --- !u!4 &1013144073
 Transform:
   m_ObjectHideFlags: 0

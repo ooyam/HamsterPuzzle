@@ -15,6 +15,9 @@ public class PanelManager : MonoBehaviour
     private int VegetableTypeNum;
     [Header("ハムスターパネルの取得")]
     public GameObject HamsterPanelPre;
+    [Header("エフェクト取得")]
+    public GameObject ColumnEffect;
+    public GameObject LineEffect;
     [Header("チュートリアル")]
     public GameObject tutorialObj;
     private TutorialController tutorialCon;
@@ -262,6 +265,8 @@ public class PanelManager : MonoBehaviour
         int harvestIndexCount = HarvestIndex.Count;
         bool strengthRecovery = false;
         bool turnRecovery = false;
+        List<int> strEffPanel = new List<int>();
+        List<int> turEffPanel = new List<int>();
         //体力回復判定(縦一列)
         if (harvestIndexCount >= PanelLines)
         {
@@ -274,6 +279,10 @@ public class PanelManager : MonoBehaviour
                         break;
                     else if (i == PanelLines - 1)
                     {
+                        for (int ii = 0; ii < PanelLines; ii++)
+                        {
+                            strEffPanel.Add(ii * PanelColumns + a);
+                        }
                         calGauge.VegetableHarvest(true);
                         strengthRecovery = true;
                     }
@@ -293,6 +302,10 @@ public class PanelManager : MonoBehaviour
                             break;
                         else if (i == PanelColumns - 1)
                         {
+                            for (int ii = 0; ii < PanelColumns; ii++)
+                            {
+                                turEffPanel.Add(posNum + ii);
+                            }
                             turnRecovery = true;
                             TurnCon.TurnRecovery();
                         }
@@ -310,8 +323,9 @@ public class PanelManager : MonoBehaviour
         if (harvestIndexCount > 0)
         {
             if (!turnRecovery && !strengthRecovery) SoundMan.HarvestSE(0);
-            if (turnRecovery) SoundMan.HarvestSE(1);
-            if (strengthRecovery) SoundMan.HarvestSE(2);
+            if (turnRecovery) EffectDisplay(new List<int>(turEffPanel), ColumnEffect, 1);
+            if (strengthRecovery) EffectDisplay(new List<int>(strEffPanel), LineEffect, 2);
+
             if (calorieZero) calorieZero = false;
             HamsterPanelScr.Harvest = true;
             TurnCon.HamsterSpriteChange(3);
@@ -331,6 +345,18 @@ public class PanelManager : MonoBehaviour
             PanelListTra[i].SetSiblingIndex(PanelNum - 1);
             PanelListScr[i].Harvest();
         }
+    }
+    //エフェクト出力
+    private void EffectDisplay(List<int> referenceList, GameObject effect, int seIndex)
+    {
+        foreach (int panelIndex in referenceList)
+        {
+            GameObject effObj = Instantiate(effect);
+            RectTransform effTra = effObj.GetComponent<RectTransform>();
+            effTra.SetParent(PabnelBoxTra, false);
+            effTra.anchoredPosition = PanelPosList[panelIndex];
+        }
+        SoundMan.HarvestSE(seIndex);
     }
 
     //収穫判定
