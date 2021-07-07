@@ -103,6 +103,7 @@ public class PanelManager : MonoBehaviour
             RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
             if (hit2d)
             {
+                Debug.Log("change");
                 Transform hit2dTra = hit2d.transform;
                 if (hit2dTra.gameObject.tag == Broccoli ||
                     hit2dTra.gameObject.tag == Cabbage ||
@@ -558,7 +559,7 @@ public class PanelManager : MonoBehaviour
         PanelListScr[ReferencePosNumber] = null;
 
         HamsterPanelScr.PanelPosChange(ReferencePosNumber);
-        HamsterPanelTra.anchoredPosition = PanelPosList[ReferencePosNumber];
+        //HamsterPanelTra.anchoredPosition = PanelPosList[ReferencePosNumber];
 
         if (calGauge.HamsterMoved())
         {
