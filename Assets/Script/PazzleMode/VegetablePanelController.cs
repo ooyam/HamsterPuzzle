@@ -14,6 +14,7 @@ public class VegetablePanelController : MonoBehaviour
 
     private RectTransform Tra;  //RectTransform取得
     private Image Ima;          //Image取得
+    private BoxCollider2D Coll; //Collider取得
     [System.NonSerialized]
     public int VegPosNum;               //自身の位置番号
     private bool HarvestStart;          //収穫開始？
@@ -29,6 +30,7 @@ public class VegetablePanelController : MonoBehaviour
         PanelManagerScr = GameObject.FindWithTag("PanelManager").GetComponent<PanelManager>();
         Tra = GetComponent<RectTransform>();
         Ima = GetComponent<Image>();
+        Coll = GetComponent<BoxCollider2D>();
         Tra.rotation = Quaternion.Euler(0.0f, 270.0f, 0.0f);
         yield return null;
         GameObject HamsterObj = GameObject.FindWithTag("Hamster");
@@ -37,9 +39,15 @@ public class VegetablePanelController : MonoBehaviour
     }
 
     //パネル位置変更
-    public void PanelPosChange(int panelPosNum)
+    public IEnumerator PanelPosChange(int panelPosNum)
     {
         VegPosNum = panelPosNum;
+        if (Coll != null)
+        {
+            Coll.enabled = false;
+            yield return null;
+            Coll.enabled = true;
+        }
     }
 
     //収穫

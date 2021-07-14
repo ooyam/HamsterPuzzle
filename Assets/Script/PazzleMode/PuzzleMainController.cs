@@ -25,15 +25,7 @@ public class PuzzleMainController : MonoBehaviour
     public static PuzzleMainController instance = null;
     void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(this.gameObject);
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
+        instance = this;
 
         resultScreenObj = Instantiate(resultScreenPre);
         resultScreenObj.SetActive(false);

@@ -103,7 +103,6 @@ public class PanelManager : MonoBehaviour
             RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
             if (hit2d)
             {
-                Debug.Log("change");
                 Transform hit2dTra = hit2d.transform;
                 if (hit2dTra.gameObject.tag == Broccoli ||
                     hit2dTra.gameObject.tag == Cabbage ||
@@ -249,7 +248,7 @@ public class PanelManager : MonoBehaviour
             PanelListTra[posIndex].position = PanelPosList[posIndex];
             PanelListTra[posIndex].SetParent(PabnelBoxTra, false);
             PanelListScr[posIndex] = PanelList[posIndex].GetComponent<VegetablePanelController>();
-            PanelListScr[posIndex].PanelPosChange(posIndex);
+            StartCoroutine(PanelListScr[posIndex].PanelPosChange(posIndex));
         }
     }
 
@@ -547,7 +546,7 @@ public class PanelManager : MonoBehaviour
         NowHamsterPosIndex = HamsterPanelScr.HamPosNum;
         SoundMan.PanelChangeSE();
 
-        PanelListScr[ReferencePosNumber].PanelPosChange(NowHamsterPosIndex);
+        StartCoroutine(PanelListScr[ReferencePosNumber].PanelPosChange(NowHamsterPosIndex));
         PanelListTra[ReferencePosNumber].anchoredPosition = PanelPosList[NowHamsterPosIndex];
         PanelList[NowHamsterPosIndex] = PanelList[ReferencePosNumber];
         PanelListTag[NowHamsterPosIndex] = PanelListTag[ReferencePosNumber];

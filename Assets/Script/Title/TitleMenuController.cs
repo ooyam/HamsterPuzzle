@@ -24,10 +24,16 @@ public class TitleMenuController : MonoBehaviour
     private Button selectBackButton;
     [Header("SoundManager")]
     public SoundManager soundMan;
+    private SaveDataManager saveMan;
+
+    private int displayStageNum;  //表示するステージ番号
 
     // Start is called before the first frame update
     void Start()
     {
+        saveMan = GameObject.FindWithTag("SaveDataManager").GetComponent<SaveDataManager>();
+        saveMan.PuzzleModeLoadData();
+        displayStageNum = saveMan.puzzelModeStageNum;
         pouzzleModeButton = pouzzleModeObject.GetComponent<Button>();
         selectBackButton = selectBuckObject.GetComponent<Button>();
         pouzzleStageButton = new Button[pouzzleStageObject.Length];
@@ -80,9 +86,12 @@ public class TitleMenuController : MonoBehaviour
     void OnClickSelectMode(bool selectMode)
     {
         pouzzleModeObject.SetActive(!selectMode);
-        foreach (var ButtonObj in pouzzleStageObject)
+        displayStageNum = (displayStageNum == 0) ? 1 : displayStageNum;
+        int stageTotal = pouzzleStageObject.Length;
+        int loopTimes = (displayStageNum >= stageTotal) ? stageTotal : displayStageNum;
+        for (int i = 0; i < loopTimes + 1; i++)
         {
-            ButtonObj.SetActive(selectMode);
+            pouzzleStageObject[i].SetActive(selectMode);
         }
         selectBuckObject.SetActive(selectMode);
         if(selectMode) soundMan.YesTapSE();

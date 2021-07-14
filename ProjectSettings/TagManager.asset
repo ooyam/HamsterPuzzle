@@ -18,6 +18,7 @@ TagManager:
   - CalorieGauge
   - Tutorial
   - SoundManager
+  - SaveDataManager
   layers:
   - Default
   - TransparentFX
