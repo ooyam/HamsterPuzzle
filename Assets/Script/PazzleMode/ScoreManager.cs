@@ -27,6 +27,10 @@ public class ScoreManager : MonoBehaviour
     public GameObject cabbageScoreObj;
     public GameObject paprikaScoreObj;
     public GameObject carrotScoreScoreObj;
+    public RectTransform broNumTra;
+    public RectTransform cabNumTra;
+    public RectTransform papNumTra;
+    public RectTransform carNumTra;
 
     private PanelManager PanelMan;  //PanelManager
 
@@ -51,10 +55,10 @@ public class ScoreManager : MonoBehaviour
     {
         PanelMan = GameObject.FindWithTag("PanelManager").GetComponent<PanelManager>();
 
-        Transform broccoliScoreTra = broccoliScoreObj.transform;
-        Transform cabbageScoreTra = cabbageScoreObj.transform;
-        Transform paprikaScoreTra = paprikaScoreObj.transform;
-        Transform carrotScoreScoreTra = carrotScoreScoreObj.transform;
+        broNumTra = broccoliScoreObj.GetComponent<RectTransform>();
+        cabNumTra = cabbageScoreObj.GetComponent<RectTransform>();
+        papNumTra = paprikaScoreObj.GetComponent<RectTransform>();
+        carNumTra = carrotScoreScoreObj.GetComponent<RectTransform>();
 
         broccoliDisNum = new Image[displayDigits];
         cabbageDisNum = new Image[displayDigits];
@@ -62,10 +66,10 @@ public class ScoreManager : MonoBehaviour
         carrotDisNum = new Image[displayDigits];
         for (int i = 0; i < displayDigits; i++)
         {
-            broccoliDisNum[i] = broccoliScoreTra.GetChild(i).gameObject.GetComponent<Image>();
-            cabbageDisNum[i] = cabbageScoreTra.GetChild(i).gameObject.GetComponent<Image>();
-            paprikaDisNum[i] = paprikaScoreTra.GetChild(i).gameObject.GetComponent<Image>();
-            carrotDisNum[i] = carrotScoreScoreTra.GetChild(i).gameObject.GetComponent<Image>();
+            broccoliDisNum[i] = broNumTra.GetChild(i).gameObject.GetComponent<Image>();
+            cabbageDisNum[i] = cabNumTra.GetChild(i).gameObject.GetComponent<Image>();
+            paprikaDisNum[i] = papNumTra.GetChild(i).gameObject.GetComponent<Image>();
+            carrotDisNum[i] = carNumTra.GetChild(i).gameObject.GetComponent<Image>();
         }
 
         vegetableNum = PuzzleMainController.vegetableNum;
@@ -109,9 +113,15 @@ public class ScoreManager : MonoBehaviour
         int ten = 10;
         int digitsNum = 1;
         int vegHarvestNum = referenceNum;
-        if (referenceNum >= ten * ten) digitsNum = 3;
+        float harvestNumPosX = -50.0f;
+        if (referenceNum >= ten * ten)
+        {
+            harvestNumPosX = 0.0f;
+            digitsNum = 3;
+        }
         else if (referenceNum >= ten)
         {
+            harvestNumPosX /= 2.0f;
             digitsNum = 2;
             updateScore[digitsNum].sprite = Numbers[ten];
         }
@@ -119,6 +129,22 @@ public class ScoreManager : MonoBehaviour
         {
             updateScore[1].sprite = Numbers[ten];
             updateScore[2].sprite = Numbers[ten];
+        }
+
+        switch (referenceVeg)
+        {
+            case TargetVegetable.Broccoli:
+                broNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
+                break;
+            case TargetVegetable.Cabbage:
+                cabNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
+                break;
+            case TargetVegetable.Paprika:
+                papNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
+                break;
+            case TargetVegetable.Carrot:
+                carNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
+                break;
         }
 
         int SpriteIndex = 0;

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 61eb8b679f8a50842ab07b5fe0c05c38
+guid: 5b5338133f4390640b0c92b6f28e0a29
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3810632456591098648
-    second: WhitePanel_0
+      213: 5381979088383969139
+    second: 2593684_0
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -106,22 +106,22 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: WhitePanel_0
+      name: 2593684_0
       rect:
         serializedVersion: 2
-        x: 2054
-        y: 711
-        width: 238
-        height: 238
+        x: 295
+        y: 17
+        width: 251
+        height: 270
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 45, y: 45, z: 45, w: 45}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 813cfa8970612e430800000000000000
-      internalID: 3810632456591098648
+      spriteID: 37705b74771a0ba40800000000000000
+      internalID: 5381979088383969139
       vertices: []
       indices: 
       edges: []
@@ -129,7 +129,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: e67ddf58b9aa86d40b891f7189af645d
+    spriteID: f0f616c9cd1db6d489496f3f6abb1b03
     internalID: 0
     vertices: []
     indices: 

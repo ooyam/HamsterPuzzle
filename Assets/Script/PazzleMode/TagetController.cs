@@ -34,26 +34,13 @@ public class TagetController : MonoBehaviour
             targetVeg[i] = (TargetVegetable)(int)PuzzleMainController.tartgetVeg[i];
         }
 
-        int vegetableMaxNum = 3;
-        Transform Tra = transform;
+        int vegetableMaxNum = 4;
+        RectTransform Tra = GetComponent<RectTransform>();
 
-        float posYFix = 100.0f;
+        float posX = 180.0f;
+        float posXFix = posX + (0.5f * (vegetableNum - 1) * posX);
+        float posY = -20.0f;
         Vector2[] displayPos = new Vector2[vegetableNum];
-        switch (vegetableNum)
-        {
-            case 1:
-                displayPos[0] = Vector2.zero;
-                break;
-            case 2:
-                displayPos[0] = new Vector2(0.0f, posYFix / 2.0f);
-                displayPos[1] = new Vector2(0.0f, -posYFix / 2.0f);
-                break;
-            case 3:
-                displayPos[0] = new Vector2(0.0f, posYFix);
-                displayPos[1] = Vector2.zero;
-                displayPos[2] = new Vector2(0.0f, -posYFix);
-                break;
-        }
         targetObj = new GameObject[vegetableMaxNum];
         RectTransform[] targetTra = new RectTransform[vegetableMaxNum];
         for (int i = 0; i < vegetableMaxNum; i++)
@@ -61,6 +48,7 @@ public class TagetController : MonoBehaviour
             targetObj[i] = Tra.GetChild(i).gameObject;
             if (i <= vegetableNum - 1)
             {
+                displayPos[i] = new Vector2(posX * (i + 1) - posXFix, posY);
                 targetTra[i] = targetObj[i].GetComponent<RectTransform>();
                 targetTra[i].GetChild(0).gameObject.GetComponent<Image>().sprite = vegetables[(int)targetVeg[i]]; //ターゲット指定
                 Transform numbersTra = targetTra[i].GetChild(1).gameObject.transform;
