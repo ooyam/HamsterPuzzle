@@ -61,6 +61,8 @@ public class TitleMenuController : MonoBehaviour
         OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Carrot }, 3, new int[] { 25, 25, 25 }, 10, 7));
         pouzzleStageButton[8].onClick.AddListener(() =>
         OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika }, 1, new int[] { 30 }, 2, 8));
+        pouzzleStageButton[9].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Carrot }, 4, new int[] { 25, 25, 25, 25}, 15, 9));
 
         pouzzleModeButton.onClick.AddListener(() => OnClickSelectMode(true));
         selectBackButton.onClick.AddListener(() => OnClickSelectMode(false));

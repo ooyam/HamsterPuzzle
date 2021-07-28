@@ -54,7 +54,7 @@ public class TutorialController : MonoBehaviour
     private Color[] handColor = new Color[] { new Color(1, 1, 1, 1), new Color(1, 1, 1, 0) };
     //0:体力ゲージ　1:ターン 　2:目標
     private Vector2[] handDesPos = 
-        new Vector2[] { new Vector2(120.0f, 355.0f), new Vector2(475.0f, 500.0f), new Vector2(120.0f, 460.0f) };
+        new Vector2[] { new Vector2(100.0f, -650.0f), new Vector2(475.0f, 580.0f), new Vector2(350.0f, 770.0f) };
 
     // Start is called before the first frame update
     void Start()
@@ -122,6 +122,7 @@ public class TutorialController : MonoBehaviour
                 calGaugeTra.SetParent(statusBoardTra, true);
                 turnTra.SetParent(frontBoxTra, true);
                 handTra.anchoredPosition = handDesPos[1];
+                handTra.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
                 StartCoroutine(DescriptionStart());
                 StartCoroutine(TextDestroy(false));
                 yield return new WaitWhile(() => textDestroy == true);
@@ -311,6 +312,7 @@ public class TutorialController : MonoBehaviour
             frontBoxObj.SetActive(true);
             hand.SetActive(true);
             handTra.anchoredPosition = handDesPos[0];
+            handTra.rotation = Quaternion.Euler(180.0f, 0.0f, 0.0f);
             StartCoroutine(DescriptionStart());
             calGaugeTra.SetParent(frontBoxTra, true);
             ColDescription = true;
@@ -325,6 +327,7 @@ public class TutorialController : MonoBehaviour
             harvestTra.SetParent(frontBoxTra, true);
             hand.SetActive(true);
             handTra.anchoredPosition = handDesPos[2];
+            handTra.rotation = Quaternion.Euler(180.0f, 0.0f, 90.0f);
             StartCoroutine(DescriptionStart());
             TextDisplay(8);
             yield return new WaitWhile(() => textDisplay == true);

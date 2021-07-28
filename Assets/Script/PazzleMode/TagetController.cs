@@ -48,7 +48,6 @@ public class TagetController : MonoBehaviour
             targetObj[i] = Tra.GetChild(i).gameObject;
             if (i <= vegetableNum - 1)
             {
-                displayPos[i] = new Vector2(posX * (i + 1) - posXFix, posY);
                 targetTra[i] = targetObj[i].GetComponent<RectTransform>();
                 targetTra[i].GetChild(0).gameObject.GetComponent<Image>().sprite = vegetables[(int)targetVeg[i]]; //ターゲット指定
                 Transform numbersTra = targetTra[i].GetChild(1).gameObject.transform;
@@ -56,7 +55,12 @@ public class TagetController : MonoBehaviour
                 {
                     numbersTra.GetChild(a).gameObject.GetComponent<Image>().sprite = numbers[TargetNumCalculation(a, targetNum[i])];
                 }
-                targetTra[i].anchoredPosition = displayPos[i];
+
+                if (vegetableNum < vegetableMaxNum)
+                {
+                    displayPos[i] = new Vector2(posX * (i + 1) - posXFix, posY);
+                    targetTra[i].anchoredPosition = displayPos[i];
+                }
             }
             else
                 targetObj[i].SetActive(false);

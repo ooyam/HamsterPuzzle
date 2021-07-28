@@ -542,28 +542,51 @@ public class PanelManager : MonoBehaviour
     //パネル入れ替わり
     private void PanelPosChange(int ReferencePosNumber)
     {
-        HamsterPosChange = true;
         NowHamsterPosIndex = HamsterPanelScr.HamPosNum;
-        SoundMan.PanelChangeSE();
-
-        StartCoroutine(PanelListScr[ReferencePosNumber].PanelPosChange(NowHamsterPosIndex));
-        PanelListTra[ReferencePosNumber].anchoredPosition = PanelPosList[NowHamsterPosIndex];
-        PanelList[NowHamsterPosIndex] = PanelList[ReferencePosNumber];
-        PanelListTag[NowHamsterPosIndex] = PanelListTag[ReferencePosNumber];
-        PanelListTra[NowHamsterPosIndex] = PanelListTra[ReferencePosNumber];
-        PanelListScr[NowHamsterPosIndex] = PanelListScr[ReferencePosNumber];
-        PanelList[ReferencePosNumber] = null;
-        PanelListTag[ReferencePosNumber] = null;
-        PanelListTra[ReferencePosNumber] = null;
-        PanelListScr[ReferencePosNumber] = null;
-
-        HamsterPanelScr.PanelPosChange(ReferencePosNumber);
-        //HamsterPanelTra.anchoredPosition = PanelPosList[ReferencePosNumber];
-
-        if (calGauge.HamsterMoved())
+        if (AdjacentDecision(ReferencePosNumber))
         {
-            calorieZero = true;
-            HamsterPanelScr.ReleasePanel();
+            HamsterPosChange = true;
+            SoundMan.PanelChangeSE();
+
+            StartCoroutine(PanelListScr[ReferencePosNumber].PanelPosChange(NowHamsterPosIndex));
+            PanelListTra[ReferencePosNumber].anchoredPosition = PanelPosList[NowHamsterPosIndex];
+            PanelList[NowHamsterPosIndex] = PanelList[ReferencePosNumber];
+            PanelListTag[NowHamsterPosIndex] = PanelListTag[ReferencePosNumber];
+            PanelListTra[NowHamsterPosIndex] = PanelListTra[ReferencePosNumber];
+            PanelListScr[NowHamsterPosIndex] = PanelListScr[ReferencePosNumber];
+            PanelList[ReferencePosNumber] = null;
+            PanelListTag[ReferencePosNumber] = null;
+            PanelListTra[ReferencePosNumber] = null;
+            PanelListScr[ReferencePosNumber] = null;
+
+            HamsterPanelScr.PanelPosChange(ReferencePosNumber);
+            //HamsterPanelTra.anchoredPosition = PanelPosList[ReferencePosNumber];
+
+            if (calGauge.HamsterMoved())
+            {
+                calorieZero = true;
+                HamsterPanelScr.ReleasePanel();
+            }
         }
+    }
+
+    //隣接判定
+    private bool AdjacentDecision(int referencePosNumber)
+    {
+        int[] adjacentPosNum = new int[8];
+        adjacentPosNum[0] = NowHamsterPosIndex - PanelColumns - 1;
+        adjacentPosNum[1] = NowHamsterPosIndex - PanelColumns;
+        adjacentPosNum[2] = NowHamsterPosIndex - PanelColumns + 1;
+        adjacentPosNum[3] = NowHamsterPosIndex - 1;
+        adjacentPosNum[4] = NowHamsterPosIndex + 1;
+        adjacentPosNum[5] = NowHamsterPosIndex + PanelColumns - 1;
+        adjacentPosNum[6] = NowHamsterPosIndex + PanelColumns;
+        adjacentPosNum[7] = NowHamsterPosIndex + PanelColumns + 1;
+        foreach (int adjacentNum in adjacentPosNum)
+        {
+            if (referencePosNumber == adjacentNum)
+                return true;
+        }
+        return false;
     }
 }
