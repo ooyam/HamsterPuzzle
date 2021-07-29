@@ -19,6 +19,8 @@ TagManager:
   - Tutorial
   - SoundManager
   - SaveDataManager
+  - Corn
+  - Pumpkin
   layers:
   - Default
   - TransparentFX

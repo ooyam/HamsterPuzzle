@@ -9,7 +9,9 @@ public class PuzzleMainController : MonoBehaviour
         Broccoli,
         Cabbage,
         Paprika,
-        Carrot
+        Carrot,
+        Pumpkin,
+        Corn
     }
     public static TargetVegetable[] tartgetVeg; //目標野菜
     public static int vegetableNum;             //目標野菜の個数

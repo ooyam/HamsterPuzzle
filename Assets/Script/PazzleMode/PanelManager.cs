@@ -68,6 +68,10 @@ public class PanelManager : MonoBehaviour
     private string Cabbage = "Cabbage";   //キャベツ
     private string Paprika = "Paprika";   //パプリカ
     private string Carrot = "Carrot";     //ニンジン
+    private string Pumpkin = "Pumpkin";   //カボチャ
+    private string Corn = "Corn";         //トウモロコシ
+
+    private int stageNum = PuzzleMainController.stageNum; //ステージ番号
 
     // Start is called before the first frame update
     void Start()
@@ -84,7 +88,12 @@ public class PanelManager : MonoBehaviour
         PanelPosList = new Vector2[PanelNum];
         PanelPosNum = new int[PanelNum];
         PanelListScr = new VegetablePanelController[PanelNum];
-        VegetableTypeNum = VegetablePanel.Length;
+        if(stageNum >= 13)
+            VegetableTypeNum = 6;
+        else if(stageNum >= 9)
+            VegetableTypeNum = 5;
+        else
+            VegetableTypeNum = 4;
         tutorial = PuzzleMainController.tutorial;
         if (tutorial)
         {
@@ -107,7 +116,9 @@ public class PanelManager : MonoBehaviour
                 if (hit2dTra.gameObject.tag == Broccoli ||
                     hit2dTra.gameObject.tag == Cabbage ||
                     hit2dTra.gameObject.tag == Paprika ||
-                    hit2dTra.gameObject.tag == Carrot)
+                    hit2dTra.gameObject.tag == Carrot ||
+                    hit2dTra.gameObject.tag == Pumpkin ||
+                    hit2dTra.gameObject.tag == Corn)
                 {
                     PanelPosChange(Array.IndexOf(PanelList, hit2dTra.gameObject));
                 }
@@ -121,9 +132,8 @@ public class PanelManager : MonoBehaviour
         if (FirstGaneration)
         {
             int bgmIndex = 0;
-            int stageNum = PuzzleMainController.stageNum;
-            if (stageNum >= 3 && stageNum <= 6) bgmIndex = 1;
-            else if (stageNum >= 7 && stageNum <= 8) bgmIndex = 2;
+            if (stageNum >= 7 && stageNum <= 11) bgmIndex = 1;
+            else if (stageNum >= 12 && stageNum <= 16) bgmIndex = 2;
             StartCoroutine(SoundMan.BGM_Start(bgmIndex));
 
             float PosX = ScreenWidth / PanelColumns;

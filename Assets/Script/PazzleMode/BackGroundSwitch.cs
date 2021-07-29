@@ -18,18 +18,26 @@ public class BackGroundSwitch : MonoBehaviour
             case 0:
             case 1:
             case 2:
-                ima.sprite = backGroundSpr[0];
-                break;
             case 3:
             case 4:
-                ima.sprite = backGroundSpr[1];
+                ima.sprite = backGroundSpr[0];
                 break;
             case 5:
             case 6:
-                ima.sprite = backGroundSpr[2];
-                break;
             case 7:
             case 8:
+                ima.sprite = backGroundSpr[1];
+                break;
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+                ima.sprite = backGroundSpr[2];
+                break;
+            case 13:
+            case 14:
+            case 15:
+            case 16:
                 ima.sprite = backGroundSpr[3];
                 break;
         }

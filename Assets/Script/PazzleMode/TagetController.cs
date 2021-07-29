@@ -10,7 +10,9 @@ public class TagetController : MonoBehaviour
         Broccoli,
         Cabbage,
         Paprika,
-        Carrot
+        Carrot,
+        Pumpkin,
+        Corn
     }
     private TargetVegetable[] targetVeg; //目標野菜(enumである必要はないがenumを配列で使う練習を行ってみた)
     private int vegetableNum;            //目標野菜の個数

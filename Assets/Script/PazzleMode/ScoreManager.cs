@@ -11,7 +11,9 @@ public class ScoreManager : MonoBehaviour
         Broccoli,
         Cabbage,
         Paprika,
-        Carrot
+        Carrot,
+        Pumpkin,
+        Corn
     }
     private TargetVegetable[] targetVeg; //目標野菜(enumである必要はないがenumを配列で使う練習を行ってみたた)
     private int vegetableNum;            //目標野菜の個数
@@ -27,10 +29,14 @@ public class ScoreManager : MonoBehaviour
     public GameObject cabbageScoreObj;
     public GameObject paprikaScoreObj;
     public GameObject carrotScoreScoreObj;
+    public GameObject pumpkinScoreObj;
+    public GameObject cornScoreScoreObj;
     public RectTransform broNumTra;
     public RectTransform cabNumTra;
     public RectTransform papNumTra;
     public RectTransform carNumTra;
+    public RectTransform pumNumTra;
+    public RectTransform corNumTra;
 
     private PanelManager PanelMan;  //PanelManager
 
@@ -39,16 +45,22 @@ public class ScoreManager : MonoBehaviour
     private Image[] cabbageDisNum;  //キャベツ
     private Image[] paprikaDisNum;  //パプリカ
     private Image[] carrotDisNum;   //ニンジン
+    private Image[] pumpkinDisNum;  //カボチャ
+    private Image[] cornDisNum;     //トウモロコシ
 
     private int broccoliScore = 0;  //ブロッコリー収穫個数
     private int cabbageScore = 0;   //キャベツ
     private int paprikaScore = 0;   //パプリカ
     private int carrotScore = 0;    //ニンジン
+    private int pumpkinScore = 0;   //カボチャ
+    private int cornScore = 0;      //トウモロコシ
 
     private const string broccoli = "Broccoli"; //ブロッコリー
     private const string cabbage = "Cabbage";   //キャベツ
     private const string paprika = "Paprika";   //パプリカ
     private const string carrot = "Carrot";     //ニンジン
+    private const string pumpkin = "Pumpkin";   //カボチャ
+    private const string corn = "Corn";         //トウモロコシ
 
     // Start is called before the first frame update
     void Start()
@@ -59,17 +71,23 @@ public class ScoreManager : MonoBehaviour
         cabNumTra = cabbageScoreObj.GetComponent<RectTransform>();
         papNumTra = paprikaScoreObj.GetComponent<RectTransform>();
         carNumTra = carrotScoreScoreObj.GetComponent<RectTransform>();
+        pumNumTra = pumpkinScoreObj.GetComponent<RectTransform>();
+        corNumTra = cornScoreScoreObj.GetComponent<RectTransform>();
 
         broccoliDisNum = new Image[displayDigits];
         cabbageDisNum = new Image[displayDigits];
         paprikaDisNum = new Image[displayDigits];
         carrotDisNum = new Image[displayDigits];
+        pumpkinDisNum = new Image[displayDigits];
+        cornDisNum = new Image[displayDigits];
         for (int i = 0; i < displayDigits; i++)
         {
             broccoliDisNum[i] = broNumTra.GetChild(i).gameObject.GetComponent<Image>();
             cabbageDisNum[i] = cabNumTra.GetChild(i).gameObject.GetComponent<Image>();
             paprikaDisNum[i] = papNumTra.GetChild(i).gameObject.GetComponent<Image>();
             carrotDisNum[i] = carNumTra.GetChild(i).gameObject.GetComponent<Image>();
+            pumpkinDisNum[i] = pumNumTra.GetChild(i).gameObject.GetComponent<Image>();
+            cornDisNum[i] = corNumTra.GetChild(i).gameObject.GetComponent<Image>();
         }
 
         vegetableNum = PuzzleMainController.vegetableNum;
@@ -103,6 +121,14 @@ public class ScoreManager : MonoBehaviour
             case carrot:
                 carrotScore++;
                 DigitCalculation(carrotScore, carrotDisNum, TargetVegetable.Carrot);
+                break;
+            case pumpkin:
+                pumpkinScore++;
+                DigitCalculation(pumpkinScore, pumpkinDisNum, TargetVegetable.Pumpkin);
+                break;
+            case corn:
+                cornScore++;
+                DigitCalculation(cornScore, cornDisNum, TargetVegetable.Corn);
                 break;
         }
     }
@@ -144,6 +170,12 @@ public class ScoreManager : MonoBehaviour
                 break;
             case TargetVegetable.Carrot:
                 carNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
+                break;
+            case TargetVegetable.Pumpkin:
+                pumNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
+                break;
+            case TargetVegetable.Corn:
+                corNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
                 break;
         }
 

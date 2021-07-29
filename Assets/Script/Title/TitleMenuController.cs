@@ -11,7 +11,9 @@ public class TitleMenuController : MonoBehaviour
         Broccoli,
         Cabbage,
         Paprika,
-        Carrot
+        Carrot,
+        Pumpkin,
+        Corn
     }
 
     [Header("パズルモード開始ボタン")]
@@ -54,15 +56,29 @@ public class TitleMenuController : MonoBehaviour
         pouzzleStageButton[4].onClick.AddListener(() =>
         OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Paprika, TargetVegetable.Cabbage }, 3, new int[] { 10, 10, 20 }, 15, 4));
         pouzzleStageButton[5].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Paprika, TargetVegetable.Broccoli }, 3, new int[] { 20, 30, 35 }, 18, 5));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Paprika, TargetVegetable.Broccoli }, 3, new int[] { 20, 30, 35 }, 25, 5));
         pouzzleStageButton[6].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot }, 2, new int[] { 20, 20 }, 5, 6));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot }, 2, new int[] { 30, 20 }, 13, 6));
         pouzzleStageButton[7].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Carrot }, 3, new int[] { 25, 25, 25 }, 10, 7));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Carrot }, 3, new int[] { 25, 25, 25 }, 15, 7));
         pouzzleStageButton[8].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika }, 1, new int[] { 30 }, 2, 8));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika }, 1, new int[] { 30 }, 8, 8));
         pouzzleStageButton[9].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Carrot }, 4, new int[] { 25, 25, 25, 25}, 15, 9));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Pumpkin }, 4, new int[] { 25, 25, 25, 25 }, 20, 9));
+        pouzzleStageButton[10].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Cabbage, TargetVegetable.Pumpkin }, 3, new int[] { 10, 10, 10 }, 5, 10));
+        pouzzleStageButton[11].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot }, 2, new int[] { 50, 50 }, 20, 11));
+        pouzzleStageButton[12].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin }, 1, new int[] { 80 }, 30, 12));
+        pouzzleStageButton[13].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Corn, TargetVegetable.Cabbage, TargetVegetable.Paprika }, 4, new int[] { 40, 40, 40, 40 }, 20, 13));
+        pouzzleStageButton[14].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Corn, TargetVegetable.Pumpkin }, 2, new int[] { 20, 20 }, 5, 14));
+        pouzzleStageButton[15].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Broccoli, TargetVegetable.Cabbage, TargetVegetable.Corn }, 4, new int[] { 35, 50, 35, 50 }, 10, 15));
+        pouzzleStageButton[16].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot }, 1, new int[] { 50 }, 2, 16));
 
         pouzzleModeButton.onClick.AddListener(() => OnClickSelectMode(true));
         selectBackButton.onClick.AddListener(() => OnClickSelectMode(false));

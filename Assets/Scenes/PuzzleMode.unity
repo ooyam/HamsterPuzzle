@@ -2122,7 +2122,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &641224534
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2586,6 +2586,8 @@ MonoBehaviour:
   - {fileID: 6845111344150401979, guid: dcfe69224a5c7b44ca0a38642b52bd4d, type: 3}
   - {fileID: 4530750575652551233, guid: 4e98f2fe09397f444a54b6c9a70dd59f, type: 3}
   - {fileID: 5091473874560304164, guid: 22aea4fa03462804f9cc5e7768c9efe6, type: 3}
+  - {fileID: 3497198136560414966, guid: 23c98f494c5efcb45b2b640b9a8e2ee3, type: 3}
+  - {fileID: 6939626711140040615, guid: 21adb55191b48d54e851f6ab1dea9e49, type: 3}
   HamsterPanelPre: {fileID: 6058738892298119553, guid: afe7b91794faf2243a88deabce436385,
     type: 3}
   ColumnEffect: {fileID: 307844931565147153, guid: 310a3ccf185aa4c45ad639a95545be95,
@@ -2652,10 +2654,14 @@ MonoBehaviour:
   cabbageScoreObj: {fileID: 1583833296}
   paprikaScoreObj: {fileID: 354215845}
   carrotScoreScoreObj: {fileID: 834106510}
+  pumpkinScoreObj: {fileID: 0}
+  cornScoreScoreObj: {fileID: 0}
   broNumTra: {fileID: 0}
   cabNumTra: {fileID: 0}
   papNumTra: {fileID: 0}
   carNumTra: {fileID: 0}
+  pumNumTra: {fileID: 0}
+  corNumTra: {fileID: 0}
 --- !u!4 &731367134
 Transform:
   m_ObjectHideFlags: 0

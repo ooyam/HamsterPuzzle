@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class VegetablePanelController : MonoBehaviour
 {
-    [Header("HarvestBox")]
-    public Transform HarvestBoxTra;
-
     private PanelManager PanelManagerScr;      //PanelManager取得
     private RectTransform HamsterTra;          //ハムスターのRectTransform取得
     private HamsterPanelController HamsterScr; //ハムスターのRectTransform取得
