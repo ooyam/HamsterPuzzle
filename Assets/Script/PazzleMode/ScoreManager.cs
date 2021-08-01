@@ -8,90 +8,60 @@ public class ScoreManager : MonoBehaviour
 {
     public enum TargetVegetable
     {
-        Broccoli,
+        Broccoli = 0,
         Cabbage,
         Paprika,
         Carrot,
         Pumpkin,
         Corn
     }
-    private TargetVegetable[] targetVeg; //目標野菜(enumである必要はないがenumを配列で使う練習を行ってみたた)
+    private TargetVegetable[] targetVeg; //目標野菜
     private int vegetableNum;            //目標野菜の個数
     private int[] targetNum;             //種類ごとの目標個数
+    private int stageNum;                //ステージ番号
     private bool[] targetAchievement;    //目標達成？
     private int achievementNum = 0;      //目標達成数
     private bool gameClear = false;      //ゲームクリア
 
+    [Header("PanelManager")]
+    public PanelManager PanelMan;
+    [Header("TagetController")]
+    public TagetController TagetCon;
     [Header("数字のスプライト")]
     public Sprite[] Numbers;
-    [Header("スコア表示オブジェクト")]
-    public GameObject broccoliScoreObj;
-    public GameObject cabbageScoreObj;
-    public GameObject paprikaScoreObj;
-    public GameObject carrotScoreScoreObj;
-    public GameObject pumpkinScoreObj;
-    public GameObject cornScoreScoreObj;
-    public RectTransform broNumTra;
-    public RectTransform cabNumTra;
-    public RectTransform papNumTra;
-    public RectTransform carNumTra;
-    public RectTransform pumNumTra;
-    public RectTransform corNumTra;
+    [Header("スコア表示オブジェクト")]   //0：ブロッコリー　1:キャベツ　2：パプリカ　3:ニンジン　4：カボチャ　5：トウモロコシ
+    public GameObject[] scoreObj;
+    private RectTransform[] scoreObjTra; //オブジェクトRectTransform
+    private RectTransform[] numTra;      //収穫数RectTransform
+    private Image[][] displayNum;        //出力数字
 
-    private PanelManager PanelMan;  //PanelManager
-
-    private int displayDigits = 3;  //表示桁数
-    private Image[] broccoliDisNum; //ブロッコリー数字表示オブジェクト
-    private Image[] cabbageDisNum;  //キャベツ
-    private Image[] paprikaDisNum;  //パプリカ
-    private Image[] carrotDisNum;   //ニンジン
-    private Image[] pumpkinDisNum;  //カボチャ
-    private Image[] cornDisNum;     //トウモロコシ
-
-    private int broccoliScore = 0;  //ブロッコリー収穫個数
-    private int cabbageScore = 0;   //キャベツ
-    private int paprikaScore = 0;   //パプリカ
-    private int carrotScore = 0;    //ニンジン
-    private int pumpkinScore = 0;   //カボチャ
-    private int cornScore = 0;      //トウモロコシ
-
-    private const string broccoli = "Broccoli"; //ブロッコリー
-    private const string cabbage = "Cabbage";   //キャベツ
-    private const string paprika = "Paprika";   //パプリカ
-    private const string carrot = "Carrot";     //ニンジン
-    private const string pumpkin = "Pumpkin";   //カボチャ
-    private const string corn = "Corn";         //トウモロコシ
+    //収穫個数
+    private int[] harvestNum = new int[] { 0, 0, 0, 0, 0, 0 };
+    //収穫種類
+    private string[] harvestVeg = Enum.GetNames(typeof(TargetVegetable));
 
     // Start is called before the first frame update
     void Start()
     {
-        PanelMan = GameObject.FindWithTag("PanelManager").GetComponent<PanelManager>();
-
-        broNumTra = broccoliScoreObj.GetComponent<RectTransform>();
-        cabNumTra = cabbageScoreObj.GetComponent<RectTransform>();
-        papNumTra = paprikaScoreObj.GetComponent<RectTransform>();
-        carNumTra = carrotScoreScoreObj.GetComponent<RectTransform>();
-        pumNumTra = pumpkinScoreObj.GetComponent<RectTransform>();
-        corNumTra = cornScoreScoreObj.GetComponent<RectTransform>();
-
-        broccoliDisNum = new Image[displayDigits];
-        cabbageDisNum = new Image[displayDigits];
-        paprikaDisNum = new Image[displayDigits];
-        carrotDisNum = new Image[displayDigits];
-        pumpkinDisNum = new Image[displayDigits];
-        cornDisNum = new Image[displayDigits];
-        for (int i = 0; i < displayDigits; i++)
+        int vegNum = Enum.GetValues(typeof(TargetVegetable)).Length;
+        scoreObjTra = new RectTransform[vegNum];
+        numTra = new RectTransform[vegNum];
+        int displayDigits = 2;
+        displayNum = new Image[vegNum][];
+        for (int a = 0; a < vegNum; a++)
         {
-            broccoliDisNum[i] = broNumTra.GetChild(i).gameObject.GetComponent<Image>();
-            cabbageDisNum[i] = cabNumTra.GetChild(i).gameObject.GetComponent<Image>();
-            paprikaDisNum[i] = papNumTra.GetChild(i).gameObject.GetComponent<Image>();
-            carrotDisNum[i] = carNumTra.GetChild(i).gameObject.GetComponent<Image>();
-            pumpkinDisNum[i] = pumNumTra.GetChild(i).gameObject.GetComponent<Image>();
-            cornDisNum[i] = corNumTra.GetChild(i).gameObject.GetComponent<Image>();
+            scoreObjTra[a] = scoreObj[a].GetComponent<RectTransform>();
+            numTra[a] = scoreObjTra[a].GetChild(0).gameObject.GetComponent<RectTransform>();
+            displayNum[a] = new Image[displayDigits];
+            for (int b = 0; b < displayDigits; b++)
+            {
+                displayNum[a][b] = numTra[a].GetChild(b).gameObject.GetComponent<Image>();
+            }
         }
 
         vegetableNum = PuzzleMainController.vegetableNum;
         targetNum = PuzzleMainController.targetNum;
+        stageNum = PuzzleMainController.stageNum;
         targetAchievement = new bool[vegetableNum];
         targetVeg = new TargetVegetable[vegetableNum];
         for (int i = 0; i < vegetableNum; i++)
@@ -99,85 +69,82 @@ public class ScoreManager : MonoBehaviour
             targetVeg[i] = (TargetVegetable)(int)PuzzleMainController.tartgetVeg[i];
             targetAchievement[i] = false;
         }
+
+        //収穫数表示場所指定
+        Vector2[] displayPos;
+        float[] posY = new float[] { -65.0f, -200.0f, -120.0f };
+        if (stageNum >= 13)
+        {
+            displayPos = new Vector2[]
+            {
+                new Vector2(-450.0f, posY[0]),
+                new Vector2(-200.0f, posY[0]),
+                new Vector2(35.0f, posY[0]),
+                new Vector2(-380.0f, posY[1]),
+                new Vector2(-130.0f, posY[1]),
+                new Vector2(105.0f, posY[1])
+            };
+        }
+        else if (stageNum >= 9)
+        {
+            displayPos = new Vector2[]
+            {
+                new Vector2(-450.0f, posY[0]),
+                new Vector2(-200.0f, posY[0]),
+                new Vector2(35.0f, posY[0]),
+                new Vector2(-320.0f, posY[1]),
+                new Vector2(-50.0f, posY[1])
+            };
+            scoreObj[5].SetActive(false);
+        }
+        else
+        {
+            displayPos = new Vector2[]
+            {
+                new Vector2(-460.0f, posY[2]),
+                new Vector2(-270.0f, posY[2]),
+                new Vector2(-80.0f, posY[2]),
+                new Vector2(120.0f, posY[2])
+            };
+            scoreObj[4].SetActive(false);
+            scoreObj[5].SetActive(false);
+        }
+
+        int loopTimes = 0;
+        foreach (Vector2 disPos in displayPos)
+        {
+            scoreObjTra[loopTimes].anchoredPosition = disPos;
+            loopTimes++;
+        }
     }
 
     //収穫完了野菜
     public void HarvestVegetable(string VegetableName)
     {
-        switch (VegetableName)
-        {
-            case broccoli:
-                broccoliScore++;
-                DigitCalculation(broccoliScore, broccoliDisNum, TargetVegetable.Broccoli);
-                break;
-            case cabbage:
-                cabbageScore++;
-                DigitCalculation(cabbageScore, cabbageDisNum, TargetVegetable.Cabbage);
-                break;
-            case paprika:
-                paprikaScore++;
-                DigitCalculation(paprikaScore, paprikaDisNum, TargetVegetable.Paprika);
-                break;
-            case carrot:
-                carrotScore++;
-                DigitCalculation(carrotScore, carrotDisNum, TargetVegetable.Carrot);
-                break;
-            case pumpkin:
-                pumpkinScore++;
-                DigitCalculation(pumpkinScore, pumpkinDisNum, TargetVegetable.Pumpkin);
-                break;
-            case corn:
-                cornScore++;
-                DigitCalculation(cornScore, cornDisNum, TargetVegetable.Corn);
-                break;
-        }
+        int VegIndex = Array.IndexOf(harvestVeg, VegetableName);
+        TargetVegetable targetName = (TargetVegetable)Enum.ToObject(typeof(TargetVegetable), VegIndex);
+        harvestNum[VegIndex]++;
+        DigitCalculation(harvestNum[VegIndex], displayNum[VegIndex], targetName);
     }
 
     //スコア表示
     private void DigitCalculation(int referenceNum, Image[] updateScore, TargetVegetable referenceVeg)
     {
         int ten = 10;
-        int digitsNum = 1;
+        int digitsNum = 2;
         int vegHarvestNum = referenceNum;
-        float harvestNumPosX = -50.0f;
+        float harvestNumPosX = 40.0f;
+        float harvestNumPosY = -40.0f;
         if (referenceNum >= ten * ten)
+            referenceNum = 99; //99カンスト
+        else if (referenceNum < ten)
         {
-            harvestNumPosX = 0.0f;
-            digitsNum = 3;
-        }
-        else if (referenceNum >= ten)
-        {
-            harvestNumPosX /= 2.0f;
-            digitsNum = 2;
-            updateScore[digitsNum].sprite = Numbers[ten];
-        }
-        else
-        {
+            harvestNumPosX = -15.0f;
+            digitsNum = 1;
             updateScore[1].sprite = Numbers[ten];
-            updateScore[2].sprite = Numbers[ten];
         }
 
-        switch (referenceVeg)
-        {
-            case TargetVegetable.Broccoli:
-                broNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
-                break;
-            case TargetVegetable.Cabbage:
-                cabNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
-                break;
-            case TargetVegetable.Paprika:
-                papNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
-                break;
-            case TargetVegetable.Carrot:
-                carNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
-                break;
-            case TargetVegetable.Pumpkin:
-                pumNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
-                break;
-            case TargetVegetable.Corn:
-                corNumTra.anchoredPosition = new Vector2(harvestNumPosX, -100.0f);
-                break;
-        }
+        numTra[(int)referenceVeg].anchoredPosition = new Vector2(harvestNumPosX, harvestNumPosY);
 
         int SpriteIndex = 0;
         for (int i = 0; i < digitsNum; i++)
@@ -195,6 +162,7 @@ public class ScoreManager : MonoBehaviour
             {
                 if (!targetAchievement[referenceVegIndex] && targetNum[referenceVegIndex] <= vegHarvestNum)
                 {
+                    TagetCon.TargetAchievement(referenceVegIndex);
                     targetAchievement[referenceVegIndex] = true;
                     achievementNum++;
                 }

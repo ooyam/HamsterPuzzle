@@ -23,7 +23,8 @@ public class TagetController : MonoBehaviour
     [Header("野菜のスプライト")]
     public Sprite[] vegetables;
 
-    private GameObject[] targetObj;  //ターゲットオブジェクト 1～3
+    private GameObject[] targetObj;  //ターゲットオブジェクト 1～4
+    private Image[][] targetNumIma;    //ターゲットイメージ
 
     // Start is called before the first frame update
     void Start()
@@ -44,6 +45,8 @@ public class TagetController : MonoBehaviour
         float posY = -20.0f;
         Vector2[] displayPos = new Vector2[vegetableNum];
         targetObj = new GameObject[vegetableMaxNum];
+        targetNumIma = new Image[vegetableMaxNum][];
+        int displayDigits = 2;
         RectTransform[] targetTra = new RectTransform[vegetableMaxNum];
         for (int i = 0; i < vegetableMaxNum; i++)
         {
@@ -53,9 +56,11 @@ public class TagetController : MonoBehaviour
                 targetTra[i] = targetObj[i].GetComponent<RectTransform>();
                 targetTra[i].GetChild(0).gameObject.GetComponent<Image>().sprite = vegetables[(int)targetVeg[i]]; //ターゲット指定
                 Transform numbersTra = targetTra[i].GetChild(1).gameObject.transform;
-                for (int a = 0; a < 2; a++)
+                targetNumIma[i] = new Image[displayDigits];
+                for (int a = 0; a < displayDigits; a++)
                 {
-                    numbersTra.GetChild(a).gameObject.GetComponent<Image>().sprite = numbers[TargetNumCalculation(a, targetNum[i])];
+                    targetNumIma[i][a] = numbersTra.GetChild(a).gameObject.GetComponent<Image>();
+                    targetNumIma[i][a].sprite = numbers[TargetNumCalculation(a, targetNum[i])];
                 }
 
                 if (vegetableNum < vegetableMaxNum)
@@ -69,7 +74,7 @@ public class TagetController : MonoBehaviour
         }
     }
 
-    //ターン計算
+    //ターゲット個数計算
     private int TargetNumCalculation(int digits, int referenceNum)
     {
         int ten = 10;
@@ -88,5 +93,12 @@ public class TagetController : MonoBehaviour
                 return (referenceNum / ten) % ten;
             }
         }
+    }
+
+    //ターゲット収穫完了
+    public void TargetAchievement(int targetIndex)
+    {
+        targetNumIma[targetIndex][0].sprite = numbers[10];  //UImask
+        targetNumIma[targetIndex][1].sprite = numbers[11];  //チェックマーク 
     }
 }

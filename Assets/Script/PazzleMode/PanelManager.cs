@@ -139,7 +139,7 @@ public class PanelManager : MonoBehaviour
             float PosX = ScreenWidth / PanelColumns;
             float PosFixX = PosX * 2.5f;
             float PosY = (ScreenHight / PanelLines) * 0.45f;
-            float PosFixY = 70.0f;
+            float PosFixY = 110.0f;
 
             int hamsterNum = (tutorial) ? 8 : UnityEngine.Random.Range(0, PanelNum);
 
