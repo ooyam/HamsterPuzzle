@@ -72,16 +72,16 @@ public class ScoreManager : MonoBehaviour
 
         //収穫数表示場所指定
         Vector2[] displayPos;
-        float[] posY = new float[] { -65.0f, -200.0f, -120.0f };
+        float[] posY = new float[] { -65.0f, -200.0f };
         if (stageNum >= 13)
         {
             displayPos = new Vector2[]
             {
                 new Vector2(-450.0f, posY[0]),
-                new Vector2(-200.0f, posY[0]),
+                new Vector2(-215.0f, posY[0]),
                 new Vector2(35.0f, posY[0]),
                 new Vector2(-380.0f, posY[1]),
-                new Vector2(-130.0f, posY[1]),
+                new Vector2(-145.0f, posY[1]),
                 new Vector2(105.0f, posY[1])
             };
         }
@@ -90,10 +90,10 @@ public class ScoreManager : MonoBehaviour
             displayPos = new Vector2[]
             {
                 new Vector2(-450.0f, posY[0]),
-                new Vector2(-200.0f, posY[0]),
+                new Vector2(-215.0f, posY[0]),
                 new Vector2(35.0f, posY[0]),
-                new Vector2(-320.0f, posY[1]),
-                new Vector2(-50.0f, posY[1])
+                new Vector2(-310.0f, posY[1]),
+                new Vector2(-60.0f, posY[1])
             };
             scoreObj[5].SetActive(false);
         }
@@ -101,10 +101,10 @@ public class ScoreManager : MonoBehaviour
         {
             displayPos = new Vector2[]
             {
-                new Vector2(-460.0f, posY[2]),
-                new Vector2(-270.0f, posY[2]),
-                new Vector2(-80.0f, posY[2]),
-                new Vector2(120.0f, posY[2])
+                new Vector2(-350.0f, posY[0]),
+                new Vector2(-235.0f, posY[1]),
+                new Vector2(-110.0f, posY[0]),
+                new Vector2(30.0f, posY[1])
             };
             scoreObj[4].SetActive(false);
             scoreObj[5].SetActive(false);
