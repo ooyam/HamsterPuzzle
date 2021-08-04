@@ -1,7 +1,13 @@
 fileFormatVersion: 2
-guid: f9a6740eee32b3743a6d1a2a56d31115
+guid: c6fc147243d4e864a9f9d7425c0abc96
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 8570371306155987223
+    second: title_cloud_0
+  - first:
+      213: -4692380504488618544
+    second: title_cloud_1
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -41,7 +47,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -101,11 +107,53 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: title_cloud_0
+      rect:
+        serializedVersion: 2
+        x: 1246
+        y: 796
+        width: 424
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 711d0a09b4310f670800000000000000
+      internalID: 8570371306155987223
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: title_cloud_1
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 681
+        width: 399
+        height: 263
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d5dcfedac051eeb0800000000000000
+      internalID: -4692380504488618544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 63820a1a44ccbee4b9ec52bc67702928
     internalID: 0
     vertices: []
     indices: 
