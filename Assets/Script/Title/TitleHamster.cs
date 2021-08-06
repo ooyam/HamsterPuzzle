@@ -10,7 +10,7 @@ public class TitleHamster : MonoBehaviour
     public Sprite[] hamsterSpr;
     [Header("•—‘Dsprite")]
     public Sprite[] balloonSpr;
-    private float moveSpeed = 5.0f;
+    private float moveSpeed = 3.0f;
     private float desPos = 1300.0f;
     private float posX;
     private float posY;
@@ -19,15 +19,36 @@ public class TitleHamster : MonoBehaviour
     void Start()
     {
         tra = GetComponent<RectTransform>();
-        float width = 1080.0f / 2.0f;
+        float width = 400.0f;
         posX = Random.Range(-width, width);
         posY = -desPos;
         tra.anchoredPosition = new Vector2(posX, posY);
 
         int balloonIndex = Random.Range(0, balloonSpr.Length);
-        tra.GetChild(0).gameObject.GetComponent<Image>().sprite = balloonSpr[balloonIndex];
+        Image balloonObj = tra.GetChild(0).gameObject.GetComponent<Image>();
+        balloonObj.sprite = balloonSpr[balloonIndex];
+        if (balloonIndex == 0) balloonObj.color = Color.yellow;
+        else if (balloonIndex == 3) balloonObj.color = new Color(1.0f, 0.0f, 1.0f, 1.0f);
+        else balloonObj.color = Color.white;
+
+        float[] hamsterPosX = new float[] { -30.0f, 10.0f, 0.0f, -20.0f, -20.0f, -20.0f, -10.0f, -30.0f, -25.0f, -20.0f };
         int hamsterIndex = Random.Range(0, hamsterSpr.Length);
-        tra.GetChild(1).gameObject.GetComponent<Image>().sprite = hamsterSpr[hamsterIndex];
+        GameObject hamsterObj = tra.GetChild(1).gameObject;
+        hamsterObj.GetComponent<Image>().sprite = hamsterSpr[hamsterIndex];
+        RectTransform hamsterTra = hamsterObj.GetComponent<RectTransform>();
+        hamsterTra.anchoredPosition = new Vector2(hamsterPosX[hamsterIndex], 0.0f);
+        switch (hamsterIndex)
+        {
+            case 6:
+                hamsterTra.sizeDelta = new Vector2(130.0f, 150.0f);
+                hamsterTra.SetSiblingIndex(0);
+                break;
+            case 7:
+            case 8:
+            case 9:
+                hamsterTra.sizeDelta = new Vector2(200.0f, 150.0f);
+                break;
+        }
     }
 
     // Update is called once per frame

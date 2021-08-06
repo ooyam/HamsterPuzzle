@@ -27,6 +27,10 @@ public class TitleMenuController : MonoBehaviour
     [Header("SoundManager")]
     public SoundManager soundMan;
     private SaveDataManager saveMan;
+    [Header("ハムスターの親オブジェクト")]
+    public Transform hamsterBox;
+    [Header("風船ハムスター")]
+    public GameObject hamsterPre;
 
     private int displayStageNum;  //表示するステージ番号
 
@@ -82,6 +86,8 @@ public class TitleMenuController : MonoBehaviour
 
         pouzzleModeButton.onClick.AddListener(() => OnClickSelectMode(true));
         selectBackButton.onClick.AddListener(() => OnClickSelectMode(false));
+
+        StartCoroutine(HamsterGenerate());
     }
 
     void OnClickGameStart(TargetVegetable[] targetVeg, int vegetableNum, int[] targetNum, int turnNum, int stageNum)
@@ -114,5 +120,16 @@ public class TitleMenuController : MonoBehaviour
         selectBuckObject.SetActive(selectMode);
         if(selectMode) soundMan.YesTapSE();
         else soundMan.NoTapSE();
+    }
+
+    IEnumerator HamsterGenerate()
+    {
+        while (true)
+        {
+            float waitTime = Random.Range(5.0f, 12.0f);
+            yield return new WaitForSeconds(waitTime);
+            GameObject hamsterObj = Instantiate(hamsterPre);
+            hamsterObj.transform.SetParent(hamsterBox, false);
+        }
     }
 }
