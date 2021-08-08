@@ -31,8 +31,21 @@ public class TitleMenuController : MonoBehaviour
     public Transform hamsterBox;
     [Header("風船ハムスター")]
     public GameObject hamsterPre;
+    [Header("矢印")]
+    public GameObject[] arrow; //0:Right 1:Left
+    private RectTransform[] arrowTra;
 
-    private int displayStageNum;  //表示するステージ番号
+    private int displayStageNum;    //表示するステージ番号
+    private int displayPageNum;     //表示しているページ番号
+    private int maxDisplay = 10;    //最大表示数
+
+    //矢印を動かす
+    private bool moveArrow = false;
+    private float moveSpeed = 0.01f;
+    private float maxScale = 1.1f;
+    private float minScale = 0.9f;
+    private float scale = 1.0f;
+    private bool expansion = true;
 
     // Start is called before the first frame update
     void Start()
@@ -47,6 +60,9 @@ public class TitleMenuController : MonoBehaviour
         {
             pouzzleStageButton[i] = pouzzleStageObject[i].GetComponent<Button>();
         }
+        arrowTra = new RectTransform[2];
+        arrowTra[0] = arrow[0].GetComponent<RectTransform>();
+        arrowTra[1] = arrow[1].GetComponent<RectTransform>();
 
         //ボタンに関数を追加
         pouzzleStageButton[0].onClick.AddListener(() =>
@@ -118,7 +134,11 @@ public class TitleMenuController : MonoBehaviour
             pouzzleStageObject[i].SetActive(selectMode);
         }
         selectBuckObject.SetActive(selectMode);
-        if(selectMode) soundMan.YesTapSE();
+        if (selectMode)
+        {
+            soundMan.YesTapSE();
+            StageDisplay((displayStageNum <= maxDisplay) ? 0 : 1);
+        }
         else soundMan.NoTapSE();
     }
 
@@ -130,6 +150,51 @@ public class TitleMenuController : MonoBehaviour
             yield return new WaitForSeconds(waitTime);
             GameObject hamsterObj = Instantiate(hamsterPre);
             hamsterObj.transform.SetParent(hamsterBox, false);
+        }
+    }
+
+    void StageDisplay(int pageNum)
+    {
+        displayPageNum = pageNum;
+        if (displayStageNum <= maxDisplay)
+        {
+            moveArrow = false;
+        }
+        else if (displayStageNum <= maxDisplay * 2)
+        {
+            moveArrow = true;
+            switch (displayPageNum)
+            {
+                case 0:
+                    arrow[0].SetActive(true);
+                    arrow[1].SetActive(false);
+                    break;
+                case 1:
+                    arrow[0].SetActive(false);
+                    arrow[1].SetActive(true);
+                    break;
+            }
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (moveArrow)
+        {
+            if (expansion)
+            {
+                scale += moveSpeed;
+                if (scale > maxScale)
+                    expansion = false;
+            }
+            else
+            {
+                scale -= moveSpeed;
+                if (scale < minScale)
+                    expansion = true;
+            }
+            if (arrow[0].activeSelf) arrowTra[0].localScale = new Vector2(scale, scale);
+            if (arrow[1].activeSelf) arrowTra[1].localScale = new Vector2(scale, scale);
         }
     }
 }
