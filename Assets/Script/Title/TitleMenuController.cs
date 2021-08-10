@@ -35,21 +35,36 @@ public class TitleMenuController : MonoBehaviour
     public GameObject[] arrow; //0:Right 1:Left
     private RectTransform[] arrowTra;
 
-    private int displayStageNum;    //表示するステージ番号
-    private int displayPageNum;     //表示しているページ番号
-    private int maxDisplay = 10;    //最大表示数
+    private int displayStageNum;      //表示するステージ番号
+    private int maxDisplay = 10;      //最大表示数
 
-    //矢印を動かす
-    private bool moveArrow = false;
-    private float moveSpeed = 0.01f;
-    private float maxScale = 1.1f;
-    private float minScale = 0.9f;
-    private float scale = 1.0f;
-    private bool expansion = true;
+    [Header("ステージボックス")]
+    public RectTransform stageTra;
+    private Camera cameraMain;        //MainCamera
+    private RectTransform CanvasTra;  //CanvasのRectTransform
+    private int displayPageNum;       //表示しているページ番号
+    private float Magnification;      //タップ位置修正倍率
+    private float DifferenceX;        //タップ位置修正数X
+    private float tapStartPosX;       //タップ開始位置X
+    private bool buttonTap = false;   //ボタンタップ？
+    private bool stageSelect = false; //ステージ選択？
+    private float[] stageBoxPosX = new float[] { 0.0f, -1080.0f };
+
+    private bool moveArrow = false;   //矢印を動かす?
+    private float moveSpeed = 0.01f;  //矢印動作速度
+    private float maxScale = 1.1f;    //拡大限界値
+    private float minScale = 0.9f;    //縮小限界値
+    private float scale = 1.0f;       //初期拡縮
+    private bool expansion = true;    //拡張最大値?
 
     // Start is called before the first frame update
     void Start()
     {
+        CanvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
+        cameraMain = Camera.main;
+        Magnification = CanvasTra.sizeDelta.x / Screen.width;
+        DifferenceX = CanvasTra.sizeDelta.x / 2;
+
         saveMan = GameObject.FindWithTag("SaveDataManager").GetComponent<SaveDataManager>();
         saveMan.PuzzleModeLoadData();
         displayStageNum = saveMan.puzzelModeStageNum;
@@ -125,6 +140,7 @@ public class TitleMenuController : MonoBehaviour
     }
     void OnClickSelectMode(bool selectMode)
     {
+        stageSelect = selectMode;
         pouzzleModeObject.SetActive(!selectMode);
         displayStageNum = (displayStageNum == 0) ? 1 : displayStageNum;
         int stageTotal = pouzzleStageObject.Length;
@@ -137,7 +153,7 @@ public class TitleMenuController : MonoBehaviour
         if (selectMode)
         {
             soundMan.YesTapSE();
-            StageDisplay((displayStageNum <= maxDisplay) ? 0 : 1);
+            StartCoroutine(StageDisplay((displayStageNum <= maxDisplay) ? stageBoxPosX[0] : stageBoxPosX[1]));
         }
         else soundMan.NoTapSE();
     }
@@ -153,9 +169,9 @@ public class TitleMenuController : MonoBehaviour
         }
     }
 
-    void StageDisplay(int pageNum)
+    IEnumerator StageDisplay(float posX)
     {
-        displayPageNum = pageNum;
+        displayPageNum = (posX == stageBoxPosX[0]) ? 0 : 1;
         if (displayStageNum <= maxDisplay)
         {
             moveArrow = false;
@@ -175,26 +191,62 @@ public class TitleMenuController : MonoBehaviour
                     break;
             }
         }
+        float oneFrameTime = 0.02f;
+        while (stageTra.anchoredPosition.x != posX && !buttonTap)
+        {
+            stageTra.anchoredPosition = Vector2.Lerp(stageTra.anchoredPosition, new Vector2(posX, 0.0f), 0.3f);
+            yield return new WaitForSeconds(oneFrameTime);
+        }
     }
 
     void FixedUpdate()
     {
-        if (moveArrow)
+        if (stageSelect && displayStageNum > maxDisplay)
         {
-            if (expansion)
+            //ステージ選択時のスクロール動作
+            if (Input.GetMouseButtonDown(0))
             {
-                scale += moveSpeed;
-                if (scale > maxScale)
-                    expansion = false;
+                Ray ray = cameraMain.ScreenPointToRay(Input.mousePosition);
+                RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
+                if (!hit2d || hit2d.transform.gameObject.tag != "Button")
+                {
+                    buttonTap = true;
+                    tapStartPosX = Input.mousePosition.x;
+                    tapStartPosX = tapStartPosX * Magnification - DifferenceX;
+                }
             }
-            else
+            if (buttonTap)
             {
-                scale -= moveSpeed;
-                if (scale < minScale)
-                    expansion = true;
+                float posX = Input.mousePosition.x * Magnification - DifferenceX - tapStartPosX + stageBoxPosX[displayPageNum];
+                stageTra.anchoredPosition = Vector2.Lerp(stageTra.anchoredPosition, new Vector2(posX, 0.0f), 1);
+                if (stageTra.anchoredPosition.x > stageBoxPosX[0])
+                    stageTra.anchoredPosition = Vector2.Lerp(stageTra.anchoredPosition, new Vector2(stageBoxPosX[0], 0.0f), 0.9f);
+                else if (stageTra.anchoredPosition.x < stageBoxPosX[1])
+                    stageTra.anchoredPosition = Vector2.Lerp(stageTra.anchoredPosition, new Vector2(stageBoxPosX[1], 0.0f), 0.9f);
             }
-            if (arrow[0].activeSelf) arrowTra[0].localScale = new Vector2(scale, scale);
-            if (arrow[1].activeSelf) arrowTra[1].localScale = new Vector2(scale, scale);
+            if (buttonTap && Input.GetMouseButtonUp(0))
+            {
+                buttonTap = false;
+                StartCoroutine(StageDisplay((stageTra.anchoredPosition.x > stageBoxPosX[1] / 2.0f) ? stageBoxPosX[0] : stageBoxPosX[1]));
+            }
+
+            if (moveArrow)
+            {
+                if (expansion)
+                {
+                    scale += moveSpeed;
+                    if (scale > maxScale)
+                        expansion = false;
+                }
+                else
+                {
+                    scale -= moveSpeed;
+                    if (scale < minScale)
+                        expansion = true;
+                }
+                if (arrow[0].activeSelf) arrowTra[0].localScale = new Vector2(scale, scale);
+                if (arrow[1].activeSelf) arrowTra[1].localScale = new Vector2(scale, scale);
+            }
         }
     }
 }

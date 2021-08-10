@@ -21,6 +21,7 @@ TagManager:
   - SaveDataManager
   - Corn
   - Pumpkin
+  - Button
   layers:
   - Default
   - TransparentFX
