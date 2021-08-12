@@ -32,8 +32,13 @@ public class TitleMenuController : MonoBehaviour
     [Header("風船ハムスター")]
     public GameObject hamsterPre;
     [Header("矢印")]
-    public GameObject[] arrow; //0:Right 1:Left
+    public GameObject[] arrow; //0:Left 1:Right
     private RectTransform[] arrowTra;
+    private Button[] arrowBut;
+    [Header("手")]
+    public GameObject hand;
+    private RectTransform handTra;
+    private Vector2[] targetPos;
 
     private int displayStageNum;      //表示するステージ番号
     private int maxDisplay = 10;      //最大表示数
@@ -46,7 +51,7 @@ public class TitleMenuController : MonoBehaviour
     private float Magnification;      //タップ位置修正倍率
     private float DifferenceX;        //タップ位置修正数X
     private float tapStartPosX;       //タップ開始位置X
-    private bool buttonTap = false;   //ボタンタップ？
+    private bool stageScroll = false; //ステージスクロール？
     private bool stageSelect = false; //ステージ選択？
     private float[] stageBoxPosX = new float[] { 0.0f, -1080.0f };
 
@@ -75,9 +80,27 @@ public class TitleMenuController : MonoBehaviour
         {
             pouzzleStageButton[i] = pouzzleStageObject[i].GetComponent<Button>();
         }
-        arrowTra = new RectTransform[2];
-        arrowTra[0] = arrow[0].GetComponent<RectTransform>();
-        arrowTra[1] = arrow[1].GetComponent<RectTransform>();
+
+        if (displayStageNum == 0)
+        {
+            handTra = hand.GetComponent<RectTransform>();
+            targetPos = new Vector2[] { new Vector2(25.0f, -400.0f), new Vector2(25.0f, -440.0f) };
+            RectTransform TutorialTra = pouzzleStageButton[0].GetComponent<RectTransform>();
+            TutorialTra.sizeDelta = new Vector2(700.0f, 200.0f);
+            TutorialTra.anchoredPosition = new Vector2(0.0f, -200.0f);
+            TutorialTra.GetChild(0).gameObject.GetComponent<Text>().fontSize = 80;
+        }
+
+        int arrowNum = arrow.Length;
+        arrowTra = new RectTransform[arrowNum];
+        arrowBut = new Button[arrowNum];
+        for (int i = 0; i < arrowNum; i++)
+        {
+            arrowTra[i] = arrow[i].GetComponent<RectTransform>();
+            arrowBut[i] = arrow[i].GetComponent<Button>();
+            float posX = stageBoxPosX[i];
+            arrowBut[i].onClick.AddListener(() => StartCoroutine(StageDisplay(posX)));
+        }
 
         //ボタンに関数を追加
         pouzzleStageButton[0].onClick.AddListener(() =>
@@ -140,9 +163,14 @@ public class TitleMenuController : MonoBehaviour
     }
     void OnClickSelectMode(bool selectMode)
     {
+        if (displayStageNum == 0)
+        {
+            hand.SetActive(selectMode);
+            handTra.anchoredPosition = targetPos[0];
+            if (selectMode) StartCoroutine(PromptTutorial());
+        }
         stageSelect = selectMode;
         pouzzleModeObject.SetActive(!selectMode);
-        displayStageNum = (displayStageNum == 0) ? 1 : displayStageNum;
         int stageTotal = pouzzleStageObject.Length;
         int loopTimes = (displayStageNum >= stageTotal) ? stageTotal : displayStageNum;
         for (int i = 0; i < loopTimes + 1; i++)
@@ -155,7 +183,15 @@ public class TitleMenuController : MonoBehaviour
             soundMan.YesTapSE();
             StartCoroutine(StageDisplay((displayStageNum <= maxDisplay) ? stageBoxPosX[0] : stageBoxPosX[1]));
         }
-        else soundMan.NoTapSE();
+        else
+        {
+            soundMan.NoTapSE();
+            moveArrow = false;
+            foreach (GameObject arrowObj in arrow)
+            {
+                arrowObj.SetActive(false);
+            }
+        }
     }
 
     IEnumerator HamsterGenerate()
@@ -166,6 +202,34 @@ public class TitleMenuController : MonoBehaviour
             yield return new WaitForSeconds(waitTime);
             GameObject hamsterObj = Instantiate(hamsterPre);
             hamsterObj.transform.SetParent(hamsterBox, false);
+        }
+    }
+
+    IEnumerator PromptTutorial()
+    {
+        float oneFrameTime = 0.02f;
+        float moveSpeed = 0.0f;
+        bool firstMoveEnd = false;
+        int targetIndex = 1;
+
+        while (hand.activeSelf)
+        {
+            moveSpeed += oneFrameTime;
+            handTra.anchoredPosition = Vector2.Lerp(handTra.anchoredPosition, targetPos[targetIndex], moveSpeed);
+
+            if (!firstMoveEnd && handTra.anchoredPosition.y - 1 <= targetPos[targetIndex].y)
+            {
+                firstMoveEnd = true;
+                moveSpeed = 0.0f;
+                targetIndex = 0;
+            }
+            else if (firstMoveEnd && handTra.anchoredPosition.y + 1 >= targetPos[targetIndex].y)
+            {
+                firstMoveEnd = false;
+                moveSpeed = 0.0f;
+                targetIndex = 1;
+            }
+            yield return new WaitForSeconds(oneFrameTime);
         }
     }
 
@@ -182,20 +246,22 @@ public class TitleMenuController : MonoBehaviour
             switch (displayPageNum)
             {
                 case 0:
-                    arrow[0].SetActive(true);
-                    arrow[1].SetActive(false);
-                    break;
-                case 1:
                     arrow[0].SetActive(false);
                     arrow[1].SetActive(true);
+                    break;
+                case 1:
+                    arrow[0].SetActive(true);
+                    arrow[1].SetActive(false);
                     break;
             }
         }
         float oneFrameTime = 0.02f;
-        while (stageTra.anchoredPosition.x != posX && !buttonTap)
+        float stagePosX = stageTra.anchoredPosition.x;
+        while ((stagePosX <= posX - 1 || stagePosX >= posX + 1) && !stageScroll)
         {
             stageTra.anchoredPosition = Vector2.Lerp(stageTra.anchoredPosition, new Vector2(posX, 0.0f), 0.3f);
             yield return new WaitForSeconds(oneFrameTime);
+            stagePosX = stageTra.anchoredPosition.x;
         }
     }
 
@@ -210,12 +276,12 @@ public class TitleMenuController : MonoBehaviour
                 RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
                 if (!hit2d || hit2d.transform.gameObject.tag != "Button")
                 {
-                    buttonTap = true;
+                    stageScroll = true;
                     tapStartPosX = Input.mousePosition.x;
                     tapStartPosX = tapStartPosX * Magnification - DifferenceX;
                 }
             }
-            if (buttonTap)
+            if (stageScroll)
             {
                 float posX = Input.mousePosition.x * Magnification - DifferenceX - tapStartPosX + stageBoxPosX[displayPageNum];
                 stageTra.anchoredPosition = Vector2.Lerp(stageTra.anchoredPosition, new Vector2(posX, 0.0f), 1);
@@ -224,9 +290,9 @@ public class TitleMenuController : MonoBehaviour
                 else if (stageTra.anchoredPosition.x < stageBoxPosX[1])
                     stageTra.anchoredPosition = Vector2.Lerp(stageTra.anchoredPosition, new Vector2(stageBoxPosX[1], 0.0f), 0.9f);
             }
-            if (buttonTap && Input.GetMouseButtonUp(0))
+            if (stageScroll && Input.GetMouseButtonUp(0))
             {
-                buttonTap = false;
+                stageScroll = false;
                 StartCoroutine(StageDisplay((stageTra.anchoredPosition.x > stageBoxPosX[1] / 2.0f) ? stageBoxPosX[0] : stageBoxPosX[1]));
             }
 

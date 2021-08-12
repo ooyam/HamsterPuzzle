@@ -48,15 +48,25 @@ public class TutorialController : MonoBehaviour
     private bool textDisplay = false;    //テキスト表示途中？
     private float[] textColAlpha = new float[] { 1.0f, 0.0f };   //テキストのアルファ値
 
-    //手の位置
-    private Vector2[] handStartPos = new Vector2[] { new Vector2(0.0f, 0.0f), new Vector2(0.0f, -170.0f) };
-    private Vector2[] handEndPos = new Vector2[] { new Vector2(0.0f, -170.0f), new Vector2(-360.0f, -170.0f) };
+    //手の位置 0･1:オラフ移動 2:体力ゲージ 3:ターン 4:目標
+    private Vector2[] handStartPos =
+        new Vector2[] {
+            new Vector2(0.0f, -30.0f),
+            new Vector2(0.0f, -200.0f),
+            new Vector2(100.0f, -600.0f),
+            new Vector2(475.0f, 580.0f),
+            new Vector2(400.0f, 770.0f)
+        };
+    private Vector2[] handEndPos =
+        new Vector2[] {
+            new Vector2(0.0f, -200.0f),
+            new Vector2(-360.0f, -200.0f),
+            new Vector2(100.0f, -650.0f),
+            new Vector2(475.0f, 530.0f),
+            new Vector2(350.0f, 770.0f)
+        };
     private Color[] handColor = new Color[] { new Color(1, 1, 1, 1), new Color(1, 1, 1, 0) };
-    //0:体力ゲージ　1:ターン 　2:目標
-    private Vector2[] handDesPos = 
-        new Vector2[] { new Vector2(100.0f, -650.0f), new Vector2(475.0f, 580.0f), new Vector2(350.0f, 770.0f) };
 
-    // Start is called before the first frame update
     void Start()
     {
         PanelMan = GameObject.FindWithTag("PanelManager").GetComponent<PanelManager>();
@@ -69,7 +79,6 @@ public class TutorialController : MonoBehaviour
         StartCoroutine(DescriptionStart());
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -95,7 +104,6 @@ public class TutorialController : MonoBehaviour
                 yield return new WaitWhile(() => textDestroy == true);
                 StartCoroutine(DescriptionStart());
                 hand.SetActive(true);
-                handTra.anchoredPosition = handStartPos[0];
                 StartCoroutine(HandMove(0));
                 HamsterCon.description = true;
                 TextDisplay(1);
@@ -121,7 +129,7 @@ public class TutorialController : MonoBehaviour
                 SoundMan.YesTapSE();
                 calGaugeTra.SetParent(statusBoardTra, true);
                 turnTra.SetParent(frontBoxTra, true);
-                handTra.anchoredPosition = handDesPos[1];
+                StartCoroutine(HandMove(3));
                 handTra.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
                 StartCoroutine(DescriptionStart());
                 StartCoroutine(TextDestroy(false));
@@ -134,7 +142,6 @@ public class TutorialController : MonoBehaviour
                 SoundMan.YesTapSE();
                 turnTra.SetParent(statusBoardTra, true);
                 hand.SetActive(true);
-                handTra.anchoredPosition = handStartPos[1];
                 StartCoroutine(HandMove(1));
                 HamsterCon.MovingLimit(false);
                 HamsterCon.description = true;
@@ -165,6 +172,9 @@ public class TutorialController : MonoBehaviour
                 break;
             case 9:
                 SoundMan.YesTapSE();
+                targetTra.SetParent(statusBoardTra, true);
+                harvestTra.SetParent(statusBoardTra, true);
+                hand.SetActive(false);
                 StartCoroutine(DescriptionStart());
                 StartCoroutine(TextDestroy(false));
                 yield return new WaitWhile(() => textDestroy == true);
@@ -173,8 +183,6 @@ public class TutorialController : MonoBehaviour
                 break;
             case 10:
                 SoundMan.YesTapSE();
-                targetTra.SetParent(statusBoardTra, true);
-                harvestTra.SetParent(statusBoardTra, true);
                 HamsterCon.tutorial = false;
                 HamsterCon.MovingLimit(false);
                 PanelMan.tutorial = false;
@@ -187,43 +195,64 @@ public class TutorialController : MonoBehaviour
     //手フェード
     IEnumerator HandMove(int posIndex)
     {
-        float oneFlameTime = 0.02f;
-        bool fadeStart = false;
+        int nowTapNum = tupNum;
+        float oneFrameTime = 0.02f;
+        bool firstMoveEnd = false;
         float moveSpeed = 0.0f;
         float handColAlpha = 1.0f;
         handIma.color = new Color(1, 1, 1, handColAlpha);
+        bool fade = (posIndex <= 1) ? true : false;
+        float moveSpeedFix = (fade) ? 1.5f : 1.0f;
+        float handPos = 0.0f;
+        float comparisonPos = 0.0f;
+        Vector2 targetPos = handEndPos[posIndex];
+        handTra.anchoredPosition = handStartPos[posIndex];
 
-        while (hand.activeSelf)
+        while (nowTapNum == tupNum)
         {
-            if (!fadeStart)
+            if (!firstMoveEnd || !fade)
             {
-                moveSpeed += oneFlameTime * 1.5f;
-                handTra.anchoredPosition = Vector3.Lerp(handStartPos[posIndex], handEndPos[posIndex], moveSpeed);
-                if (posIndex == 0)
+                moveSpeed += oneFrameTime / moveSpeedFix;
+                handTra.anchoredPosition = Vector2.Lerp(handTra.anchoredPosition, targetPos, moveSpeed);
+                switch (posIndex)
                 {
-                    if (handTra.anchoredPosition.y <= handEndPos[posIndex].y)
-                        fadeStart = true;
+                    case 1:
+                    case 4:
+                        handPos = handTra.anchoredPosition.x;
+                        comparisonPos = targetPos.x;
+                        break;
+                    default:
+                        handPos = handTra.anchoredPosition.y;
+                        comparisonPos = targetPos.y;
+                        break;
                 }
-                else
+
+                if (!firstMoveEnd && handPos - 1 <= comparisonPos)
                 {
-                    if (handTra.anchoredPosition.x <= handEndPos[posIndex].x)
-                        fadeStart = true;
+                    firstMoveEnd = true;
+                    moveSpeed = 0.0f;
+                    if (!fade) targetPos = handStartPos[posIndex];
+                }
+                else if (firstMoveEnd && handPos + 1 >= comparisonPos)
+                {
+                    firstMoveEnd = false;
+                    moveSpeed = 0.0f;
+                    targetPos = handEndPos[posIndex];
                 }
             }
             else
             {
-                handColAlpha -= oneFlameTime * 2.5f;
+                handColAlpha -= oneFrameTime * 2.5f;
                 handIma.color = new Color(1, 1, 1, handColAlpha);
                 if (handColAlpha <= 0.0f)
                 {
-                    fadeStart = false;
-                    moveSpeed = 0.0f;
+                    firstMoveEnd = false;
                     handColAlpha = 1.0f;
                     handIma.color = new Color(1, 1, 1, handColAlpha);
                     handTra.anchoredPosition = handStartPos[posIndex];
                 }
             }
-            yield return new WaitForSecondsRealtime(oneFlameTime);
+            yield return new WaitForSecondsRealtime(oneFrameTime);
         }
         handIma.color = new Color(1, 1, 1, 1);
     }
@@ -254,12 +283,12 @@ public class TutorialController : MonoBehaviour
     //テキストフェード
     IEnumerator TextFade()
     {
-        float oneFlameTime = 0.02f;
+        float oneFrameTime = 0.02f;
         while (true)
         {
             if (textDestroy)
             {
-                textColAlpha[0] -= oneFlameTime * 2.5f;
+                textColAlpha[0] -= oneFrameTime * 2.5f;
                 if (textObj != null) textText.color = new Color(0, 0, 0, textColAlpha[0]);
                 if (textColAlpha[0] <= 0.0f)
                 {
@@ -269,7 +298,7 @@ public class TutorialController : MonoBehaviour
             }
             if (textDisplay)
             {
-                textColAlpha[1] += oneFlameTime * 2.5f;
+                textColAlpha[1] += oneFrameTime * 2.5f;
                 if (textObj != null) textText.color = new Color(0, 0, 0, textColAlpha[1]);
                 if (textColAlpha[1] >= 1.0f)
                 {
@@ -277,7 +306,7 @@ public class TutorialController : MonoBehaviour
                     break;
                 }
             }
-            yield return new WaitForSecondsRealtime(oneFlameTime);
+            yield return new WaitForSecondsRealtime(oneFrameTime);
         }
     }
 
@@ -311,8 +340,8 @@ public class TutorialController : MonoBehaviour
             description = false;
             frontBoxObj.SetActive(true);
             hand.SetActive(true);
-            handTra.anchoredPosition = handDesPos[0];
             handTra.rotation = Quaternion.Euler(180.0f, 0.0f, 0.0f);
+            StartCoroutine(HandMove(2));
             StartCoroutine(DescriptionStart());
             calGaugeTra.SetParent(frontBoxTra, true);
             ColDescription = true;
@@ -326,8 +355,8 @@ public class TutorialController : MonoBehaviour
             targetTra.SetParent(frontBoxTra, true);
             harvestTra.SetParent(frontBoxTra, true);
             hand.SetActive(true);
-            handTra.anchoredPosition = handDesPos[2];
             handTra.rotation = Quaternion.Euler(180.0f, 0.0f, 90.0f);
+            StartCoroutine(HandMove(4));
             StartCoroutine(DescriptionStart());
             TextDisplay(8);
             yield return new WaitWhile(() => textDisplay == true);
