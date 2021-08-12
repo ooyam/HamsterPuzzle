@@ -347,7 +347,7 @@ public class PanelManager : MonoBehaviour
             if (calorieZero)
             {
                 TurnCon.HamsterSpriteChange(2);
-                StartCoroutine(TurnCon.GameOver());
+                StartCoroutine(TurnCon.GameOver(false));
             }
         }
         foreach (int i in HarvestIndex)

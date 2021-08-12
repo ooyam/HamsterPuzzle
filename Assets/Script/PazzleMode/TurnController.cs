@@ -51,7 +51,7 @@ public class TurnController : MonoBehaviour
             numberImage[0].sprite = numbers[nowTurn];
             numberImage[1].sprite = numbers[ten];
             numberImage[2].sprite = numbers[ten];
-            if (nowTurn == 0) StartCoroutine(GameOver());
+            if (nowTurn == 0) StartCoroutine(GameOver(true));
         }
         else
         {
@@ -94,10 +94,11 @@ public class TurnController : MonoBehaviour
     }
 
     //ゲームオーバー
-    public IEnumerator GameOver()
+    public IEnumerator GameOver(bool turnOver)
     {
         panelMan.gameOver = true;
         yield return new WaitUntil(() => effectStart == true);
+        gameOverObj.GetComponent<GameOverGraphic>().turnOver = turnOver;
         gameOverObj.SetActive(true);
     }
 }

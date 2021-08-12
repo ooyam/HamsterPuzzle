@@ -180,7 +180,6 @@ public class TitleMenuController : MonoBehaviour
         selectBuckObject.SetActive(selectMode);
         if (selectMode)
         {
-            soundMan.YesTapSE();
             StartCoroutine(StageDisplay((displayStageNum <= maxDisplay) ? stageBoxPosX[0] : stageBoxPosX[1]));
         }
         else
@@ -235,6 +234,7 @@ public class TitleMenuController : MonoBehaviour
 
     IEnumerator StageDisplay(float posX)
     {
+        soundMan.YesTapSE();
         displayPageNum = (posX == stageBoxPosX[0]) ? 0 : 1;
         if (displayStageNum <= maxDisplay)
         {
