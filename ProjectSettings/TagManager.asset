@@ -22,6 +22,8 @@ TagManager:
   - Corn
   - Pumpkin
   - Button
+  - SettingScreen
+  - MessageBox
   layers:
   - Default
   - TransparentFX

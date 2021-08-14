@@ -18,7 +18,7 @@ public class GameClearGraphic : MonoBehaviour
         tra = GetComponent<RectTransform>();
         soundManObj = GameObject.FindWithTag("SoundManager");
         soundMan = soundManObj.GetComponent<SoundManager>();
-        soundMan.BGM_Stop();
+        soundMan.BGM_Volume(0.0f);
         soundMan.GameClearSE();
         tra.localScale = startScale;
         moveSpeed = 0.0f;

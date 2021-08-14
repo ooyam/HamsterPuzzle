@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class HamsterPanelController : MonoBehaviour
 {
+    private Camera mainCamera;             //メインカメラ
     private RectTransform CanvasTra;       //CanvasのRectTransform
     private PanelManager PanelMangerScr;   //PanelMangerのスクリプト
     private TutorialController tutorialCon;//tutorialのスクリプト
+    private Collider2D Col;                //Collider2D
+    private string Tag;                    //タグ
     private float Magnification;           //タップ位置修正倍率
     private float DifferenceX;             //タップ位置修正数X
     private float DifferenceY;             //タップ位置修正数Y
@@ -18,6 +21,8 @@ public class HamsterPanelController : MonoBehaviour
     public bool tutorial = false;          //チュートリアル?
     [System.NonSerialized]
     public bool description = false;       //説明中？
+    [System.NonSerialized]
+    public bool setting = false;           //設定を開いている？
 
     private RectTransform Tra;  //RectTransform取得
     [System.NonSerialized]
@@ -34,6 +39,7 @@ public class HamsterPanelController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        mainCamera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         tutorial = PuzzleMainController.tutorial;
         if(tutorial) tutorialCon = GameObject.FindWithTag("Tutorial").GetComponent<TutorialController>();
         CanvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
@@ -42,12 +48,26 @@ public class HamsterPanelController : MonoBehaviour
         DifferenceX = CanvasTra.sizeDelta.x / 2;
         DifferenceY = CanvasTra.sizeDelta.y / 2;
         Tra = GetComponent<RectTransform>();
+        Col = GetComponent<Collider2D>();
+        Tag = Tra.tag;
         MovingLimit(true);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (!Harvest && !gameOver && !gameClear && !description && !setting)
+            {
+                Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+                RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
+                if (hit2d && hit2d.transform.gameObject.tag == Tag)
+                {
+                    PushPanel();
+                }
+            }
+        }
         if (Push)
         {
             Vector3 MousePos = Input.mousePosition;
@@ -67,20 +87,19 @@ public class HamsterPanelController : MonoBehaviour
     }
 
     //タップした時
-    public void PushPanel()
+    void PushPanel()
     {
-        if (!Harvest && !gameOver && !gameClear && !description)
-        {
-            Push = true;
-            PanelMangerScr.HamsterMoving = true;
-        }
+        Push = true;
+        Col.enabled = false;
+        PanelMangerScr.HamsterMoving = true;
     }
     //離した時
     public void ReleasePanel()
     {
-        if (!Harvest && !gameOver && !gameClear && !description)
+        if (!Harvest && !gameOver && !gameClear && !description && !setting)
         {
             Push = false;
+            Col.enabled = true;
             Tra.anchoredPosition = PanelMangerScr.PanelPosList[HamPosNum];
             PanelMangerScr.HamsterRelease();
         }

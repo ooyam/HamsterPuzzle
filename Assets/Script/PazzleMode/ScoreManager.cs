@@ -73,7 +73,7 @@ public class ScoreManager : MonoBehaviour
         //収穫数表示場所指定
         Vector2[] displayPos;
         float[] posY = new float[] { -65.0f, -200.0f };
-        if (stageNum >= 13)
+        if (stageNum >= 14)
         {
             displayPos = new Vector2[]
             {

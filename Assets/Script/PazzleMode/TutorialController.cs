@@ -69,6 +69,7 @@ public class TutorialController : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1.0f;
         PanelMan = GameObject.FindWithTag("PanelManager").GetComponent<PanelManager>();
         SoundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
         frontBoxTra = frontBoxObj.transform;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 public class TitleMenuController : MonoBehaviour
 {
@@ -53,6 +54,7 @@ public class TitleMenuController : MonoBehaviour
     private float tapStartPosX;       //タップ開始位置X
     private bool stageScroll = false; //ステージスクロール？
     private bool stageSelect = false; //ステージ選択？
+    private string[] objTag = new string[] { "Button", "SettingScreen" };
     private float[] stageBoxPosX = new float[] { 0.0f, -1080.0f };
 
     private bool moveArrow = false;   //矢印を動かす?
@@ -69,6 +71,7 @@ public class TitleMenuController : MonoBehaviour
         cameraMain = Camera.main;
         Magnification = CanvasTra.sizeDelta.x / Screen.width;
         DifferenceX = CanvasTra.sizeDelta.x / 2;
+        StartCoroutine(soundMan.BGM_Start(0));
 
         saveMan = GameObject.FindWithTag("SaveDataManager").GetComponent<SaveDataManager>();
         saveMan.PuzzleModeLoadData();
@@ -103,40 +106,123 @@ public class TitleMenuController : MonoBehaviour
         }
 
         //ボタンに関数を追加
+        /*int stageNum = pouzzleStageButton.Length;
+        TargetVegetable[][] tragetVeg = new TargetVegetable[stageNum][];
+        tragetVeg[0]  = new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot };
+        tragetVeg[1]  = new TargetVegetable[] { TargetVegetable.Carrot };
+        tragetVeg[2]  = new TargetVegetable[] { TargetVegetable.Cabbage };
+        tragetVeg[3]  = new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Broccoli };
+        tragetVeg[4]  = new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Cabbage };
+        tragetVeg[5]  = new TargetVegetable[] { TargetVegetable.Paprika };
+        tragetVeg[6]  = new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot, TargetVegetable.Paprika };
+        tragetVeg[7]  = new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Broccoli };
+        tragetVeg[8]  = new TargetVegetable[] { TargetVegetable.Carrot };
+        tragetVeg[9]  = new TargetVegetable[] { TargetVegetable.Pumpkin };
+        tragetVeg[10] = new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Cabbage };
+        tragetVeg[11] = new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Carrot, TargetVegetable.Pumpkin };
+        tragetVeg[12] = new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Cabbage };
+        tragetVeg[13] = new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Carrot, TargetVegetable.Cabbage, TargetVegetable.Broccoli };
+        tragetVeg[14] = new TargetVegetable[] { TargetVegetable.Corn };
+        tragetVeg[15] = new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Corn };
+        tragetVeg[16] = new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Pumpkin };
+        tragetVeg[17] = new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Corn, TargetVegetable.Paprika, TargetVegetable.Pumpkin };
+        tragetVeg[18] = new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Paprika };
+        tragetVeg[19] = new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Corn, TargetVegetable.Broccoli, TargetVegetable.Pumpkin };
+        tragetVeg[20] = new TargetVegetable[] { TargetVegetable.Carrot };
+
+        int[][] targetVegNum = new int[stageNum][];
+        targetVegNum[0]  = new int[] { 6, 5 };
+        targetVegNum[1]  = new int[] { 6 };
+        targetVegNum[2]  = new int[] { 15 };
+        targetVegNum[3]  = new int[] { 10, 10 };
+        targetVegNum[4]  = new int[] { 15, 15 };
+        targetVegNum[5]  = new int[] { 40 };
+        targetVegNum[6]  = new int[] { 20, 25, 5 };
+        targetVegNum[7]  = new int[] { 20, 30 };
+        targetVegNum[8]  = new int[] { 60 };
+        targetVegNum[9]  = new int[] { 25 };
+        targetVegNum[10] = new int[] { 20, 20 };
+        targetVegNum[11] = new int[] { 10, 10, 10 };
+        targetVegNum[12] = new int[] { 40, 40 };
+        targetVegNum[13] = new int[] { 10, 15, 15, 20 };
+        targetVegNum[14] = new int[] { 20 };
+        targetVegNum[15] = new int[] { 30, 30 };
+        targetVegNum[16] = new int[] { 9, 9, 9 };
+        targetVegNum[17] = new int[] { 40, 50, 30, 40 };
+        targetVegNum[18] = new int[] { 30, 30 };
+        targetVegNum[19] = new int[] { 70, 20, 40, 35 };
+        targetVegNum[20] = new int[] { 50 };
+
+        int[] turn = new int[stageNum];
+        turn[0]  = 50;
+        turn[1]  = 30;
+        turn[2]  = 30;
+        turn[3]  = 30;
+        turn[4]  = 30;
+        turn[5]  = 30;
+        turn[6]  = 20;
+        turn[7]  = 20;
+        turn[8]  = 20;
+        turn[9]  = 20;
+        turn[10] = 20;
+        turn[11] = 10;
+        turn[12] = 15;
+        turn[13] = 8;
+        turn[14] = 20;
+        turn[15] = 30;
+        turn[16] = 5;
+        turn[17] = 20;
+        turn[18] = 8;
+        turn[19] = 30;
+        turn[20] = 2;
+
+        for (int i = 0; i < stageNum; i++)
+        {
+           pouzzleStageButton[i].onClick.AddListener(() => OnClickGameStart(tragetVeg[i], tragetVeg[i].Length, targetVegNum[i], turn[i], i));
+        }*/
+
         pouzzleStageButton[0].onClick.AddListener(() =>
         OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot }, 2, new int[] { 6, 5 }, 50, 0));
         pouzzleStageButton[1].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot }, 1, new int[] { 6 }, 20, 1));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot }, 1, new int[] { 6 }, 30, 1));
         pouzzleStageButton[2].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Paprika }, 2, new int[] { 8, 8 }, 20, 2));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage }, 1, new int[] { 15 }, 30, 2));
         pouzzleStageButton[3].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage }, 1, new int[] { 15 }, 10, 3));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Broccoli }, 2, new int[] { 10, 10 }, 30, 3));
         pouzzleStageButton[4].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Paprika, TargetVegetable.Cabbage }, 3, new int[] { 10, 10, 20 }, 15, 4));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Cabbage }, 2, new int[] { 15, 15 }, 30, 4));
         pouzzleStageButton[5].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Paprika, TargetVegetable.Broccoli }, 3, new int[] { 20, 30, 35 }, 25, 5));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika }, 1, new int[] { 40 }, 30, 5));
         pouzzleStageButton[6].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot }, 2, new int[] { 30, 20 }, 13, 6));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot, TargetVegetable.Paprika }, 3, new int[] { 20, 25, 5 }, 20, 6));
         pouzzleStageButton[7].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Carrot }, 3, new int[] { 25, 25, 25 }, 15, 7));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Broccoli }, 2, new int[] { 20, 30 }, 20, 7));
         pouzzleStageButton[8].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika }, 1, new int[] { 30 }, 8, 8));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot }, 1, new int[] { 60 }, 20, 8));
         pouzzleStageButton[9].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Pumpkin }, 4, new int[] { 25, 25, 25, 25 }, 20, 9));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin }, 1, new int[] { 25 }, 20, 9));
         pouzzleStageButton[10].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Cabbage, TargetVegetable.Pumpkin }, 3, new int[] { 10, 10, 10 }, 5, 10));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Cabbage }, 2, new int[] { 20, 20 }, 20, 10));
         pouzzleStageButton[11].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot }, 2, new int[] { 50, 50 }, 20, 11));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Carrot, TargetVegetable.Pumpkin }, 3, new int[] { 10, 10, 10 }, 10, 11));
         pouzzleStageButton[12].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin }, 1, new int[] { 80 }, 30, 12));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Cabbage }, 2, new int[] { 40, 40 }, 15, 12));
         pouzzleStageButton[13].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Corn, TargetVegetable.Cabbage, TargetVegetable.Paprika }, 4, new int[] { 40, 40, 40, 40 }, 20, 13));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Carrot, TargetVegetable.Cabbage, TargetVegetable.Broccoli }, 4, new int[] { 10, 15, 15, 20 }, 8, 13));
         pouzzleStageButton[14].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Corn, TargetVegetable.Pumpkin }, 2, new int[] { 20, 20 }, 5, 14));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Corn }, 1, new int[] { 20 }, 20, 14));
         pouzzleStageButton[15].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Broccoli, TargetVegetable.Cabbage, TargetVegetable.Corn }, 4, new int[] { 35, 50, 35, 50 }, 10, 15));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Corn }, 2, new int[] { 30, 30 }, 30, 15));
         pouzzleStageButton[16].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot }, 1, new int[] { 50 }, 2, 16));
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Pumpkin }, 3, new int[] { 9, 9, 9 }, 5, 16));
+        pouzzleStageButton[17].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Corn, TargetVegetable.Paprika, TargetVegetable.Pumpkin }, 4, new int[] { 40, 50, 30, 40 }, 20, 18));
+        pouzzleStageButton[18].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Paprika }, 2, new int[] { 30, 30 }, 8, 16));
+        pouzzleStageButton[19].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Corn, TargetVegetable.Broccoli, TargetVegetable.Pumpkin }, 4, new int[] { 70, 20, 40, 35 }, 30, 19));
+        pouzzleStageButton[20].onClick.AddListener(() =>
+        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot }, 1, new int[] { 50 }, 2, 20));
 
         pouzzleModeButton.onClick.AddListener(() => OnClickSelectMode(true));
         selectBackButton.onClick.AddListener(() => OnClickSelectMode(false));
@@ -180,6 +266,7 @@ public class TitleMenuController : MonoBehaviour
         selectBuckObject.SetActive(selectMode);
         if (selectMode)
         {
+            soundMan.YesTapSE();
             StartCoroutine(StageDisplay((displayStageNum <= maxDisplay) ? stageBoxPosX[0] : stageBoxPosX[1]));
         }
         else
@@ -197,7 +284,7 @@ public class TitleMenuController : MonoBehaviour
     {
         while (true)
         {
-            float waitTime = Random.Range(5.0f, 12.0f);
+            float waitTime = UnityEngine.Random.Range(5.0f, 12.0f);
             yield return new WaitForSeconds(waitTime);
             GameObject hamsterObj = Instantiate(hamsterPre);
             hamsterObj.transform.SetParent(hamsterBox, false);
@@ -234,7 +321,6 @@ public class TitleMenuController : MonoBehaviour
 
     IEnumerator StageDisplay(float posX)
     {
-        soundMan.YesTapSE();
         displayPageNum = (posX == stageBoxPosX[0]) ? 0 : 1;
         if (displayStageNum <= maxDisplay)
         {
@@ -274,7 +360,7 @@ public class TitleMenuController : MonoBehaviour
             {
                 Ray ray = cameraMain.ScreenPointToRay(Input.mousePosition);
                 RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
-                if (!hit2d || hit2d.transform.gameObject.tag != "Button")
+                if (!hit2d || 0 > Array.IndexOf(objTag, hit2d.transform.gameObject.tag))
                 {
                     stageScroll = true;
                     tapStartPosX = Input.mousePosition.x;

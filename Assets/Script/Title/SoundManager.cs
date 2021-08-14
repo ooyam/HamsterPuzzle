@@ -23,6 +23,8 @@ public class SoundManager : MonoBehaviour
 
     private AudioSource audio_SE;  //SE_AudioSource    
     private AudioSource audio_BGM; //BGM_AudioSource
+    [System.NonSerialized]
+    public int bgmIndex;
 
     public static SoundManager instance = null;
     void Awake()
@@ -42,24 +44,34 @@ public class SoundManager : MonoBehaviour
 
     public IEnumerator BGM_Start(int seIndex)
     {
-        audio_BGM.clip = bgm[seIndex];
-        audio_BGM.volume = 0.0f;
-        audio_BGM.Play();
-        while (true)
+        bgmIndex = seIndex;
+        if (EnvironmentalSetting.bgm)
         {
-            float oneFlameTime = 0.02f;
-            audio_BGM.volume += oneFlameTime;
-            yield return new WaitForSeconds(oneFlameTime);
-            if(audio_BGM.volume >= 0.48)
+            float volume = (seIndex == 0) ? 0.2f : 0.5f;
+            audio_BGM.clip = bgm[seIndex];
+            audio_BGM.volume = 0.0f;
+            audio_BGM.Play();
+            while (true)
             {
-                audio_BGM.volume = 0.5f;
-                break;
+                float oneFlameTime = 0.02f;
+                audio_BGM.volume += oneFlameTime;
+                yield return new WaitForSecondsRealtime(oneFlameTime);
+                if (audio_BGM.volume >= volume - 0.02f)
+                {
+                    audio_BGM.volume = volume;
+                    break;
+                }
             }
         }
     }
-    public void BGM_Stop()
+    public void BGM_Volume(float volume)
     {
-        audio_BGM.volume = 0.0f;
+        audio_BGM.volume = volume;
+    }
+
+    public void SE_Volume(float volume)
+    {
+        audio_SE.volume = volume;
     }
 
     public void YesTapSE()

@@ -8,7 +8,7 @@ public class ResultController : MonoBehaviour
     public void TitlBackButtonDown()
     {
         GameObject SoundManObj = GameObject.FindWithTag("SoundManager");
-        GetComponent<AudioSource>().Play();
+        if (EnvironmentalSetting.se) GetComponent<AudioSource>().Play();
         Destroy(SoundManObj);
         SceneNavigator.Instance.Change("TitleScene", 0.5f);
     }

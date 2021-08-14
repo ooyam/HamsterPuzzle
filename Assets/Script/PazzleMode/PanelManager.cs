@@ -88,7 +88,7 @@ public class PanelManager : MonoBehaviour
         PanelPosList = new Vector2[PanelNum];
         PanelPosNum = new int[PanelNum];
         PanelListScr = new VegetablePanelController[PanelNum];
-        if(stageNum >= 13)
+        if(stageNum >= 14)
             VegetableTypeNum = 6;
         else if(stageNum >= 9)
             VegetableTypeNum = 5;
@@ -131,9 +131,9 @@ public class PanelManager : MonoBehaviour
     {
         if (FirstGaneration)
         {
-            int bgmIndex = 0;
-            if (stageNum >= 7 && stageNum <= 11) bgmIndex = 1;
-            else if (stageNum >= 12 && stageNum <= 16) bgmIndex = 2;
+            int bgmIndex = 1;
+            if (stageNum >= 8 && stageNum <= 14) bgmIndex = 2;
+            else if (stageNum >= 15) bgmIndex = 3;
             StartCoroutine(SoundMan.BGM_Start(bgmIndex));
 
             float PosX = ScreenWidth / PanelColumns;

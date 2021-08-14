@@ -21,7 +21,7 @@ public class GameOverGraphic : MonoBehaviour
     {
         tra = GetComponent<RectTransform>();
         soundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
-        soundMan.BGM_Stop();
+        soundMan.BGM_Volume(0.0f);
         soundMan.GameOverSE(0);
         Vector2 startPos = new Vector2(0.0f, 1700.0f);
         tra.anchoredPosition = startPos;

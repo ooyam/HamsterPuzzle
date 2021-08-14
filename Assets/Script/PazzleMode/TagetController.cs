@@ -23,8 +23,8 @@ public class TagetController : MonoBehaviour
     [Header("野菜のスプライト")]
     public Sprite[] vegetables;
 
-    private GameObject[] targetObj;  //ターゲットオブジェクト 1～4
-    private Image[][] targetNumIma;    //ターゲットイメージ
+    private GameObject[] targetObj;  //ターゲットオブジェクト
+    private Image[][] targetNumIma;  //ターゲットイメージ
 
     // Start is called before the first frame update
     void Start()
