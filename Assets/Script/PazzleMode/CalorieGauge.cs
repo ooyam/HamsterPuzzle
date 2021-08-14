@@ -10,6 +10,15 @@ public class CalorieGauge : MonoBehaviour
     private int maxCalorie = 30;     //最大カロリー
     private int remainingCalorie;    //残りカロリー
 
+    private float moveSpeed = 0.01f;
+    private float maxScale = 1.1f;
+    private float minScale = 1.0f;
+    private float scale = 1.0f;
+    private bool expansion = true;
+
+    [System.NonSerialized]
+    public bool moveStart = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,6 +37,7 @@ public class CalorieGauge : MonoBehaviour
         if (remainingCalorie == 0) calorieZero = true;
         spriteTra.localRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
         sliderGauge.value = remainingCalorie;
+        if (!moveStart && remainingCalorie <= 5) moveStart = true;
         return calorieZero;
     }
 
@@ -43,5 +53,30 @@ public class CalorieGauge : MonoBehaviour
         else if (remainingCalorie < maxCalorie) remainingCalorie++;
         spriteTra.localRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
         sliderGauge.value = remainingCalorie;
+        if (moveStart && remainingCalorie > 5)
+        {
+            moveStart = false;
+            spriteTra.localScale = new Vector2(minScale, minScale);
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (moveStart)
+        {
+            if (expansion)
+            {
+                scale += moveSpeed;
+                if (scale > maxScale)
+                    expansion = false;
+            }
+            else
+            {
+                scale -= moveSpeed;
+                if (scale < minScale)
+                    expansion = true;
+            }
+            spriteTra.localScale = new Vector2(scale, scale);
+        }
     }
 }

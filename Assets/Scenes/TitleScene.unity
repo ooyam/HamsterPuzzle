@@ -184,6 +184,16 @@ MonoBehaviour:
   - {fileID: 1134917768}
   - {fileID: 97965424}
   hand: {fileID: 1038519737}
+  stageClearPre: {fileID: 4255476414362328098, guid: 5c2075d86b9c84e4b8b7225df91e0bda,
+    type: 3}
+  vegSprite:
+  - {fileID: 741652755060848740, guid: 0a91d6608f137e5469ed848702db665e, type: 3}
+  - {fileID: -5221453959674487149, guid: 0a91d6608f137e5469ed848702db665e, type: 3}
+  - {fileID: -47327080423775788, guid: d689ea3009f505b419aebc1d940f1f48, type: 3}
+  - {fileID: 3512878082988317574, guid: 0a91d6608f137e5469ed848702db665e, type: 3}
+  - {fileID: -1498435713649498244, guid: e702114b364512149ae93d40984726fa, type: 3}
+  - {fileID: 675684672158042730, guid: e702114b364512149ae93d40984726fa, type: 3}
+  - {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
   stageTra: {fileID: 610967821}
 --- !u!4 &41988229
 Transform:

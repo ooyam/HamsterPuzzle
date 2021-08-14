@@ -40,6 +40,10 @@ public class TitleMenuController : MonoBehaviour
     public GameObject hand;
     private RectTransform handTra;
     private Vector2[] targetPos;
+    [Header("ステージクリア表示プレハブ")]
+    public GameObject stageClearPre;
+    [Header("野菜Sprite")]
+    public Sprite[] vegSprite;
 
     private int displayStageNum;      //表示するステージ番号
     private int maxDisplay = 10;      //最大表示数
@@ -106,7 +110,7 @@ public class TitleMenuController : MonoBehaviour
         }
 
         //ボタンに関数を追加
-        /*int stageNum = pouzzleStageButton.Length;
+        int stageNum = pouzzleStageButton.Length;
         TargetVegetable[][] tragetVeg = new TargetVegetable[stageNum][];
         tragetVeg[0]  = new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot };
         tragetVeg[1]  = new TargetVegetable[] { TargetVegetable.Carrot };
@@ -178,51 +182,24 @@ public class TitleMenuController : MonoBehaviour
 
         for (int i = 0; i < stageNum; i++)
         {
-           pouzzleStageButton[i].onClick.AddListener(() => OnClickGameStart(tragetVeg[i], tragetVeg[i].Length, targetVegNum[i], turn[i], i));
-        }*/
+           int index = i;
+           pouzzleStageButton[index].onClick.AddListener(() => OnClickGameStart(tragetVeg[index], tragetVeg[index].Length, targetVegNum[index], turn[index], index));
+        }
 
-        pouzzleStageButton[0].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot }, 2, new int[] { 6, 5 }, 50, 0));
-        pouzzleStageButton[1].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot }, 1, new int[] { 6 }, 30, 1));
-        pouzzleStageButton[2].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage }, 1, new int[] { 15 }, 30, 2));
-        pouzzleStageButton[3].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Broccoli }, 2, new int[] { 10, 10 }, 30, 3));
-        pouzzleStageButton[4].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Cabbage }, 2, new int[] { 15, 15 }, 30, 4));
-        pouzzleStageButton[5].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika }, 1, new int[] { 40 }, 30, 5));
-        pouzzleStageButton[6].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Carrot, TargetVegetable.Paprika }, 3, new int[] { 20, 25, 5 }, 20, 6));
-        pouzzleStageButton[7].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Broccoli }, 2, new int[] { 20, 30 }, 20, 7));
-        pouzzleStageButton[8].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot }, 1, new int[] { 60 }, 20, 8));
-        pouzzleStageButton[9].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin }, 1, new int[] { 25 }, 20, 9));
-        pouzzleStageButton[10].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Cabbage }, 2, new int[] { 20, 20 }, 20, 10));
-        pouzzleStageButton[11].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Carrot, TargetVegetable.Pumpkin }, 3, new int[] { 10, 10, 10 }, 10, 11));
-        pouzzleStageButton[12].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Broccoli, TargetVegetable.Cabbage }, 2, new int[] { 40, 40 }, 15, 12));
-        pouzzleStageButton[13].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Carrot, TargetVegetable.Cabbage, TargetVegetable.Broccoli }, 4, new int[] { 10, 15, 15, 20 }, 8, 13));
-        pouzzleStageButton[14].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Corn }, 1, new int[] { 20 }, 20, 14));
-        pouzzleStageButton[15].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Paprika, TargetVegetable.Corn }, 2, new int[] { 30, 30 }, 30, 15));
-        pouzzleStageButton[16].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Broccoli, TargetVegetable.Pumpkin }, 3, new int[] { 9, 9, 9 }, 5, 16));
-        pouzzleStageButton[17].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot, TargetVegetable.Corn, TargetVegetable.Paprika, TargetVegetable.Pumpkin }, 4, new int[] { 40, 50, 30, 40 }, 20, 18));
-        pouzzleStageButton[18].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Pumpkin, TargetVegetable.Paprika }, 2, new int[] { 30, 30 }, 8, 16));
-        pouzzleStageButton[19].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Cabbage, TargetVegetable.Corn, TargetVegetable.Broccoli, TargetVegetable.Pumpkin }, 4, new int[] { 70, 20, 40, 35 }, 30, 19));
-        pouzzleStageButton[20].onClick.AddListener(() =>
-        OnClickGameStart(new TargetVegetable[] { TargetVegetable.Carrot }, 1, new int[] { 50 }, 2, 20));
+        for (int i = 1; i < displayStageNum; i++)
+        {
+            GameObject clearObj = Instantiate(stageClearPre);
+            Transform clearTra = clearObj.transform;
+            clearTra.SetParent(pouzzleStageObject[i].transform, false);
+            int targetCount = tragetVeg[i].Length;
+            for (int a = 0; a < clearTra.childCount; a++)
+            {
+                if(targetCount > a) 
+                    clearTra.GetChild(a).gameObject.GetComponent<Image>().sprite = vegSprite[(int)tragetVeg[i][a]];
+                else
+                    clearTra.GetChild(a).gameObject.GetComponent<Image>().sprite = vegSprite[6];
+            }
+        }
 
         pouzzleModeButton.onClick.AddListener(() => OnClickSelectMode(true));
         selectBackButton.onClick.AddListener(() => OnClickSelectMode(false));

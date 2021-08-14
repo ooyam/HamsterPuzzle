@@ -27,6 +27,10 @@ public class ScoreManager : MonoBehaviour
     public PanelManager PanelMan;
     [Header("TagetController")]
     public TagetController TagetCon;
+    [Header("TurnController")]
+    public TurnController TurnCon;
+    [Header("CalorieGauge")]
+    public CalorieGauge CalGage;
     [Header("数字のスプライト")]
     public Sprite[] Numbers;
     [Header("スコア表示オブジェクト")]   //0：ブロッコリー　1:キャベツ　2：パプリカ　3:ニンジン　4：カボチャ　5：トウモロコシ
@@ -170,6 +174,8 @@ public class ScoreManager : MonoBehaviour
                 {
                     gameClear = true;
                     PanelMan.gameClear = true;
+                    TurnCon.moveStart = false;
+                    CalGage.moveStart = false;
                 }
             }
         }

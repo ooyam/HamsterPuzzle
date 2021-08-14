@@ -90,9 +90,10 @@ GameObject:
   - component: {fileID: 775344049420424629}
   - component: {fileID: 775344049420424627}
   - component: {fileID: 5634489845176911096}
+  - component: {fileID: 6795895895630513704}
   m_Layer: 5
   m_Name: TitleBack
-  m_TagString: Untagged
+  m_TagString: TitleBack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -168,19 +169,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5634489845176911096}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 775344050423997395}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: TitlBackButtonDown
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &5634489845176911096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,6 +202,32 @@ MonoBehaviour:
   m_PixelsPerUnitMultiplier: 1
   Radius: 80
   TriangleNum: 20
+--- !u!61 &6795895895630513704
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 775344049420424625}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 700, y: 150}
+  m_EdgeRadius: 0
 --- !u!1 &775344050124088084
 GameObject:
   m_ObjectHideFlags: 0
@@ -304,9 +319,10 @@ GameObject:
   - component: {fileID: 775344050254265479}
   - component: {fileID: 775344050254265477}
   - component: {fileID: 2013279807282183909}
+  - component: {fileID: 6948559368413279111}
   m_Layer: 5
   m_Name: Retry
-  m_TagString: Untagged
+  m_TagString: Retry
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -382,19 +398,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2013279807282183909}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 775344050423997395}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: RetryButtonDown
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &2013279807282183909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -427,6 +431,32 @@ MonoBehaviour:
   m_PixelsPerUnitMultiplier: 1
   Radius: 80
   TriangleNum: 20
+--- !u!61 &6948559368413279111
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 775344050254265475}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 700, y: 150}
+  m_EdgeRadius: 0
 --- !u!1 &775344050423997393
 GameObject:
   m_ObjectHideFlags: 0
