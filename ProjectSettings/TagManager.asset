@@ -26,6 +26,7 @@ TagManager:
   - MessageBox
   - TitleBack
   - Retry
+  - Vegetable
   layers:
   - Default
   - TransparentFX
