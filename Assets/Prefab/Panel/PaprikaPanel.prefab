@@ -147,7 +147,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 175, y: 165}
+  m_Size: {x: 170, y: 160}
   m_EdgeRadius: 0
 --- !u!114 &-243850723540273764
 MonoBehaviour:
@@ -161,7 +161,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6a70f6dc6452f946a50fd76c822506b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HarvestBoxTra: {fileID: 0}
 --- !u!114 &8292376187492915640
 MonoBehaviour:
   m_ObjectHideFlags: 0

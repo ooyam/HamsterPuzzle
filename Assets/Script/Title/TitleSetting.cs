@@ -15,7 +15,9 @@ public class TitleSetting : MonoBehaviour
     public Sprite[] switchSprite;  //0:ON 1:OFF
 
     private GameObject settingScreen;
+    private GameObject creditScreen;
     private bool settingActive = false;
+    private bool creditActive = false;
     private string settingTag;
     private GameObject SoundManObj;
     private SoundManager SoundMan;
@@ -27,6 +29,7 @@ public class TitleSetting : MonoBehaviour
         mainCamera = Camera.main;
         Transform tra = this.transform;
         settingScreen = tra.GetChild(0).gameObject;
+        creditScreen = tra.GetChild(1).gameObject;
         settingTag = settingScreen.transform.tag;
         SoundManObj = GameObject.FindWithTag("SoundManager");
         SoundMan = SoundManObj.GetComponent<SoundManager>();
@@ -110,7 +113,22 @@ public class TitleSetting : MonoBehaviour
     public void ExitButtonDown()
     {
         SoundMan.NoTapSE();
-        settingScreen.SetActive(false);
-        settingActive = false;
+        if (creditActive)
+        {
+            creditScreen.SetActive(false);
+            creditActive = false;
+        }
+        else
+        {
+            settingScreen.SetActive(false);
+            settingActive = false;
+        }
+    }
+
+    public void CreditDown()
+    {
+        SoundMan.YesTapSE();
+        creditScreen.SetActive(true);
+        creditActive = true;
     }
 }

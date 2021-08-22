@@ -16,6 +16,7 @@ public class TutorialController : MonoBehaviour
     private GameObject textObj;
     private Transform textTra;
     private Text textText;
+    private Image textIma;
     [Header("テキスト格納ボックス")]
     public Transform textBoxTra;
     [Header("ステータスボード")]
@@ -43,6 +44,7 @@ public class TutorialController : MonoBehaviour
     private float displayTime = 2.0f;    //説明の最低表示時間
     [System.NonSerialized]
     public bool ColDescription = false;  //体力説明完了？
+    private bool textIndexEight = false; //8番テキスト表示？
 
     private bool textDestroy = false;    //テキスト消去中？
     private bool textDisplay = false;    //テキスト表示途中？
@@ -266,6 +268,12 @@ public class TutorialController : MonoBehaviour
         textTra = textObj.transform;
         textText = textTra.GetChild(0).gameObject.GetComponent<Text>();
         textText.color = new Color(0, 0, 0, 0);
+        if(textIndex == 8)
+        {
+            textIndexEight = true;
+            textIma = textTra.GetChild(1).gameObject.GetComponent<Image>();
+            textIma.color = new Color(1, 1, 1, 0);
+        }
         textTra.SetParent(textBoxTra, false);
         textDisplay = true;
         StartCoroutine(TextFade());
@@ -290,7 +298,11 @@ public class TutorialController : MonoBehaviour
             if (textDestroy)
             {
                 textColAlpha[0] -= oneFrameTime * 2.5f;
-                if (textObj != null) textText.color = new Color(0, 0, 0, textColAlpha[0]);
+                if (textObj != null)
+                {
+                    textText.color = new Color(0, 0, 0, textColAlpha[0]);
+                    if (textIndexEight) textIma.color = new Color(1, 1, 1, textColAlpha[0]);
+                }
                 if (textColAlpha[0] <= 0.0f)
                 {
                     textDestroy = false;
@@ -300,10 +312,15 @@ public class TutorialController : MonoBehaviour
             if (textDisplay)
             {
                 textColAlpha[1] += oneFrameTime * 2.5f;
-                if (textObj != null) textText.color = new Color(0, 0, 0, textColAlpha[1]);
+                if (textObj != null)
+                {
+                    textText.color = new Color(0, 0, 0, textColAlpha[1]);
+                    if (textIndexEight) textIma.color = new Color(1, 1, 1, textColAlpha[1]);
+                }
                 if (textColAlpha[1] >= 1.0f)
                 {
                     textDestroy = false;
+                    if (textIndexEight) textIndexEight = false;
                     break;
                 }
             }

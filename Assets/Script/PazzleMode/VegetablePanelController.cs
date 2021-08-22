@@ -14,7 +14,8 @@ public class VegetablePanelController : MonoBehaviour
     private BoxCollider2D Coll; //Collider取得
     [System.NonSerialized]
     public int VegPosNum;               //自身の位置番号
-    private bool HarvestStart;          //収穫開始？
+    [System.NonSerialized]
+    public bool HarvestStart;           //収穫開始？
     private float HarvestSpeed = 10.0f; //収穫速度
     private bool ImageChange = false;   //Image変更
     private bool Generate = true;       //生成直後

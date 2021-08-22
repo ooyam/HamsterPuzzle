@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1404769909133354434}
   - component: {fileID: -7149511690049914537}
   - component: {fileID: -8496683744763040875}
+  - component: {fileID: 1112948080590218240}
   m_Layer: 5
   m_Name: HamsterPanel
   m_TagString: Hamster
@@ -90,7 +91,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 845efb3b828e8d14dac9f1dad9eee348, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCamera: {fileID: 0}
 --- !u!61 &-8496683744763040875
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -117,3 +117,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 160, y: 155}
   m_EdgeRadius: 0
+--- !u!50 &1112948080590218240
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6058738892298119553}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0

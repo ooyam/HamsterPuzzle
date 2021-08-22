@@ -8,7 +8,8 @@ public class HamsterPanelController : MonoBehaviour
     private RectTransform CanvasTra;       //CanvasのRectTransform
     private PanelManager PanelMangerScr;   //PanelMangerのスクリプト
     private TutorialController tutorialCon;//tutorialのスクリプト
-    private Collider2D Col;                //Collider2D
+    private BoxCollider2D Col;                //Collider2D
+    private Vector2[] colSize;                //ColliderSize
     private string Tag;                    //タグ
     private float Magnification;           //タップ位置修正倍率
     private float DifferenceX;             //タップ位置修正数X
@@ -48,7 +49,8 @@ public class HamsterPanelController : MonoBehaviour
         DifferenceX = CanvasTra.sizeDelta.x / 2;
         DifferenceY = CanvasTra.sizeDelta.y / 2;
         Tra = GetComponent<RectTransform>();
-        Col = GetComponent<Collider2D>();
+        Col = GetComponent<BoxCollider2D>();
+        colSize = new Vector2[] { new Vector2(160.0f, 155.0f), new Vector2(0.5f, 0.5f) };
         Tag = Tra.tag;
         MovingLimit(true);
     }
@@ -90,8 +92,7 @@ public class HamsterPanelController : MonoBehaviour
     void PushPanel()
     {
         Push = true;
-        Col.enabled = false;
-        PanelMangerScr.HamsterMoving = true;
+        Col.size = colSize[1];
     }
     //離した時
     public void ReleasePanel()
@@ -99,7 +100,7 @@ public class HamsterPanelController : MonoBehaviour
         if (!Harvest && !gameOver && !gameClear && !description && !setting)
         {
             Push = false;
-            Col.enabled = true;
+            Col.size = colSize[0];
             Tra.anchoredPosition = PanelMangerScr.PanelPosList[HamPosNum];
             PanelMangerScr.HamsterRelease();
         }
@@ -153,5 +154,10 @@ public class HamsterPanelController : MonoBehaviour
                 MaxY = MinY;
             }
         }
+    }
+
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        if(Push) PanelMangerScr.PanelContact(collider.gameObject);
     }
 }

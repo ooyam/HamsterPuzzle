@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 14841ed8d538cbf4a951de13a2397ad1
+guid: 2152b1f9fc79593429ff9e749c1ba714
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - LightNovelPopV2
+  - FontopoNIKUKYU
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

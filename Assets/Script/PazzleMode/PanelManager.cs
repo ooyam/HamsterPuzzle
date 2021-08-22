@@ -49,8 +49,6 @@ public class PanelManager : MonoBehaviour
     public Vector2[] PanelPosList;           //生成パネルの生成位置
     private int[] PanelPosNum;               //生成パネルの生成位置番号
     [System.NonSerialized]
-    public bool HamsterMoving;               //ハムスター移動中？
-    [System.NonSerialized]
     public bool HamsterPosChange;            //ハムスター動いた？
     private int NowHamsterPosIndex;          //現在のハムスターパネル位置番号
     private bool SecondGanerateContinue;     //二回目以降のパネル生成やり直し判定
@@ -63,13 +61,6 @@ public class PanelManager : MonoBehaviour
     private bool calorieZero = false;                 //カロリー無くなった？
     [System.NonSerialized]
     public bool gameClear = false;                    //ゲームクリア？
-
-    private string Broccoli = "Broccoli"; //ブロッコリー
-    private string Cabbage = "Cabbage";   //キャベツ
-    private string Paprika = "Paprika";   //パプリカ
-    private string Carrot = "Carrot";     //ニンジン
-    private string Pumpkin = "Pumpkin";   //カボチャ
-    private string Corn = "Corn";         //トウモロコシ
 
     private int stageNum = PuzzleMainController.stageNum; //ステージ番号
 
@@ -102,28 +93,6 @@ public class PanelManager : MonoBehaviour
         }
 
         StartCoroutine(PanelGeneration(true));
-    }
-
-    void Update()
-    {
-        if (HamsterMoving)
-        {
-            Ray ray = new Ray(HamsterPanelTra.position, HamsterPanelTra.forward);
-            RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
-            if (hit2d)
-            {
-                Transform hit2dTra = hit2d.transform;
-                if (hit2dTra.gameObject.tag == Broccoli ||
-                    hit2dTra.gameObject.tag == Cabbage ||
-                    hit2dTra.gameObject.tag == Paprika ||
-                    hit2dTra.gameObject.tag == Carrot ||
-                    hit2dTra.gameObject.tag == Pumpkin ||
-                    hit2dTra.gameObject.tag == Corn)
-                {
-                    PanelPosChange(Array.IndexOf(PanelList, hit2dTra.gameObject));
-                }
-            }
-        }
     }
 
     //パネル生成
@@ -266,7 +235,6 @@ public class PanelManager : MonoBehaviour
     //ハムスターが離された時
     public void HamsterRelease()
     {
-        HamsterMoving = false;
         HarvestIndex.Clear();
 
         for (int i = 0; i < PanelNum; i++)
@@ -549,6 +517,16 @@ public class PanelManager : MonoBehaviour
         }
     }
 
+    //パネル接触
+    public void PanelContact(GameObject Obj)
+    {
+        int objIndex = Array.IndexOf(PanelList, Obj);
+        if (objIndex >= 0 && !PanelListScr[objIndex].HarvestStart)
+        {
+            PanelPosChange(objIndex);
+        }
+    }
+
     //パネル入れ替わり
     private void PanelPosChange(int ReferencePosNumber)
     {
@@ -570,7 +548,6 @@ public class PanelManager : MonoBehaviour
             PanelListScr[ReferencePosNumber] = null;
 
             HamsterPanelScr.PanelPosChange(ReferencePosNumber);
-            //HamsterPanelTra.anchoredPosition = PanelPosList[ReferencePosNumber];
 
             if (calGauge.HamsterMoved())
             {

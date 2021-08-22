@@ -1,61 +1,37 @@
 fileFormatVersion: 2
-guid: e6f953a4af8c18c4b822a950495dfad5
+guid: 2dc769cf4c0e1444faf834b057f866d0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8473005566408934181
-    second: PinkNumbers_0
+      213: -1563145943651258854
+    second: StageNumber_0
   - first:
-      213: -6409914547301278163
-    second: PinkNumbers_1
+      213: 7416807277870414495
+    second: StageNumber_1
   - first:
-      213: 7520249078224380546
-    second: PinkNumbers_2
+      213: -6358067509355998872
+    second: StageNumber_2
   - first:
-      213: 1573222998202001650
-    second: PinkNumbers_3
+      213: 6125527787776156885
+    second: StageNumber_3
   - first:
-      213: 7160241492602134356
-    second: PinkNumbers_4
+      213: -3289807105523723502
+    second: StageNumber_4
   - first:
-      213: 7503434348897311591
-    second: PinkNumbers_5
+      213: 5026332446663923242
+    second: StageNumber_5
   - first:
-      213: 4847740322868353858
-    second: PinkNumbers_6
+      213: -8747134530664253097
+    second: StageNumber_6
   - first:
-      213: 922828583259183846
-    second: PinkNumbers_7
+      213: 4137986834076960955
+    second: StageNumber_7
   - first:
-      213: -4055378609239997280
-    second: PinkNumbers_8
+      213: 8738969463549760771
+    second: StageNumber_8
   - first:
-      213: -3425445728181834651
-    second: PinkNumbers_9
-  - first:
-      213: 8836697534991533129
-    second: PinkNumbers_10
-  - first:
-      213: 1734312384762622951
-    second: PinkNumbers_11
-  - first:
-      213: 7096426442014287682
-    second: PinkNumbers_12
-  - first:
-      213: -891011489695886857
-    second: PinkNumbers_13
-  - first:
-      213: 8321755572138683007
-    second: PinkNumbers_14
-  - first:
-      213: -2267739548886300317
-    second: PinkNumbers_15
-  - first:
-      213: 3034454576914864043
-    second: PinkNumbers_16
-  - first:
-      213: 2920580531115963685
-    second: PinkNumbers_17
+      213: 6674081103311392060
+    second: StageNumber_9
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -142,30 +118,6 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
-    buildTarget: iPhone
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -181,232 +133,211 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: PinkNumbers_0
-      rect:
-        serializedVersion: 2
-        x: 40
-        y: 825
-        width: 250
-        height: 320
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: bdcb94a4456d96a80800000000000000
-      internalID: -8473005566408934181
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PinkNumbers_1
-      rect:
-        serializedVersion: 2
-        x: 280
-        y: 825
-        width: 220
-        height: 320
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: d2e9f7f2ea86b07a0800000000000000
-      internalID: -6409914547301278163
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PinkNumbers_2
-      rect:
-        serializedVersion: 2
-        x: 508
-        y: 825
-        width: 232
-        height: 319
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 282e50251ba4d5860800000000000000
-      internalID: 7520249078224380546
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PinkNumbers_3
-      rect:
-        serializedVersion: 2
-        x: 736
-        y: 825
-        width: 220
-        height: 320
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2f82e484bf535d510800000000000000
-      internalID: 1573222998202001650
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PinkNumbers_4
-      rect:
-        serializedVersion: 2
-        x: 968
-        y: 825
-        width: 270
-        height: 320
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 45f109073b94e5360800000000000000
-      internalID: 7160241492602134356
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PinkNumbers_5
-      rect:
-        serializedVersion: 2
-        x: 780
-        y: 45
-        width: 162
-        height: 162
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 76b1d7119cd812860800000000000000
-      internalID: 7503434348897311591
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PinkNumbers_7
-      rect:
-        serializedVersion: 2
-        x: 405
-        y: 475
-        width: 250
-        height: 320
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 6ea9db505bb8ecc00800000000000000
-      internalID: 922828583259183846
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PinkNumbers_8
-      rect:
-        serializedVersion: 2
-        x: 658
-        y: 475
-        width: 250
-        height: 320
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0a4488624a668b7c0800000000000000
-      internalID: -4055378609239997280
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PinkNumbers_9
-      rect:
-        serializedVersion: 2
-        x: 898
-        y: 475
-        width: 250
-        height: 320
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 56ca75e424f5670d0800000000000000
-      internalID: -3425445728181834651
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PinkNumbers_10
-      rect:
-        serializedVersion: 2
-        x: 1153
-        y: 475
-        width: 250
-        height: 320
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 9448db8d69142aa70800000000000000
-      internalID: 8836697534991533129
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: PinkNumbers_11
+      name: StageNumber_0
       rect:
         serializedVersion: 2
         x: 1419
-        y: 475
-        width: 250
-        height: 320
+        y: 372
+        width: 153
+        height: 181
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7e33657dce3811810800000000000000
-      internalID: 1734312384762622951
+      spriteID: a1ee290db079e4ae0800000000000000
+      internalID: -1563145943651258854
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StageNumber_1
+      rect:
+        serializedVersion: 2
+        x: 58
+        y: 108
+        width: 98
+        height: 182
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f9a7ffc5ceacde660800000000000000
+      internalID: 7416807277870414495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StageNumber_2
+      rect:
+        serializedVersion: 2
+        x: 182
+        y: 111
+        width: 176
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 86112e6694b93c7a0800000000000000
+      internalID: -6358067509355998872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StageNumber_3
+      rect:
+        serializedVersion: 2
+        x: 381
+        y: 108
+        width: 138
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5d4ae2c811f320550800000000000000
+      internalID: 6125527787776156885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StageNumber_4
+      rect:
+        serializedVersion: 2
+        x: 533
+        y: 104
+        width: 165
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 213d3bf1ed14852d0800000000000000
+      internalID: -3289807105523723502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StageNumber_5
+      rect:
+        serializedVersion: 2
+        x: 718
+        y: 104
+        width: 138
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a265c66cabe11c540800000000000000
+      internalID: 5026332446663923242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StageNumber_6
+      rect:
+        serializedVersion: 2
+        x: 890
+        y: 104
+        width: 145
+        height: 189
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 75934391d7feb9680800000000000000
+      internalID: -8747134530664253097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StageNumber_7
+      rect:
+        serializedVersion: 2
+        x: 1055
+        y: 98
+        width: 155
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bb886620a151d6930800000000000000
+      internalID: 4137986834076960955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StageNumber_8
+      rect:
+        serializedVersion: 2
+        x: 1220
+        y: 98
+        width: 158
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3059ed11d6e074970800000000000000
+      internalID: 8738969463549760771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StageNumber_9
+      rect:
+        serializedVersion: 2
+        x: 1405
+        y: 101
+        width: 151
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c3dc50517691f9c50800000000000000
+      internalID: 6674081103311392060
       vertices: []
       indices: 
       edges: []
@@ -414,7 +345,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 474b6b9df9780b54d9a2f9b33a53a895
+    spriteID: e309a7012c0c986428caa02c3d6ed384
     internalID: 0
     vertices: []
     indices: 

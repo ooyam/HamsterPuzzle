@@ -95,7 +95,7 @@ public class TitleMenuController : MonoBehaviour
             RectTransform TutorialTra = pouzzleStageButton[0].GetComponent<RectTransform>();
             TutorialTra.sizeDelta = new Vector2(700.0f, 200.0f);
             TutorialTra.anchoredPosition = new Vector2(0.0f, -200.0f);
-            TutorialTra.GetChild(0).gameObject.GetComponent<Text>().fontSize = 80;
+            TutorialTra.GetChild(0).gameObject.GetComponent<Text>().fontSize = 90;
         }
 
         int arrowNum = arrow.Length;
@@ -234,8 +234,8 @@ public class TitleMenuController : MonoBehaviour
         }
         stageSelect = selectMode;
         pouzzleModeObject.SetActive(!selectMode);
-        int stageTotal = pouzzleStageObject.Length;
-        int loopTimes = (displayStageNum >= stageTotal) ? stageTotal : displayStageNum;
+        int stageTotal = pouzzleStageObject.Length - 1;
+        int loopTimes = (displayStageNum > stageTotal) ? stageTotal : displayStageNum;
         for (int i = 0; i < loopTimes + 1; i++)
         {
             pouzzleStageObject[i].SetActive(selectMode);
@@ -303,7 +303,7 @@ public class TitleMenuController : MonoBehaviour
         {
             moveArrow = false;
         }
-        else if (displayStageNum <= maxDisplay * 2)
+        else
         {
             moveArrow = true;
             switch (displayPageNum)
