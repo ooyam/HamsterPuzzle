@@ -8,8 +8,8 @@ public class HamsterPanelController : MonoBehaviour
     private RectTransform CanvasTra;       //CanvasのRectTransform
     private PanelManager PanelMangerScr;   //PanelMangerのスクリプト
     private TutorialController tutorialCon;//tutorialのスクリプト
-    private BoxCollider2D Col;                //Collider2D
-    private Vector2[] colSize;                //ColliderSize
+    private BoxCollider2D Col;             //Collider2D
+    private Vector2[] colSize;             //ColliderSize
     private string Tag;                    //タグ
     private float Magnification;           //タップ位置修正倍率
     private float DifferenceX;             //タップ位置修正数X
@@ -56,7 +56,7 @@ public class HamsterPanelController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (Input.GetMouseButtonDown(0))
         {
@@ -80,7 +80,7 @@ public class HamsterPanelController : MonoBehaviour
             // X, Y座標の範囲を制限する
             MousePos.x = Mathf.Clamp(MousePos.x, MinX, MaxX);
             MousePos.y = Mathf.Clamp(MousePos.y, MinY, MaxY);
-            Tra.anchoredPosition = Vector3.Lerp(Tra.anchoredPosition, MousePos, 1);
+            Tra.anchoredPosition = Vector3.Lerp(Tra.anchoredPosition, MousePos, 1.0f);
             if (Input.GetMouseButtonUp(0))
             {
                 ReleasePanel();

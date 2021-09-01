@@ -34,10 +34,12 @@ public class BlockManager : MonoBehaviour
     RectTransform hamsterTra;
 
     int[] columnNum = new int[] { 9, 8 }; //1行の列数
-    int nowLineNum = 0;                   //現在の行数
+    [System.NonSerialized]
+    public int nowLineNum = 0;            //現在の行数
     int maxLineNum = 15;                  //最大行数
     int blockPosYMultiplier = 0;          //ブロック生成位置Y修正数
-    float blockPosY = 103.8f;             //ブロック生成位置Y
+    [System.NonSerialized]
+    public float blockPosY = 103.8f;      //ブロック生成位置Y
     float[][] blockPosX = new float[2][]; //ブロック生成位置X
     int throwBlockIndex;                  //投擲ブロックのリスト番号
 
@@ -126,8 +128,8 @@ public class BlockManager : MonoBehaviour
     IEnumerator LineDown(int downNum)
     {
         float oneFrameTime = 0.02f;
-        float speed = 0.5f;
-        float boundHigh = 40.0f;
+        float speed = 0.4f;
+        float boundHigh = 30.0f;
         bool bound = false;
         Vector2 nowPos = blockBoxTra[activeBoxIndex].anchoredPosition;
         Vector2 targetPos = new Vector2(nowPos.x, nowPos.y - (blockPosY * downNum + boundHigh));
@@ -165,7 +167,7 @@ public class BlockManager : MonoBehaviour
     //時間経過で1行生成指示
     IEnumerator LineBlocGenerateInterval()
     {
-        float generateTime = 3.0f;
+        float generateTime = 30.0f;
         switch (stageNum)
         {
             case 10:
