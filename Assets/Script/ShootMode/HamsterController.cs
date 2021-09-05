@@ -60,10 +60,10 @@ public class HamsterController : MonoBehaviour
             }
             else
             {
-                //移動する
+                /*/移動する
                 targetPos.x = Mathf.Clamp(targetPos.x, -maxX, maxX);
                 tra.anchoredPosition = Vector3.Lerp(tra.anchoredPosition, new Vector3(targetPos.x, posY), 1.0f);
-
+                */
                 if (throwOperation)
                 {
                     //投げるのをやめる
@@ -86,28 +86,32 @@ public class HamsterController : MonoBehaviour
         float linePosX = 0.0f;
         float linePosY = 0.0f;
         float hamPosX = tra.anchoredPosition.x;
-        float maxY = canvasHigh - (blockMan.blockPosY * (blockMan.nowLineNum - 1)) + posY;     //Y最大値
-        float maxX = (mousePos.x < hamPosX) ? differenceX - hamPosX : -differenceX - hamPosX;  //X最大値
-        float multiplierX = maxX / -(mousePos.x - hamPosX);                                    //乗数         
-        linePosY = multiplierX * -mousePos.y;                                                  //Y座標算出
+        bool rightThrow = mousePos.x < hamPosX;                                             //右に投げ始める?
+        float maxY = canvasHigh - (blockMan.blockPosY * (blockMan.nowLineNum - 1)) + posY;  //Y最大値
+        float[] maxX = new float[2];
+        maxX[0] = (rightThrow) ? differenceX - hamPosX : -differenceX - hamPosX;            //X最大値
+        maxX[1] = (rightThrow) ? -differenceX - hamPosX : differenceX - hamPosX;
+        float multiplierX = maxX[0] / -(mousePos.x - hamPosX);                              //乗数         
+        linePosY = multiplierX * -mousePos.y;                                               //Y座標算出
 
         //反射有
         if (linePosY <= maxY)
         {
-            linePosX = maxX;
+            linePosX = maxX[0];
             List<Vector3> linePos = new List<Vector3>();
             linePos.Add(lineStartPos);
             linePos.Add(new Vector3(linePosX, linePosY, 0.0f));
 
             //反射計算
+            bool frastReflection = true;
             while (true)
             {
-                float frontLinePosX = linePos[linePos.Count - 1].x;
-                float frontLinePosY = linePos[linePos.Count - 1].y;
-                float quotient = frontLinePosX / frontLinePosY;
+                int lineCount = linePos.Count;
+                float quotient = ((frastReflection) ? linePos[lineCount - 1].x : canvasWidth) / (linePos[lineCount - 1].y - linePos[lineCount - 2].y);
                 float multiplier = canvasWidth / quotient;
-                float nextLinePosY = Mathf.Abs(multiplier) + frontLinePosY;
-                float nextLinePosX = (frontLinePosX >= 0) ? -(canvasWidth - Mathf.Abs(maxX)) : canvasWidth - Mathf.Abs(maxX);
+                float nextLinePosY = Mathf.Abs(multiplier) + linePos[lineCount - 1].y;
+                int maxXIndex = ((rightThrow && linePos[lineCount - 1].x < 0) || (!rightThrow && linePos[lineCount - 1].x > 0)) ? 0 : 1;
+                float nextLinePosX = maxX[maxXIndex];
                 if (nextLinePosY < maxY)
                 {
                     linePos.Add(new Vector3(nextLinePosX, nextLinePosY, 0.0f));
@@ -116,6 +120,7 @@ public class HamsterController : MonoBehaviour
                 {
                     break;
                 }
+                if (frastReflection) frastReflection = false;
             }
 
             //投擲ライン出力(配列に変換)
@@ -137,8 +142,8 @@ public class HamsterController : MonoBehaviour
     void DrawLine(Vector3[] linePos)
     {
         line.positionCount = linePos.Length;
-        line.startWidth = 0.5f;
-        line.endWidth = 0.5f;
+        line.startWidth = 20.0f;
+        line.endWidth = 20.0f;
         line.SetPositions(linePos);
     }
 }
