@@ -4353,6 +4353,7 @@ MonoBehaviour:
   - {fileID: 2912671024533389111, guid: fdf23643c238f344bbee0715d830ebc4, type: 3}
   blocBoxTra: {fileID: 1144189542}
   hamsterObj: {fileID: 1743309513}
+  cameraMain: {fileID: 845430519}
 --- !u!4 &1171080477
 Transform:
   m_ObjectHideFlags: 0

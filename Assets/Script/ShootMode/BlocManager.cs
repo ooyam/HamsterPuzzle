@@ -35,6 +35,13 @@ public class BlocManager : MonoBehaviour
     RectTransform hamsterTra;     //ハムスターRectTransform
     Vector2 hamsterPos;           //ハムスター位置
 
+    [Header("カメラの取得")]
+    [SerializeField]
+    Camera cameraMain;            //カメラの取得
+    RectTransform canvasTra;      //CanvasのRectTransform
+    float differenceX;            //座標修正数X
+    float differenceY;            //座標修正数Y
+
     int[] columnNum = new int[] { 9, 8 };  //1行の列数
     Vector2[][][] blocPos;                 //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
     [System.NonSerialized]
@@ -49,13 +56,16 @@ public class BlocManager : MonoBehaviour
     public bool throwNow = false;          //投擲中？
     bool blocConnect = false;              //ブロック接触
 
-    int stageNum = 0;   //ステージ番号
+    //int stageNum = 0;   //ステージ番号
     int vegTypeNum = 6; //使用する野菜の数
 
     void Start()
     {
         hamsterTra = hamsterObj.GetComponent<RectTransform>();
         hamsterPos = hamsterTra.anchoredPosition;
+        canvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
+        differenceX = canvasTra.sizeDelta.x / 2;
+        differenceY = canvasTra.sizeDelta.y;
 
         //ブロック配置座標指定
         float[] posXFix = new float[] { 480.0f, 420.0f };
@@ -225,7 +235,7 @@ public class BlocManager : MonoBehaviour
         float throwSpeed = 50.0f;
         int targetIndex = 1;
         int pointsCount = linePoints.Length;
-        while (true)
+        while (throwNow)
         {
             Vector3 throwBlocPos = blocTra[throwBlocIndex].anchoredPosition;
             blocTra[throwBlocIndex].anchoredPosition = Vector3.MoveTowards(throwBlocPos, linePoints[targetIndex], throwSpeed);
@@ -240,7 +250,6 @@ public class BlocManager : MonoBehaviour
 
         //投擲ブロック生成
         ThrowBlocGenerate();
-        throwNow = false;
         blocConnect = false;
     }
 
@@ -252,9 +261,20 @@ public class BlocManager : MonoBehaviour
     //========================================================================
     public void BlocConnect(GameObject obj, Vector3 conPos)
     {
-        int connectObjIndex = blocObj.IndexOf(obj);  //
-        int posFirstIndex = (blocPosIndex[connectObjIndex][0] == 0) ? 1 : 0;
-        blocTra[throwBlocIndex].anchoredPosition = blocPos[posFirstIndex][blocPosIndex[connectObjIndex][1] + 1][blocPosIndex[connectObjIndex][2]];
+        Vector3 screenPos = RectTransformUtility.WorldToScreenPoint(cameraMain, conPos);
+        float screenPosX = screenPos.x - differenceX;
+        float screenPosY = screenPos.y - differenceY;
+        blocTra[throwBlocIndex].SetParent(blocBoxTra, false);
 
+        int connectObjIndex = blocObj.IndexOf(obj);                                                                                               //接触したオブジェクトの番号取得
+        Vector3 connectObjPos = blocPos[blocPosIndex[connectObjIndex][0]][blocPosIndex[connectObjIndex][1]][blocPosIndex[connectObjIndex][2]];    //接触したオブジェクトの座標
+
+        int posPatternInd = (blocPosIndex[connectObjIndex][0] == 0) ? 1 : 0;                                                          //停止座標パターン番号指定
+        int posLineInd = blocPosIndex[connectObjIndex][1] +1;                                                                         //停止座標行番号指定
+        int posColumnInd = (connectObjPos.x <= screenPosX) ? blocPosIndex[connectObjIndex][2] - 1 : blocPosIndex[connectObjIndex][2]; //停止座標列番号指定
+        blocTra[throwBlocIndex].anchoredPosition = blocPos[posPatternInd][posLineInd][posColumnInd];                                  //投擲ブロック停止座標指定
+
+        //Debug.Log(screenPos);
+        throwNow = false;
     }
 }

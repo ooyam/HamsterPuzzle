@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a705b7a6-b01a-41aa-8fd3-4fa21e70005f" name="Default Changelist" comment="" />
+    <list default="true" id="a705b7a6-b01a-41aa-8fd3-4fa21e70005f" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/ShootMode.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/ShootMode.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Script/ShootMode/BlocManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Script/ShootMode/BlocManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -22,7 +27,7 @@
     <property name="AnalyzeApkAction.lastApkPath" value="$PROJECT_DIR$/../HamsterPuzzleAndroidBuild" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../HamsterPuzzleAndroidBuild" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -34,5 +39,11 @@
       <updated>1629733233635</updated>
     </task>
     <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="2350" y="174" key="SettingsEditor" timestamp="1632061299389">
+      <screen x="1920" y="0" width="1920" height="1040" />
+    </state>
+    <state x="2350" y="174" key="SettingsEditor/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1632061299389" />
   </component>
 </project>
