@@ -16,7 +16,7 @@ public class StratObject : MonoBehaviour
 
         float movespeed = 7.0f;                                                       //ˆÚ“®‘¬“x
         float stopTime = Mathf.Abs(tra.anchoredPosition.x) / movespeed * 0.02f;       //ˆÚ“®ŽžŠÔŒvŽZ
-        StartCoroutine(ShakeMovement(tra, 1.0f, 8.0f, -1, 0.0f, -1, stopTime));       //—h‚ê
+        StartCoroutine(ShakeMovement(tra, 1.0f, 10.0f, -1, 0.0f, -1, stopTime));      //—h‚ê
         StartCoroutine(MoveMovement(tra, movespeed, new Vector2(0.0f, posY), true));  //ˆÚ“®
         StartCoroutine(ObjectDelete(stopTime));
     }

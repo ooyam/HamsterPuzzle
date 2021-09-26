@@ -22,18 +22,16 @@ public class BlocManager : MonoBehaviour
     GameObject[] blocPre;
     List<GameObject> blocObj = new List<GameObject>();        //生成ブロックobject
     List<RectTransform> blocTra = new List<RectTransform>();  //生成ブロックRectTransform
-    List<int[]> blocPosIndex = new List<int[]>();             //生成ブロックPositionIndex
+    List<int[]> blocPosIndex = new List<int[]>();             //生成ブロック座標番号
     int throwBlocIndex;                                       //投擲ブロックのリスト番号
 
     [Header("ブロックボックス")]
     [SerializeField]
     RectTransform blocBoxTra;
 
-    [Header("ハムスターの取得")]
+    [Header("ハムスターボックス")]
     [SerializeField]
-    GameObject hamsterObj;        //ハムスターオブジェクト
-    RectTransform hamsterTra;     //ハムスターRectTransform
-    Vector2 hamsterPos;           //ハムスター位置
+    Transform hamsterBox;
 
     [Header("カメラの取得")]
     [SerializeField]
@@ -54,15 +52,12 @@ public class BlocManager : MonoBehaviour
     bool generateEnd = false;              //生成終了？
     [System.NonSerialized]
     public bool throwNow = false;          //投擲中？
-    bool blocConnect = false;              //ブロック接触
 
     //int stageNum = 0;   //ステージ番号
     int vegTypeNum = 6; //使用する野菜の数
 
     void Start()
     {
-        hamsterTra = hamsterObj.GetComponent<RectTransform>();
-        hamsterPos = hamsterTra.anchoredPosition;
         canvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
         differenceX = canvasTra.sizeDelta.x / 2;
         differenceY = canvasTra.sizeDelta.y;
@@ -101,7 +96,8 @@ public class BlocManager : MonoBehaviour
     {
         GameObject blocObject = Instantiate(blocPre[blocPreIndex]);
         RectTransform blocRectTra = blocObject.GetComponent<RectTransform>();
-        blocRectTra.SetParent((throwBloc) ? hamsterTra : blocBoxTra, false);
+        blocRectTra.SetParent((throwBloc) ? hamsterBox : blocBoxTra, false);
+        blocRectTra.SetSiblingIndex(0);
         blocObj.Add(blocObject);
         blocTra.Add(blocRectTra);
         blocPosIndex.Add(new int[0]);
@@ -115,7 +111,7 @@ public class BlocManager : MonoBehaviour
     {
         int blocGeneIndex = Random.Range(0, vegTypeNum);
         int index = BlocGenerate(blocGeneIndex, true);
-        blocTra[index].anchoredPosition = new Vector2(20.0f, -40.0f);
+        blocTra[index].anchoredPosition = new Vector2(70.0f, -10.0f);
         throwBlocIndex = index;
         blocObj[index].AddComponent<BlocController>();
     }
@@ -239,18 +235,16 @@ public class BlocManager : MonoBehaviour
         {
             Vector3 throwBlocPos = blocTra[throwBlocIndex].anchoredPosition;
             blocTra[throwBlocIndex].anchoredPosition = Vector3.MoveTowards(throwBlocPos, linePoints[targetIndex], throwSpeed);
-            float[] endPos = new float[]{ linePoints[targetIndex].x + 1.0f, linePoints[targetIndex].x - 1.0f };
+            float[] endPos = new float[]{ linePoints[targetIndex].x + 20.0f, linePoints[targetIndex].x - 20.0f };
             if (throwBlocPos.x <= endPos[0] && throwBlocPos.x >= endPos[1])
             {
                 if(pointsCount - 1 > targetIndex) targetIndex++;
             }
             yield return new WaitForSeconds(oneFrameTime);
-            if (blocConnect) break;
         }
 
         //投擲ブロック生成
         ThrowBlocGenerate();
-        blocConnect = false;
     }
 
     //========================================================================
@@ -259,22 +253,41 @@ public class BlocManager : MonoBehaviour
     //obj;     接触したオブジェクト
     //conPos;  接触箇所
     //========================================================================
-    public void BlocConnect(GameObject obj, Vector3 conPos)
+    public void BlocConnect(GameObject obj)
     {
-        Vector3 screenPos = RectTransformUtility.WorldToScreenPoint(cameraMain, conPos);
-        float screenPosX = screenPos.x - differenceX;
-        float screenPosY = screenPos.y - differenceY;
-        blocTra[throwBlocIndex].SetParent(blocBoxTra, false);
+        throwNow = false;                                     //投擲終了
+        blocTra[throwBlocIndex].SetParent(blocBoxTra, true);  //ブロックボックスの子オブジェクトに変更
 
-        int connectObjIndex = blocObj.IndexOf(obj);                                                                                               //接触したオブジェクトの番号取得
-        Vector3 connectObjPos = blocPos[blocPosIndex[connectObjIndex][0]][blocPosIndex[connectObjIndex][1]][blocPosIndex[connectObjIndex][2]];    //接触したオブジェクトの座標
+        int connectObjIndex = blocObj.IndexOf(obj);                           //接触したオブジェクトの番号取得
+        Vector3 connectObjPos = blocTra[connectObjIndex].anchoredPosition;    //接触したオブジェクトの座標
+        Vector3 throwBlocPos = blocTra[throwBlocIndex].anchoredPosition;      //投擲オブジェクトの座標
 
-        int posPatternInd = (blocPosIndex[connectObjIndex][0] == 0) ? 1 : 0;                                                          //停止座標パターン番号指定
-        int posLineInd = blocPosIndex[connectObjIndex][1] +1;                                                                         //停止座標行番号指定
-        int posColumnInd = (connectObjPos.x <= screenPosX) ? blocPosIndex[connectObjIndex][2] - 1 : blocPosIndex[connectObjIndex][2]; //停止座標列番号指定
-        blocTra[throwBlocIndex].anchoredPosition = blocPos[posPatternInd][posLineInd][posColumnInd];                                  //投擲ブロック停止座標指定
+        float sameLineJudge = 40.0f;       //同列判定配置座標
+        int[] arrangementPos = new int[3]; //投擲ブロック配置座標 0:パターン番号 1:行番号 2:列番号
 
-        //Debug.Log(screenPos);
-        throwNow = false;
+        //下の行にセットする
+        if (throwBlocPos.y <= connectObjPos.y - sameLineJudge)
+        {
+            arrangementPos[0] = (blocPosIndex[connectObjIndex][0] == 0) ? 1 : 0;
+            arrangementPos[1] = blocPosIndex[connectObjIndex][1] + 1;
+
+            if (blocPosIndex[connectObjIndex][0] == 0 && ((connectObjPos.x >= throwBlocPos.x && connectObjIndex != 0) || connectObjIndex == columnNum[0] - 1))
+                arrangementPos[2] = blocPosIndex[connectObjIndex][2] - 1;
+            else if (blocPosIndex[connectObjIndex][0] == 1 && connectObjPos.x <= throwBlocPos.x)
+                arrangementPos[2] = blocPosIndex[connectObjIndex][2] + 1;
+            else arrangementPos[2] = blocPosIndex[connectObjIndex][2];
+        }
+        //同じ行にセットする
+        else
+        {
+            arrangementPos[0] = (blocPosIndex[connectObjIndex][0] == 0) ? 0 : 1;
+            arrangementPos[1] = blocPosIndex[connectObjIndex][1];
+            arrangementPos[2] = (connectObjPos.x <= throwBlocPos.x) ? blocPosIndex[connectObjIndex][2] + 1 : blocPosIndex[connectObjIndex][2] - 1;
+        }
+
+        //投擲ブロック停止座標指定
+        blocTra[throwBlocIndex].anchoredPosition = blocPos[arrangementPos[0]][arrangementPos[1]][arrangementPos[2]];
+        blocPosIndex[throwBlocIndex] = arrangementPos;
+        //if (posLineInd > nowLineNum) nowLineNum = posLineInd;
     }
 }

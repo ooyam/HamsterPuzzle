@@ -10,14 +10,14 @@ public class BlocController : MonoBehaviour
     //========================================================================
     //ê⁄êG
     //========================================================================
-    void OnCollisionEnter2D(Collision2D col)
+    void OnTriggerEnter2D(Collider2D col)
     {
         GameObject connectObj = col.gameObject;
         int tagIndex = Array.IndexOf(blocTag, connectObj.tag);
         if (0 <= tagIndex)
         {
-            Vector3 connectPos = col.contacts[0].point;
-            GameObject.FindWithTag("BlocManager").GetComponent<BlocManager>().BlocConnect(connectObj, connectPos);
+            GameObject.FindWithTag("BlocManager").GetComponent<BlocManager>().BlocConnect(connectObj);
+            Destroy(this.GetComponent<BlocController>());
         }
     }
 }
