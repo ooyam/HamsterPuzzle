@@ -28,6 +28,7 @@ TagManager:
   - Retry
   - Vegetable
   - BlocManager
+  - HintScreen
   layers:
   - Default
   - TransparentFX

@@ -5,6 +5,18 @@ TextureImporter:
   - first:
       213: 1351841087989692501
     second: dotted_line_0
+  - first:
+      213: 4174836109107372939
+    second: dotted_line_1
+  - first:
+      213: -7805193029427240012
+    second: dotted_line_2
+  - first:
+      213: 3757651078795230134
+    second: dotted_line_3
+  - first:
+      213: -287548490976540708
+    second: dotted_line_4
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -126,7 +138,7 @@ TextureImporter:
         width: 1120
         height: 150
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -134,6 +146,90 @@ TextureImporter:
       bones: []
       spriteID: 5583762ae44b2c210800000000000000
       internalID: 1351841087989692501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dotted_line_1
+      rect:
+        serializedVersion: 2
+        x: 2292
+        y: 1483
+        width: 1086
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b83a1de625fffe930800000000000000
+      internalID: 4174836109107372939
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dotted_line_2
+      rect:
+        serializedVersion: 2
+        x: 2289
+        y: 823
+        width: 1089
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4b362ad1b426ea390800000000000000
+      internalID: -7805193029427240012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dotted_line_3
+      rect:
+        serializedVersion: 2
+        x: 2281
+        y: 655
+        width: 1097
+        height: 84
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6bbf37d4fbbd52430800000000000000
+      internalID: 3757651078795230134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dotted_line_4
+      rect:
+        serializedVersion: 2
+        x: 2269
+        y: 1320
+        width: 1109
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cd7c4a3cb2c620cf0800000000000000
+      internalID: -287548490976540708
       vertices: []
       indices: 
       edges: []

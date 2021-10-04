@@ -15,14 +15,21 @@ public class SettingController : MonoBehaviour
     [Header("スイッチSprite")]
     public Sprite[] switchSprite;  //0:ON 1:OFF
 
+    [Header("環境設定画面")]
+    public GameObject settingScreen;
+    [Header("ヒント画面")]
+    public GameObject hintScreen;
+    [Header("確認画面")]
+    public GameObject messageBox;
+
     private AudioSource Audio;
-    private GameObject settingScreen;
     private bool settingActive = false;
     private string settingTag;
-    private GameObject messageBox;
     private GameObject[] messageText;
     private bool messageActive = false;
     private string messageTag;
+    private bool hintActive = false;
+    private string hintTag;
     private GameObject SoundManObj;
     private SoundManager SoundMan;
     private HamsterPanelController hamsterCon;
@@ -34,9 +41,8 @@ public class SettingController : MonoBehaviour
         Time.timeScale = 1.0f;
         Audio = this.GetComponent<AudioSource>();
         Transform tra = this.transform;
-        settingScreen = tra.GetChild(0).gameObject;
         settingTag = settingScreen.transform.tag;
-        messageBox = tra.GetChild(1).gameObject;
+        hintTag = hintScreen.transform.tag;
         Transform mesTra = messageBox.transform;
         messageTag = mesTra.tag;
         messageText = new GameObject[]
@@ -62,8 +68,12 @@ public class SettingController : MonoBehaviour
         }
     }
 
+    //========================================================================
+    //環境設定画面外をタップしたとき
+    //========================================================================
     void Update()
     {
+        //環境設定画面出力時
         if (settingActive)
         {
             if (Input.GetMouseButtonDown(0))
@@ -76,6 +86,8 @@ public class SettingController : MonoBehaviour
                 }
             }
         }
+
+        //「はい」「いいえ」出力時
         if (messageActive)
         {
             if (Input.GetMouseButtonDown(0))
@@ -88,7 +100,25 @@ public class SettingController : MonoBehaviour
                 }
             }
         }
+
+        //ヒント画面出力時
+        if (hintActive)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Ray ray = uiCamera.ScreenPointToRay(Input.mousePosition);
+                RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
+                if (!hit2d || hit2d.transform.gameObject.tag != hintTag)
+                {
+                    HintButtonDown(false);
+                }
+            }
+        }
     }
+
+    //========================================================================
+    //環境設定画面出力
+    //========================================================================
     public void SettingButtonDown()
     {
         if (!settingActive)
@@ -102,6 +132,9 @@ public class SettingController : MonoBehaviour
         }
     }
 
+    //========================================================================
+    //BGMオンオフ
+    //========================================================================
     public void BGM_ButtonDown()
     {
         if (bgmImageStatus == 0)
@@ -122,6 +155,9 @@ public class SettingController : MonoBehaviour
         bgmSwitchIma.sprite = switchSprite[bgmImageStatus];
     }
 
+    //========================================================================
+    //SEオンオフ
+    //========================================================================
     public void SE_ButtonDown()
     {
         if (seImageStatus == 0)
@@ -142,6 +178,9 @@ public class SettingController : MonoBehaviour
         seSwitchIma.sprite = switchSprite[seImageStatus];
     }
 
+    //========================================================================
+    //タイトルへ戻る
+    //========================================================================
     public void TitlBackButtonDown()
     {
         SoundMan.YesTapSE();
@@ -153,6 +192,9 @@ public class SettingController : MonoBehaviour
         messageText[1].SetActive(false);
     }
 
+    //========================================================================
+    //やり直す
+    //========================================================================
     public void RetryButtonDown()
     {
         SoundMan.YesTapSE();
@@ -164,15 +206,9 @@ public class SettingController : MonoBehaviour
         messageText[1].SetActive(true);
     }
 
-    public void ExitButtonDown()
-    {
-        SoundMan.NoTapSE();
-        Time.timeScale = 1.0f;
-        hamsterCon.setting = false;
-        settingScreen.SetActive(false);
-        settingActive = false;
-    }
-
+    //========================================================================
+    //｢はい｣
+    //========================================================================
     public void YesButtonDown()
     {
         if (messageText[0].activeSelf)
@@ -188,6 +224,9 @@ public class SettingController : MonoBehaviour
         }
     }
 
+    //========================================================================
+    //｢いいえ｣
+    //========================================================================
     public void NoButtonDown()
     {
         SoundMan.NoTapSE();
@@ -195,5 +234,43 @@ public class SettingController : MonoBehaviour
         settingActive = true;
         messageBox.SetActive(false);
         messageActive = false;
+    }
+
+    //========================================================================
+    //ヒント画面出力
+    //========================================================================
+    //display; 表示 or 削除
+    //========================================================================
+    public void HintButtonDown(bool display)
+    {
+        if (display)
+        {
+            SoundMan.YesTapSE();
+            settingScreen.SetActive(false);
+            settingActive = false;
+            hintScreen.SetActive(true);
+            hintActive = true;
+        }
+        else
+        {
+            SoundMan.NoTapSE();
+            settingScreen.SetActive(true);
+            settingActive = true;
+            hintScreen.SetActive(false);
+            hintActive = false;
+        }
+    }
+
+    //========================================================================
+    //環境設定画面を閉じる
+    //========================================================================
+    public void ExitButtonDown()
+    {
+        SoundMan.NoTapSE();
+        Time.timeScale = 1.0f;
+        hamsterCon.setting = false;
+        settingScreen.SetActive(false);
+        hintScreen.SetActive(false);
+        settingActive = false;
     }
 }

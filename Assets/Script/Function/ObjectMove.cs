@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace MoveFunction
 {
@@ -124,6 +125,74 @@ namespace MoveFunction
                     break;
                 }
             }
+        }
+
+
+        //========================================================================
+        //色変更(2色点滅)動作  ※Image or Text の使用ない方は null を指定する
+        //========================================================================
+        //ima;          変更対象Image
+        //tex;          変更対象Text
+        //changeSpeed;  変更速度
+        //colArray;     変更色の配列
+        //compArray;    比較番号指定配列(0:R 1:G 2:B 3:A)
+        //chengeCount;  ループ回数(配列1周で1カウント、-1指定で無限再生)
+        //========================================================================
+        //changeEnd;    点滅停止
+        //========================================================================
+        public static bool changeEnd = false;
+        public static IEnumerator PaletteChange(Image ima, Text tex, float changeSpeed, Color[] colArray, int[] compArray, int chengeCount)
+        {
+            float oneFrameTime = 0.02f;                //1フレーム時間
+            int loopTimes = 0;                         //繰り返し回数
+            int colCount = colArray.Length;            //変更色の数
+
+            int nowIndex = 0;    //現在の色
+            int nextIndex = 1;   //次の色
+            float nextCompCol = colArray[nextIndex][compArray[nowIndex]]; //比較色指定
+            float judgeRange = 5.0f / 255.0f;                             //判定範囲
+
+            if (ima != null)
+            {
+                //-------------------------
+                //Image
+                //-------------------------
+                while (!changeEnd)
+                {
+                    ima.color = Color.Lerp(tex.color, colArray[nextIndex], changeSpeed);
+                    float nowCompCol = ima.color[compArray[nowIndex]];
+                    if (nowCompCol + judgeRange >= nextCompCol && nextCompCol >= nowCompCol - judgeRange)
+                    {
+                        nowIndex = nextIndex;
+                        nextIndex = (nextIndex + 1 >= colCount) ? 0 : nextIndex + 1;
+                        nextCompCol = colArray[nextIndex][compArray[nowIndex]];
+                        loopTimes++;
+                    }
+                    if (chengeCount >= 0 && loopTimes >= chengeCount) break;
+                    yield return new WaitForSecondsRealtime(oneFrameTime);
+                }
+            }
+            else
+            {
+                //-------------------------
+                //Text
+                //-------------------------
+                while (!changeEnd)
+                {
+                    tex.color = Color.Lerp(tex.color, colArray[nextIndex], changeSpeed);
+                    float nowCompCol = tex.color[compArray[nowIndex]];
+                    if (nowCompCol + judgeRange >= nextCompCol && nextCompCol >= nowCompCol - judgeRange)
+                    {
+                        nowIndex = nextIndex;
+                        nextIndex = (nextIndex + 1 >= colCount) ? 0 : nextIndex + 1;
+                        nextCompCol = colArray[nextIndex][compArray[nowIndex]];
+                        loopTimes++;
+                    }
+                    if (chengeCount >= 0 && loopTimes >= chengeCount) break;
+                    yield return new WaitForSecondsRealtime(oneFrameTime);
+                }
+            }
+            changeEnd = false;
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using GFramework; //SimpleRoundedImageを使用する
 
 public class TutorialController : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class TutorialController : MonoBehaviour
     private Transform textTra;
     private Text textText;
     private Image textIma;
+    private SimpleRoundedImage hintIma;
     [Header("テキスト格納ボックス")]
     public Transform textBoxTra;
     [Header("ステータスボード")]
@@ -44,7 +46,9 @@ public class TutorialController : MonoBehaviour
     private float displayTime = 2.0f;    //説明の最低表示時間
     [System.NonSerialized]
     public bool ColDescription = false;  //体力説明完了？
-    private bool textIndexEight = false; //8番テキスト表示？
+    private bool imageFade = false;      //イメージをフェードする？
+    private bool textIndexTen = false;   //テキスト番号10？
+    private float textTenColor = 180.0f / 255.0f;  //テキスト番号10の色のG値
 
     private bool textDestroy = false;    //テキスト消去中？
     private bool textDisplay = false;    //テキスト表示途中？
@@ -94,7 +98,11 @@ public class TutorialController : MonoBehaviour
         }
     }
 
+    //========================================================================
     //次の説明
+    //========================================================================
+    //descriptionNum;   説明番号
+    //========================================================================
     IEnumerator NextDescription(int descriptionNum)
     {
         switch (descriptionNum)
@@ -186,6 +194,22 @@ public class TutorialController : MonoBehaviour
                 break;
             case 10:
                 SoundMan.YesTapSE();
+                StartCoroutine(DescriptionStart());
+                StartCoroutine(TextDestroy(false));
+                yield return new WaitWhile(() => textDestroy == true);
+                TextDisplay(10);
+                yield return new WaitWhile(() => textDisplay == true);
+                break;
+            case 11:
+                SoundMan.YesTapSE();
+                StartCoroutine(DescriptionStart());
+                StartCoroutine(TextDestroy(false));
+                yield return new WaitWhile(() => textDestroy == true);
+                TextDisplay(11);
+                yield return new WaitWhile(() => textDisplay == true);
+                break;
+            case 12:
+                SoundMan.YesTapSE();
                 HamsterCon.tutorial = false;
                 HamsterCon.MovingLimit(false);
                 PanelMan.tutorial = false;
@@ -195,7 +219,11 @@ public class TutorialController : MonoBehaviour
 
     }
 
+    //========================================================================
     //手フェード
+    //========================================================================
+    //posIndex;   指定座標番号
+    //========================================================================
     IEnumerator HandMove(int posIndex)
     {
         int nowTapNum = tupNum;
@@ -260,7 +288,11 @@ public class TutorialController : MonoBehaviour
         handIma.color = new Color(1, 1, 1, 1);
     }
 
+    //========================================================================
     //テキスト表示
+    //========================================================================
+    //textIndex;   テキスト番号
+    //========================================================================
     public void TextDisplay(int textIndex)
     {
         textColAlpha[1] = 0.0f;
@@ -268,9 +300,15 @@ public class TutorialController : MonoBehaviour
         textTra = textObj.transform;
         textText = textTra.GetChild(0).gameObject.GetComponent<Text>();
         textText.color = new Color(0, 0, 0, 0);
-        if(textIndex == 8)
+        if(textIndex == 8 || textIndex == 10 || textIndex == 11)
         {
-            textIndexEight = true;
+            imageFade = true;
+            if (textIndex == 10)
+            {
+                textIndexTen = true;
+                hintIma = textTra.GetChild(2).gameObject.GetComponent<SimpleRoundedImage>();
+                hintIma.color = new Color(1, textTenColor, 0, 0);
+            }
             textIma = textTra.GetChild(1).gameObject.GetComponent<Image>();
             textIma.color = new Color(1, 1, 1, 0);
         }
@@ -278,7 +316,12 @@ public class TutorialController : MonoBehaviour
         textDisplay = true;
         StartCoroutine(TextFade());
     }
+
+    //========================================================================
     //テキスト消去
+    //========================================================================
+    //firstDes;   初関数起動？
+    //========================================================================
     public IEnumerator TextDestroy(bool firstDes)
     {
         if (firstDes) HamsterCon = GameObject.FindWithTag("Hamster").GetComponent<HamsterPanelController>();
@@ -289,7 +332,9 @@ public class TutorialController : MonoBehaviour
         if (textObj != null) Destroy(textObj);
     }
 
+    //========================================================================
     //テキストフェード
+    //========================================================================
     IEnumerator TextFade()
     {
         float oneFrameTime = 0.02f;
@@ -301,7 +346,8 @@ public class TutorialController : MonoBehaviour
                 if (textObj != null)
                 {
                     textText.color = new Color(0, 0, 0, textColAlpha[0]);
-                    if (textIndexEight) textIma.color = new Color(1, 1, 1, textColAlpha[0]);
+                    if (imageFade) textIma.color = new Color(1, 1, 1, textColAlpha[0]);
+                    if (textIndexTen) hintIma.color = new Color(1, textTenColor, 0, textColAlpha[0]);
                 }
                 if (textColAlpha[0] <= 0.0f)
                 {
@@ -315,12 +361,14 @@ public class TutorialController : MonoBehaviour
                 if (textObj != null)
                 {
                     textText.color = new Color(0, 0, 0, textColAlpha[1]);
-                    if (textIndexEight) textIma.color = new Color(1, 1, 1, textColAlpha[1]);
+                    if (imageFade) textIma.color = new Color(1, 1, 1, textColAlpha[1]);
+                    if (textIndexTen) hintIma.color = new Color(1, textTenColor, 0, textColAlpha[1]);
                 }
                 if (textColAlpha[1] >= 1.0f)
                 {
                     textDestroy = false;
-                    if (textIndexEight) textIndexEight = false;
+                    if (imageFade) imageFade = false;
+                    if (textIndexTen) textIndexTen = false;
                     break;
                 }
             }
@@ -328,29 +376,49 @@ public class TutorialController : MonoBehaviour
         }
     }
 
+    //========================================================================
     //フィルター表示
+    //========================================================================
+    //filterIndex;   フィルター番号
+    //========================================================================
     public void FilterDisplay(int filterIndex)
     {
         filter[filterIndex].SetActive(true);
     }
+
+    //========================================================================
     //フィルター消去
+    //========================================================================
+    //filterIndex;   フィルター番号
+    //========================================================================
     public void FilterDestroy(int filterIndex)
     {
         filter[filterIndex].SetActive(false);
     }
+
+    //========================================================================
     //説明開始
+    //========================================================================
     public IEnumerator DescriptionStart()
     {
         waiting = true;
         yield return new WaitForSecondsRealtime(displayTime);
         waiting = false;
     }
+
+    //========================================================================
     //時間変更
+    //========================================================================
+    //timeScale;   時間の指定
+    //========================================================================
     void TimeScaleChange(float timeScale)
     {
         Time.timeScale = timeScale;
     }
-    //収穫完了
+
+    //========================================================================
+    //収穫完了    
+    //========================================================================
     public IEnumerator HarvestComplete()
     {
         if (!ColDescription)
@@ -380,7 +448,13 @@ public class TutorialController : MonoBehaviour
             yield return new WaitWhile(() => textDisplay == true);
         }
     }
+
+    //========================================================================
     //ハムスター移動完了
+    //========================================================================
+    //textIndex;   テキスト番号
+    //filterIndex; フィルター番号
+    //========================================================================
     public IEnumerator HamsterMovingComplete(int textIndex, int filterIndex)
     {
         description = false;
