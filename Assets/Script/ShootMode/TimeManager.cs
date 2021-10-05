@@ -25,7 +25,7 @@ namespace ShootMode
                 if (count == stratTime) break;
             }
             hamCon.gameStart = true;
-            LineBlocGenerateInterval();
+            StartCoroutine(LineBlocGenerateInterval());
         }
 
         //========================================================================

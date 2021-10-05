@@ -35,7 +35,10 @@ public class BlinkingOperation : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(waitTime);
         StartCoroutine(PaletteChange(ima, tex, changeSpeed, colArray, compArray, chengeCount));
-        yield return new WaitForSecondsRealtime(endTime);
-        changeEnd = true;
+        if(endTime > 0)
+        {
+            yield return new WaitForSecondsRealtime(endTime);
+            changeEnd = true;
+        }
     }
 }

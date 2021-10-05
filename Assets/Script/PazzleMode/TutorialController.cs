@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using GFramework; //SimpleRoundedImageを使用する
+using static MoveFunction.ObjectMove;
 
 public class TutorialController : MonoBehaviour
 {
@@ -105,6 +106,7 @@ public class TutorialController : MonoBehaviour
     //========================================================================
     IEnumerator NextDescription(int descriptionNum)
     {
+        changeEnd = false;
         switch (descriptionNum)
         {
             case 1:

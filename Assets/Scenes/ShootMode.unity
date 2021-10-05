@@ -3395,6 +3395,9 @@ MonoBehaviour:
   switchSprite:
   - {fileID: -1494352897237206093, guid: 10324ec466a6f6143bfc439128e9cc92, type: 3}
   - {fileID: 5207117429831932417, guid: 10324ec466a6f6143bfc439128e9cc92, type: 3}
+  settingScreen: {fileID: 250256655}
+  hintScreen: {fileID: 0}
+  messageBox: {fileID: 1218925921}
   uiCamera: {fileID: 1074317966}
 --- !u!82 &984988859
 AudioSource:

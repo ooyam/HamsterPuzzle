@@ -325,14 +325,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ima: {fileID: 0}
   tex: {fileID: 1261069074926491509}
-  changeSpeed: 0.2
+  changeSpeed: 0.1
   colArray:
   - {r: 1, g: 0.3137255, b: 0.3137255, a: 0}
   - {r: 1, g: 0.3137255, b: 0.3137255, a: 1}
   compArray: 0300000003000000
   chengeCount: -1
-  waitTime: 2
-  endTime: 5
+  waitTime: 1
+  endTime: -1
 --- !u!1 &5946912852719393401
 GameObject:
   m_ObjectHideFlags: 0

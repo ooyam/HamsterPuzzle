@@ -229,13 +229,14 @@ public class BlocManager : MonoBehaviour
         throwNow = true;
         float oneFrameTime = 0.02f;
         float throwSpeed = 50.0f;
+        float maxRangeFix = 60.0f;
         int targetIndex = 1;
         int pointsCount = linePoints.Length;
         while (throwNow)
         {
             Vector3 throwBlocPos = blocTra[throwBlocIndex].anchoredPosition;
             blocTra[throwBlocIndex].anchoredPosition = Vector3.MoveTowards(throwBlocPos, linePoints[targetIndex], throwSpeed);
-            float[] endPos = new float[]{ linePoints[targetIndex].x + 20.0f, linePoints[targetIndex].x - 20.0f };
+            float[] endPos = new float[]{ linePoints[targetIndex].x + maxRangeFix, linePoints[targetIndex].x - maxRangeFix };
             if (throwBlocPos.x <= endPos[0] && throwBlocPos.x >= endPos[1])
             {
                 if(pointsCount - 1 > targetIndex) targetIndex++;
@@ -266,12 +267,17 @@ public class BlocManager : MonoBehaviour
         int[] arrangementPos = new int[3]; //投擲ブロック配置座標 0:パターン番号 1:行番号 2:列番号
 
         //下の行にセットする
-        if (throwBlocPos.y <= connectObjPos.y - sameLineJudge)
+        //(接触ブロックが8列パターン && ((接触ブロックが最左 && 左に接触) || (接触ブロックが最右 && 右に接触))) || 接触Y座標が一定以下
+        if ((blocPosIndex[connectObjIndex][0] == 1 &&
+            ((blocPosIndex[connectObjIndex][2] == 0 && connectObjPos.x >= throwBlocPos.x) ||
+            (blocPosIndex[connectObjIndex][2] == columnNum[1] - 1 && connectObjPos.x <= throwBlocPos.x))) ||
+            throwBlocPos.y <= connectObjPos.y - sameLineJudge)
         {
             arrangementPos[0] = (blocPosIndex[connectObjIndex][0] == 0) ? 1 : 0;
             arrangementPos[1] = blocPosIndex[connectObjIndex][1] + 1;
 
-            if (blocPosIndex[connectObjIndex][0] == 0 && ((connectObjPos.x >= throwBlocPos.x && connectObjIndex != 0) || connectObjIndex == columnNum[0] - 1))
+            //接触ブロックが9列パターン && (ブロックの左側に接触 || 接触ブロックが最左)
+            if (blocPosIndex[connectObjIndex][0] == 0 && ((blocPosIndex[connectObjIndex][2] != 0 && connectObjPos.x >= throwBlocPos.x) || blocPosIndex[connectObjIndex][2] == columnNum[0] - 1))
                 arrangementPos[2] = blocPosIndex[connectObjIndex][2] - 1;
             else if (blocPosIndex[connectObjIndex][0] == 1 && connectObjPos.x <= throwBlocPos.x)
                 arrangementPos[2] = blocPosIndex[connectObjIndex][2] + 1;

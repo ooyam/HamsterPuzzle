@@ -42,7 +42,7 @@ public class SettingController : MonoBehaviour
         Audio = this.GetComponent<AudioSource>();
         Transform tra = this.transform;
         settingTag = settingScreen.transform.tag;
-        hintTag = hintScreen.transform.tag;
+        if(hintScreen != null) hintTag = hintScreen.transform.tag;
         Transform mesTra = messageBox.transform;
         messageTag = mesTra.tag;
         messageText = new GameObject[]
