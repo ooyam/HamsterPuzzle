@@ -3,20 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using ShootMode;
+using static MoveFunction.ObjectMove;
 
 public class BlocManager : MonoBehaviour
 {
-    public enum VegetableType
-    {
-        broccoli,
-        cabbage,
-        carrot,
-        paprika,
-        pumpkin,
-        corn
-    }
-    VegetableType vegType;
-
     [Header("ブロックの取得")]
     [SerializeField]
     GameObject[] blocPre;
@@ -89,8 +79,8 @@ public class BlocManager : MonoBehaviour
     //========================================================================
     //ブロック生成
     //========================================================================
-    //blocPreIndex;   ブロックのプレハブ番号
-    //throwBloc;      投擲ブロック？
+    //blocPreIndex; ブロックのプレハブ番号
+    //throwBloc;    投擲ブロック？
     //========================================================================
     int BlocGenerate(int blocPreIndex, bool throwBloc)
     {
@@ -119,7 +109,7 @@ public class BlocManager : MonoBehaviour
     //========================================================================
     //ブロック指定行数生成指示
     //========================================================================
-    //generatLineNum;   ライン生成数
+    //generatLineNum; ライン生成数
     //========================================================================
     public IEnumerator LineBlocGenerate(int generatLineNum)
     {
@@ -153,7 +143,7 @@ public class BlocManager : MonoBehaviour
                 {
                     int objIndex = BlocGenerate(geneInd[patternIndex], false);                             //ブロック生成
                     blocTra[objIndex].anchoredPosition = blocPos[blocPosFirstIndex][0][blocPosThirdIndex]; //ブロック座標指定
-                    blocPosIndex[objIndex] = new int[] { blocPosFirstIndex, 0, blocPosThirdIndex };        //オブジェクトの座標の保存
+                    blocPosIndex[objIndex] = new int[] { blocPosFirstIndex, 0, blocPosThirdIndex };        //ブロックの座標の保存
                     blocPosThirdIndex++;
                 }
             }
@@ -222,7 +212,7 @@ public class BlocManager : MonoBehaviour
     //========================================================================
     //ブロックを投げる
     //========================================================================
-    //linePoints;   投擲起動頂点座標
+    //linePoints; 投擲起動頂点座標
     //========================================================================
     public IEnumerator BlocThrow(Vector3[] linePoints)
     {
@@ -251,17 +241,17 @@ public class BlocManager : MonoBehaviour
     //========================================================================
     //ブロック接触
     //========================================================================
-    //obj;     接触したオブジェクト
-    //conPos;  接触箇所
+    //obj;    接触したブロック
+    //conPos; 接触箇所
     //========================================================================
     public void BlocConnect(GameObject obj)
     {
         throwNow = false;                                     //投擲終了
         blocTra[throwBlocIndex].SetParent(blocBoxTra, true);  //ブロックボックスの子オブジェクトに変更
 
-        int connectObjIndex = blocObj.IndexOf(obj);                           //接触したオブジェクトの番号取得
-        Vector3 connectObjPos = blocTra[connectObjIndex].anchoredPosition;    //接触したオブジェクトの座標
-        Vector3 throwBlocPos = blocTra[throwBlocIndex].anchoredPosition;      //投擲オブジェクトの座標
+        int connectObjIndex = blocObj.IndexOf(obj);                           //接触したブロックの番号取得
+        Vector3 connectObjPos = blocTra[connectObjIndex].anchoredPosition;    //接触したブロックの座標
+        Vector3 throwBlocPos = blocTra[throwBlocIndex].anchoredPosition;      //投擲ブロックの座標
 
         float sameLineJudge = 40.0f;       //同列判定配置座標
         int[] arrangementPos = new int[3]; //投擲ブロック配置座標 0:パターン番号 1:行番号 2:列番号
@@ -294,6 +284,189 @@ public class BlocManager : MonoBehaviour
         //投擲ブロック停止座標指定
         blocTra[throwBlocIndex].anchoredPosition = blocPos[arrangementPos[0]][arrangementPos[1]][arrangementPos[2]];
         blocPosIndex[throwBlocIndex] = arrangementPos;
+
+        //ブロック削除
+        Debug.Log("throwBlocIndex : " + throwBlocIndex);
+        AdjacentJudgment(new int[] { throwBlocIndex });
+
+
         //if (posLineInd > nowLineNum) nowLineNum = posLineInd;
+    }
+
+    //========================================================================
+    //隣接同タグブロック判定
+    //========================================================================
+    //index; 基準のブロックの番号
+    //========================================================================
+    void AdjacentJudgment(int[] index)
+    {
+
+        //テスト
+        int[] refPosInd = blocPosIndex[index[0]];      //基準ブロックの座標番号
+        int columnType = refPosInd[0];                 //配置タイプ
+        List<int[]> adjacentList = new List<int[]>();  //隣接ブロックリスト
+
+        bool minLine   = refPosInd[1] == 0;                          //最上段?
+        bool maxLine   = refPosInd[1] == maxLineNum;                 //最下段?
+        bool maxColumn = refPosInd[2] == columnNum[columnType] - 1;  //最右列?
+        bool minColumn = refPosInd[2] == 0;                          //最左列?
+
+        //基準ブロックが9列パターンの場合
+        if (columnType == 0)
+        {
+            //右端以外
+            if (!maxColumn)
+            {
+                adjacentList.Add(new int[] { refPosInd[0], refPosInd[1], refPosInd[2] + 1 });               //右
+                if (!minLine) adjacentList.Add(new int[] { refPosInd[0], refPosInd[1] - 1, refPosInd[2] }); //右上
+                if (!maxLine) adjacentList.Add(new int[] { refPosInd[0], refPosInd[1] + 1, refPosInd[2] }); //右下
+            }
+
+            //左端以外
+            if (!minColumn)
+            {
+                adjacentList.Add(new int[] { refPosInd[0], refPosInd[1], refPosInd[2] - 1 });                   //左
+                if (!minLine) adjacentList.Add(new int[] { refPosInd[0], refPosInd[1] - 1, refPosInd[2] - 1 }); //左上
+                if (!maxLine) adjacentList.Add(new int[] { refPosInd[0], refPosInd[1] + 1, refPosInd[2] - 1 }); //左下
+            }
+        }
+        //基準ブロックが8列パターンの場合
+        else
+        {
+            if (!maxColumn) adjacentList.Add(new int[] { refPosInd[0], refPosInd[1]    , refPosInd[2] + 1 });  //右
+            if (!minLine)   adjacentList.Add(new int[] { refPosInd[0], refPosInd[1] - 1, refPosInd[2] + 1 });  //右上
+            if (!maxLine)   adjacentList.Add(new int[] { refPosInd[0], refPosInd[1] + 1, refPosInd[2] + 1 });  //右下
+            if (!minColumn) adjacentList.Add(new int[] { refPosInd[0], refPosInd[1]    , refPosInd[2] - 1 });  //左
+            if (!minLine)   adjacentList.Add(new int[] { refPosInd[0], refPosInd[1] - 1, refPosInd[2] });      //左上
+            if (!maxLine)   adjacentList.Add(new int[] { refPosInd[0], refPosInd[1] + 1, refPosInd[2] });      //左下
+        }
+
+        //同タグ判定
+        List<int> deleteList = new List<int>();  //削除ブロック番号リスト
+        string blockTag = blocObj[index[0]].tag;
+        Debug.Log("throwBlocTag : " + blockTag);
+        foreach (int[] posIndex in adjacentList)
+        {
+            Debug.Log("adjacentList[" + adjacentList.IndexOf(posIndex) + "] : " + posIndex[0] + ", " + posIndex[1] + ", " + posIndex[2]);
+
+            //↓ここが取得できていない
+            int blockIndex = blocPosIndex.IndexOf(posIndex);
+            //if (blockIndex >= 0) Debug.Log("adjacentObjTag : " + blocObj[blockIndex].tag);
+            if (blockIndex >= 0 && blocObj[blockIndex].tag == blockTag)
+                deleteList.Add(blockIndex);
+        }
+
+        //配列に変換して削除実行
+        if (deleteList.Count > 0)
+        {
+            foreach (var item in deleteList)
+            {
+                Debug.Log("index : " + item);
+                Debug.Log("tag : " + blocObj[item].tag);
+            }
+            int[] deleteBlocks = deleteList.ToArray();
+            BlocDelete(deleteBlocks, true);
+        }
+
+
+
+
+
+
+
+        /*
+        //削除ブロック番号
+        List<int> deleteBlocIndex = new List<int>();
+
+        while (true)
+        {
+            //座標番号取得
+            int indexLength = index.Length;
+            int[][] posIndex = new int[indexLength][];
+            for (int i = 0; i < indexLength; i++)
+            { posIndex[i] = blocPosIndex[index[i]]; }
+
+            //隣接の有無
+            bool adjacent = false;
+
+            foreach (int[] posInd in posIndex)
+            {
+                //削除ブロック座標番号
+                List<int[]> adjacentPosIndex = new List<int[]>();
+
+                //右端以外
+                if (posInd[2] != columnNum[posInd[0]])
+                {
+                    adjacentPosIndex.Add(new int[] { posInd[0], posInd[1], posInd[2] + 1 }); //右
+                    if (posInd[1] != 0) adjacentPosIndex.Add(new int[] { posInd[0], posInd[1] - 1, posInd[2] + columnNum[posInd[0]] });         //右上
+                    if (posInd[1] < maxLineNum) adjacentPosIndex.Add(new int[] { posInd[0], posInd[1] + 1, posInd[2] + columnNum[posInd[0]] }); //右下
+                }
+                //左端以外
+                if (posInd[2] != 0)
+                {
+                    adjacentPosIndex.Add(new int[] { posInd[0], posInd[1], posInd[2] - 1 }); //左
+                    if (posInd[1] != 0) adjacentPosIndex.Add(new int[] { posInd[0], posInd[1] - 1, posInd[2] + columnNum[posInd[0]] - 1 });         //左上
+                    if (posInd[1] < maxLineNum) adjacentPosIndex.Add(new int[] { posInd[0], posInd[1] - 1, posInd[2] + columnNum[posInd[0]] - 1 }); //左下
+                }
+
+                int blocObjCount = blocObj.Count;
+                foreach (int[] adjPosInd in adjacentPosIndex)
+                {
+                    //オブジェクト番号取得
+                    int deleteObjIndex = blocObjCount;
+                    for (int posListIndex = 0; posListIndex < blocObjCount; posListIndex++)
+                    {
+                        if (blocPosIndex[posListIndex][0] == adjPosInd[0] &&
+                            blocPosIndex[posListIndex][1] == adjPosInd[1] &&
+                            blocPosIndex[posListIndex][2] == adjPosInd[2])
+                            deleteObjIndex = posListIndex;
+                    }
+
+                    //オブジェクト取得
+                    List<int> deleteBlocIndexDummy = new List<int>();
+                    if (deleteObjIndex < blocObjCount)
+                    {
+                        if (blocObj[deleteObjIndex].tag == blocObj[index[0]].tag)
+                        {
+                            deleteBlocIndex.Add(deleteObjIndex);
+                            deleteBlocIndexDummy.Add(deleteObjIndex);
+                            adjacent = true;
+                        }
+                    }
+
+                    //配列に変化して次の隣接ブロック判定
+                    index = deleteBlocIndexDummy.ToArray();
+                }
+            }
+            if (!adjacent) break;
+        }
+
+        //配列に変化してブロック削除
+        if (deleteBlocIndex.Count > 0) BlocDelete(deleteBlocIndex.ToArray(), true);
+        foreach (int delBloInd in deleteBlocIndex)
+        {
+            Debug.Log(blocObj[delBloInd].tag);
+        }*/
+    }
+
+    //========================================================================
+    //ブロック削除
+    //========================================================================
+    //deleteObjIndex; 削除ブロック番号
+    //connect;        接触削除？
+    //========================================================================
+    void BlocDelete(int[] deleteObjIndex, bool connect)
+    {
+        if (connect)
+        {
+            float movespeed = 30.0f;
+
+            foreach (int delInd in deleteObjIndex)
+            {
+                Vector2 nowPos = blocTra[delInd].anchoredPosition;
+                Vector2 targetPos = new Vector2(nowPos.x, -1000.0f);
+                StartCoroutine(MoveMovement(blocTra[delInd], movespeed, targetPos, false));
+            }
+        }
     }
 }

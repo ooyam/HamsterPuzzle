@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static MoveFunction.ObjectMove;
 
-public class StratObject : MonoBehaviour
+public class StartObject : MonoBehaviour
 {
     [Header("BackGround")]
     public RectTransform backGroundTra;

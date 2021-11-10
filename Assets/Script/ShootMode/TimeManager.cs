@@ -4,6 +4,17 @@ using UnityEngine;
 
 namespace ShootMode
 {
+    //–ìØ‚Ìí—Ş
+    public enum VegetableType
+    {
+        Broccoli = 0,
+        Cabbage,
+        Carrot,
+        Paprika,
+        Pumpkin,
+        Corn
+    }
+
     public class TimeManager : MonoBehaviour
     {
         [Header("BlocManager")]

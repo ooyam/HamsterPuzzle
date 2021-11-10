@@ -1,11 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ShootMode;
 using System;
 
 public class BlocController : MonoBehaviour
 {
-    string[] blocTag = new string[] { "Broccoli", "Cabbage", "Carrot", "Paprika", "Pumpkin", "Corn" };
+    string[] blocTag;
+    void Start()
+    {
+        //–ìØî•ñ‚Ìæ“¾
+        System.Array vegetableType = Enum.GetValues(typeof(VegetableType));
+        blocTag = new string[vegetableType.Length];
+        foreach (VegetableType value in vegetableType)
+        { blocTag[(int)value] = Enum.GetName(typeof(VegetableType), value); }
+    }
 
     //========================================================================
     //ÚG
