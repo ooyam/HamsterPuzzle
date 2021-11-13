@@ -10,8 +10,8 @@ namespace ShootMode
         RectTransform canvasTra;           //CanvasのRectTransform
         LineRenderer line;                 //LineRenderer
 
-        [Header("BlocManager")]
-        public BlocManager blocMan;
+        [Header("BlockManager")]
+        public BlockManager blockMan;
         bool tapStart = false;             //タップ開始
         float magnification;               //タップ位置修正倍率
         float differenceX;                 //タップ位置修正数X
@@ -49,7 +49,7 @@ namespace ShootMode
         {
             if (gameStart)
             {
-                if (!blocMan.throwNow)
+                if (!blockMan.throwNow && !blockMan.blockDeleteNow)
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
@@ -73,7 +73,7 @@ namespace ShootMode
                                     tapStart = false;
                                     line.positionCount = 0;
                                     //ブロックを投げる
-                                    StartCoroutine(blocMan.BlocThrow(linePos));
+                                    StartCoroutine(blockMan.BlockThrow(linePos));
                                 }
                             }
                             else throwOperation = true;
@@ -106,13 +106,13 @@ namespace ShootMode
             float linePosX = 0.0f;
             float linePosY = 0.0f;
             float hamPosX = tra.anchoredPosition.x;
-            bool rightThrow = mousePos.x < hamPosX;                                          //右に投げ始める?
-            float maxY = canvasHigh - (blocMan.blocPosY * (blocMan.nowLineNum - 1)) + posY;  //Y最大値
+            bool rightThrow = mousePos.x < hamPosX;                                             //右に投げ始める?
+            float maxY = canvasHigh - (blockMan.blockPosY * (blockMan.nowLineNum - 1)) + posY;  //Y最大値
             float[] maxX = new float[2];
-            maxX[0] = (rightThrow) ? differenceX - hamPosX : -differenceX - hamPosX;         //X最大値
+            maxX[0] = (rightThrow) ? differenceX - hamPosX : -differenceX - hamPosX;            //X最大値
             maxX[1] = (rightThrow) ? -differenceX - hamPosX : differenceX - hamPosX;
-            float multiplierX = maxX[0] / -(mousePos.x - hamPosX);                           //乗数         
-            linePosY = multiplierX * -mousePos.y;                                            //Y座標算出
+            float multiplierX = maxX[0] / -(mousePos.x - hamPosX);                              //乗数         
+            linePosY = multiplierX * -mousePos.y;                                               //Y座標算出
 
             if (linePosY < maxY)
             {

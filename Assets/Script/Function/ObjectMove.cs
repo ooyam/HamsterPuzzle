@@ -20,12 +20,12 @@ namespace MoveFunction
         //========================================================================
         public static IEnumerator ShakeMovement(RectTransform tra, float moveSpeed, float maxRot, int moveCount, float stopTime, int breakCount, float endTime)
         {
-            bool leftMove = true;        //左に回転？
-            bool rotReturn = false;      //角度戻し中？
-            bool shakeStop = false;      //停止？
-            int loopTimes = 0;           //動作回数
-            int cycleTimes = 0;          //サイクル回数
-            float playTime = 0.0f;       //揺れ動作再生時間
+            bool leftMove      = true;   //左に回転？
+            bool rotReturn     = false;  //角度戻し中？
+            bool shakeStop     = false;  //停止？
+            int loopTimes      = 0;      //動作回数
+            int cycleTimes     = 0;      //サイクル回数
+            float playTime     = 0.0f;   //揺れ動作再生時間
             float oneFrameTime = 0.02f;  //1フレームの時間
             while (true)
             {
@@ -124,6 +124,57 @@ namespace MoveFunction
                     tra.anchoredPosition = targetPos;
                     break;
                 }
+            }
+        }
+
+
+        //========================================================================
+        //拡大縮小動作
+        //========================================================================
+        //tra;          動作オブジェクトのRectTransform
+        //scalingSpeed; 拡縮速度
+        //changeScale;  変更時の拡大率
+        //endScale;     終了時の拡大率
+        //scalingTimes; 拡縮回数
+        //========================================================================
+        public static IEnumerator ScaleChange(RectTransform tra, float scalingSpeed, float changeScale, float endScale, int scalingTimes)
+        {
+            Vector3 nowScale = tra.localScale;    //現在の拡大率
+            bool scaleUp     = scalingSpeed > 0;  //拡大？
+            bool scaleChange = true;              //変更動作中？
+            bool end         = false;             //変更動作終了？
+
+            for (int loopTimes = 0; loopTimes < scalingTimes; loopTimes++)
+            {
+                while (true)
+                {
+                    yield return new WaitForFixedUpdate();
+                    if (scaleChange)
+                    {
+                        //---------------------------------------------
+                        //変更動作
+                        //---------------------------------------------
+                        nowScale = Vector3.one * (nowScale.x + scalingSpeed);
+                        if ((scaleUp && nowScale.x >= changeScale) || (!scaleUp && nowScale.x <= changeScale))
+                            scaleChange = false;
+                    }
+                    else
+                    {
+                        //---------------------------------------------
+                        //終了動作
+                        //---------------------------------------------
+                        nowScale = Vector3.one * (nowScale.x - scalingSpeed);
+                        if ((scaleUp && nowScale.x <= endScale) || (!scaleUp && nowScale.x >= endScale))
+                            end = true;
+                    }
+                    tra.localScale = nowScale;
+                    if (end) break;
+                }
+
+                //変数リセット
+                tra.localScale = Vector3.one * endScale;
+                scaleChange = true;
+                end = false;
             }
         }
 

@@ -17,8 +17,8 @@ namespace ShootMode
 
     public class TimeManager : MonoBehaviour
     {
-        [Header("BlocManager")]
-        public BlocManager blocMan;
+        [Header("BlockManager")]
+        public BlockManager blockMan;
         [Header("HamsterController")]
         public HamsterController hamCon;
         int stageNum = 0;   //ステージ番号
@@ -36,13 +36,13 @@ namespace ShootMode
                 if (count == stratTime) break;
             }
             hamCon.gameStart = true;
-            StartCoroutine(LineBlocGenerateInterval());
+            StartCoroutine(LineBlockGenerateInterval());
         }
 
         //========================================================================
         //時間経過で1行生成指示
         //========================================================================
-        IEnumerator LineBlocGenerateInterval()
+        IEnumerator LineBlockGenerateInterval()
         {
             float generateTime = 30.0f;
             switch (stageNum)
@@ -56,7 +56,7 @@ namespace ShootMode
             while (true)
             {
                 yield return new WaitForSeconds(generateTime);
-                StartCoroutine(blocMan.LineBlocGenerate(1));
+                StartCoroutine(blockMan.LineBlockGenerate(1));
             }
         }
     }

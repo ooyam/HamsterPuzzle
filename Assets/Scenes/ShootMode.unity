@@ -2034,7 +2034,7 @@ GameObject:
   - component: {fileID: 566368833}
   - component: {fileID: 566368832}
   m_Layer: 5
-  m_Name: BlocBackBoard
+  m_Name: BlockBackBoard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4209,7 +4209,7 @@ GameObject:
   - component: {fileID: 1144189542}
   - component: {fileID: 1144189543}
   m_Layer: 5
-  m_Name: BlocBox
+  m_Name: BlockBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4329,8 +4329,8 @@ GameObject:
   - component: {fileID: 1171080477}
   - component: {fileID: 1171080476}
   m_Layer: 0
-  m_Name: BlocManager
-  m_TagString: BlocManager
+  m_Name: BlockManager
+  m_TagString: BlockManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4347,14 +4347,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fc89c10d3c528b479eb35c0f97bae52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blocPre:
+  blockPre:
   - {fileID: 2902307584617426267, guid: 2a330040881aba24a8134834782e9a2d, type: 3}
   - {fileID: 8479165431140639888, guid: 9ea107e202720e245a472b01f9d52847, type: 3}
   - {fileID: 2086832405524899773, guid: 1faa548c619a66c40bfdb8277df85e23, type: 3}
   - {fileID: 2297874366096924883, guid: 8f6425b8e510c43489d900484722693d, type: 3}
   - {fileID: 3629775933265376628, guid: 9781a8164c252b14aabbde7a9b779661, type: 3}
   - {fileID: 2912671024533389111, guid: fdf23643c238f344bbee0715d830ebc4, type: 3}
-  blocBoxTra: {fileID: 1144189542}
+  blockBoxTra: {fileID: 1144189542}
   hamsterBox: {fileID: 1231553351}
   cameraMain: {fileID: 845430519}
 --- !u!4 &1171080477
@@ -5140,7 +5140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fbd70880151fdc49bb3ac964aaa4034, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blocMan: {fileID: 1171080476}
+  blockMan: {fileID: 1171080476}
   hamCon: {fileID: 1743309517}
 --- !u!4 &1312784993
 Transform:
@@ -6292,7 +6292,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e285077c6473bb4baa130a457f01bc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blocMan: {fileID: 1171080476}
+  blockMan: {fileID: 1171080476}
 --- !u!120 &1743309518
 LineRenderer:
   m_ObjectHideFlags: 0

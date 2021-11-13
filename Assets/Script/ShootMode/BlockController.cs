@@ -4,16 +4,16 @@ using UnityEngine;
 using ShootMode;
 using System;
 
-public class BlocController : MonoBehaviour
+public class BlockController : MonoBehaviour
 {
-    string[] blocTag;
+    string[] blockTag;
     void Start()
     {
         //ñÏçÿèÓïÒÇÃéÊìæ
         System.Array vegetableType = Enum.GetValues(typeof(VegetableType));
-        blocTag = new string[vegetableType.Length];
+        blockTag = new string[vegetableType.Length];
         foreach (VegetableType value in vegetableType)
-        { blocTag[(int)value] = Enum.GetName(typeof(VegetableType), value); }
+        { blockTag[(int)value] = Enum.GetName(typeof(VegetableType), value); }
     }
 
     //========================================================================
@@ -22,11 +22,11 @@ public class BlocController : MonoBehaviour
     void OnTriggerEnter2D(Collider2D col)
     {
         GameObject connectObj = col.gameObject;
-        int tagIndex = Array.IndexOf(blocTag, connectObj.tag);
+        int tagIndex = Array.IndexOf(blockTag, connectObj.tag);
         if (0 <= tagIndex)
         {
-            GameObject.FindWithTag("BlocManager").GetComponent<BlocManager>().BlocConnect(connectObj);
-            Destroy(this.GetComponent<BlocController>());
+            GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>().BlockConnect(connectObj);
+            Destroy(this.GetComponent<BlockController>());
         }
     }
 }
