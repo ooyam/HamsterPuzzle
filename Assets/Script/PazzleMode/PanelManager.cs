@@ -32,7 +32,7 @@ public class PanelManager : MonoBehaviour
     private float ScreenHight = 1920.0f;   //画面高さ
 
     private int PanelColumns = 6;          //パネルの列数
-    private int PanelLines = 5;            //パネルの行数
+    private int PanelLines   = 5;          //パネルの行数
     [System.NonSerialized]
     public int PanelNum;                   //パネルの総数
     [System.NonSerialized]
@@ -57,27 +57,27 @@ public class PanelManager : MonoBehaviour
     private List<int> HarvestIndex = new List<int>(); //収穫リスト
     private int HarvestCompNum = 0;                   //収穫完了個数
     [System.NonSerialized]
-    public bool gameOver = false;                     //ゲームオーバー？
+    public bool gameOver     = false;                 //ゲームオーバー？
     private bool calorieZero = false;                 //カロリー無くなった？
     [System.NonSerialized]
-    public bool gameClear = false;                    //ゲームクリア？
+    public bool gameClear    = false;                 //ゲームクリア？
 
     private int stageNum = PuzzleMainController.stageNum; //ステージ番号
 
     // Start is called before the first frame update
     void Start()
     {
-        CameraMain = Camera.main;
-        TurnCon = GameObject.FindWithTag("Turn").GetComponent<TurnController>();
-        ScoreMan = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager>();
-        calGauge = GameObject.FindWithTag("CalorieGauge").GetComponent<CalorieGauge>();
-        SoundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
-        PanelNum = PanelLines * PanelColumns;
-        PanelList = new GameObject[PanelNum];
+        CameraMain   = Camera.main;
+        TurnCon      = GameObject.FindWithTag("Turn").GetComponent<TurnController>();
+        ScoreMan     = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager>();
+        calGauge     = GameObject.FindWithTag("CalorieGauge").GetComponent<CalorieGauge>();
+        SoundMan     = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
+        PanelNum     = PanelLines * PanelColumns;
+        PanelList    = new GameObject[PanelNum];
         PanelListTag = new string[PanelNum];
         PanelListTra = new RectTransform[PanelNum];
         PanelPosList = new Vector2[PanelNum];
-        PanelPosNum = new int[PanelNum];
+        PanelPosNum  = new int[PanelNum];
         PanelListScr = new VegetablePanelController[PanelNum];
         if(stageNum >= 14)
             VegetableTypeNum = 6;

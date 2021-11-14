@@ -103,11 +103,12 @@ namespace ShootMode
         //========================================================================
         Vector3[] LineCalculation(Vector3 mousePos)
         {
-            float linePosX = 0.0f;
-            float linePosY = 0.0f;
-            float hamPosX = tra.anchoredPosition.x;
+            float linePosX  = 0.0f;
+            float linePosY  = 0.0f;
+            float hamPosX   = tra.anchoredPosition.x;
             bool rightThrow = mousePos.x < hamPosX;                                             //右に投げ始める?
-            float maxY = canvasHigh - (blockMan.blockPosY * (blockMan.nowLineNum - 1)) + posY;  //Y最大値
+            //float maxY = canvasHigh - (blockMan.blockPosY * (blockMan.nowLineNum - 1)) + posY;  //Y最大値
+            float maxY = canvasHigh / 2 - posY - blockMan.blockDiameter / 2;  //Y最大値
             float[] maxX = new float[2];
             maxX[0] = (rightThrow) ? differenceX - hamPosX : -differenceX - hamPosX;            //X最大値
             maxX[1] = (rightThrow) ? -differenceX - hamPosX : differenceX - hamPosX;
@@ -138,7 +139,6 @@ namespace ShootMode
                     float nextLinePosX = maxX[maxXIndex];
                     if (nextLinePosY < maxY)
                     {
-
                         linePos.Add(new Vector3(nextLinePosX, nextLinePosY, 0.0f));
                     }
                     else

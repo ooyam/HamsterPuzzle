@@ -27,25 +27,26 @@ public class BlockManager : MonoBehaviour
 
     [Header("カメラの取得")]
     [SerializeField]
-    Camera cameraMain;            //カメラの取得
-    RectTransform canvasTra;      //CanvasのRectTransform
-    float differenceX;            //座標修正数X
-    float differenceY;            //座標修正数Y
+    Camera cameraMain;        //カメラの取得
+    RectTransform canvasTra;  //CanvasのRectTransform
+    float differenceX;        //座標修正数X
+    float differenceY;        //座標修正数Y
 
-    int[] columnNum = new int[] { 9, 8 };    //1行の列数
+    int[] columnNum = new int[] { 9, 8 };     //1行の列数
     Vector2[][][] blockPos;                   //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
     [System.NonSerialized]
-    public int nowLineNum = 0;               //現在の行数
-    int maxLineNum        = 12;              //最大行数
+    public int nowLineNum  = 0;               //現在の行数
+    int maxLineNum         = 12;              //最大行数
     [System.NonSerialized]
     public float blockPosY = 103.8f;          //ブロック生成位置Y
     float[][] blockPosX    = new float[2][];  //ブロック生成位置X
-    float blockDiameter    = 120.0f;          //ブロック直径
-    bool generateEnd      = false;           //生成終了？
+    bool generateEnd       = false;           //生成終了？
     [System.NonSerialized]
-    public bool throwNow  = false;           //投擲中？
+    public bool throwNow   = false;           //投擲中？
     [System.NonSerialized]
-    public bool blockDeleteNow = false;      //ブロック削除中？
+    public bool blockDeleteNow = false;       //ブロック削除中？
+    [System.NonSerialized]
+    public float blockDiameter = 120.0f;      //ブロック直径
 
     //int stageNum = 0;   //ステージ番号
     int vegTypeNum = Enum.GetValues(typeof(VegetableType)).Length; //使用する野菜の数
@@ -68,16 +69,19 @@ public class BlockManager : MonoBehaviour
                 blockPos[ind_1][ind_2] = new Vector2[columnNum[ind_1]];
                 for (int ind_3 = 0; ind_3 < columnNum[ind_1]; ind_3++)
                 {
-                    float posX = blockDiameter * ind_3 - posXFix[ind_1];      //X座標計算
+                    float posX = blockDiameter * ind_3 - posXFix[ind_1];       //X座標計算
                     float posY = -blockPosY * ind_2 - blockDiameter / 2.0f;    //Y座標計算
                     blockPos[ind_1][ind_2][ind_3] = new Vector2(posX, posY);
                 }
             }
         }
 
-        ThrowBlockGenerate();  //投擲用ブロック生成
+        //投擲用ブロック生成
+        ThrowBlockGenerate();
         int firstGenerateLinesNum = 3;
-        StartCoroutine(LineBlockGenerate(firstGenerateLinesNum)); //ブロックを3列生成
+
+        //ブロックを3列生成
+        StartCoroutine(LineBlockGenerate(firstGenerateLinesNum));
     }
 
     //========================================================================
@@ -237,9 +241,6 @@ public class BlockManager : MonoBehaviour
             }
             yield return new WaitForSeconds(oneFrameTime);
         }
-
-        //投擲ブロック生成
-        ThrowBlockGenerate();
     }
 
     //========================================================================
@@ -293,7 +294,7 @@ public class BlockManager : MonoBehaviour
         blockPosIndex[throwBlockIndex] = arrangementPos;
 
         //ブロック削除
-        AdjacentJudgment(throwBlockIndex);
+        AdjacentSameTagJudgment(throwBlockIndex);
 
 
         //if (posLineInd > nowLineNum) nowLineNum = posLineInd;
@@ -304,11 +305,12 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     //index; 基準のブロックの番号
     //========================================================================
-    void AdjacentJudgment(int index)
+    void AdjacentSameTagJudgment(int index)
     {
         List<int> referenceBlockIndexList = new List<int>();  //参照するブロックのリスト
         List<int> scannedIndexList        = new List<int>();  //検索済リスト
         referenceBlockIndexList.Add(index);                   //初期基準ブロック追加
+        string blockTag = blockObj[index].tag;                //基準タグ
 
         //隣接した同タグブロックをすべて取得
         while (true)
@@ -322,47 +324,11 @@ public class BlockManager : MonoBehaviour
                 if (scannedIndexList.IndexOf(refIndex) >= 0) continue;
                 else scannedIndexList.Add(refIndex);
 
-                int[] refPosInd = blockPosIndex[refIndex];        //基準ブロックの座標番号
-                int columnType  = refPosInd[0];                  //配置タイプ
-                List<int[]> adjacentList = new List<int[]>();    //隣接ブロックリスト
-
-                bool minLine   = refPosInd[1] == 0;                          //最上段?
-                bool maxLine   = refPosInd[1] == maxLineNum;                 //最下段?
-                bool maxColumn = refPosInd[2] == columnNum[columnType] - 1;  //最右列?
-                bool minColumn = refPosInd[2] == 0;                          //最左列?
-
-                //基準ブロックが9列パターンの場合
-                if (columnType == 0)
-                {
-                    //右端以外
-                    if (!maxColumn)
-                    {
-                        adjacentList.Add(new int[] { columnType, refPosInd[1], refPosInd[2] + 1 });                   //右
-                        if (!minLine) adjacentList.Add(new int[] { columnType + 1, refPosInd[1] - 1, refPosInd[2] }); //右上
-                        if (!maxLine) adjacentList.Add(new int[] { columnType + 1, refPosInd[1] + 1, refPosInd[2] }); //右下
-                    }
-
-                    //左端以外
-                    if (!minColumn)
-                    {
-                        adjacentList.Add(new int[] { columnType, refPosInd[1], refPosInd[2] - 1 });                       //左
-                        if (!minLine) adjacentList.Add(new int[] { columnType + 1, refPosInd[1] - 1, refPosInd[2] - 1 }); //左上
-                        if (!maxLine) adjacentList.Add(new int[] { columnType + 1, refPosInd[1] + 1, refPosInd[2] - 1 }); //左下
-                    }
-                }
-                //基準ブロックが8列パターンの場合
-                else
-                {
-                    if (!maxColumn) adjacentList.Add(new int[] { columnType,     refPosInd[1],     refPosInd[2] + 1 });  //右
-                    if (!minLine)   adjacentList.Add(new int[] { columnType - 1, refPosInd[1] - 1, refPosInd[2] + 1 });  //右上
-                    if (!maxLine)   adjacentList.Add(new int[] { columnType - 1, refPosInd[1] + 1, refPosInd[2] + 1 });  //右下
-                    if (!minColumn) adjacentList.Add(new int[] { columnType,     refPosInd[1],     refPosInd[2] - 1 });  //左
-                    if (!minLine)   adjacentList.Add(new int[] { columnType - 1, refPosInd[1] - 1, refPosInd[2] });      //左上
-                    if (!maxLine)   adjacentList.Add(new int[] { columnType - 1, refPosInd[1] + 1, refPosInd[2] });      //左下
-                }
+                //隣接ブロックリスト取得
+                List<int[]> adjacentList = new List<int[]>();
+                adjacentList = AdjacentAcquisition(refIndex);
 
                 //同タグ判定
-                string blockTag = blockObj[refIndex].tag;
                 foreach (int[] adjacentArray in adjacentList)
                 {
                     foreach (int[] posIndex in blockPosIndex)
@@ -383,21 +349,23 @@ public class BlockManager : MonoBehaviour
                         {
                             //削除リストに追加
                             int blockIndex = blockPosIndex.IndexOf(posIndex);
-                            if (blockObj[blockIndex].tag == blockTag && referenceBlockIndexList.IndexOf(blockIndex) < 0)
-                                addDeleteIndexList.Add(blockIndex);
+                            if (blockObj[blockIndex].tag == blockTag) addDeleteIndexList.Add(blockIndex);
                         }
                     }
                 }
             }
 
             //新たな削除ブロックがなかった場合は終了
-            if (addDeleteIndexList.Count <= 0) break;
-            else
+            bool add = false;
+            foreach (int addIndex in addDeleteIndexList)
             {
-                //追加して続行
-                foreach (int addIndex in addDeleteIndexList)
-                { referenceBlockIndexList.Add(addIndex); }
+                if (referenceBlockIndexList.IndexOf(addIndex) < 0)
+                {
+                    referenceBlockIndexList.Add(addIndex);
+                    add = true;
+                }
             }
+            if (!add) break;
         }
 
         //配列に変換して削除実行
@@ -406,6 +374,58 @@ public class BlockManager : MonoBehaviour
             int[] deleteBlocks = referenceBlockIndexList.ToArray();
             StartCoroutine(BlockDeleteStart(deleteBlocks, true));
         }
+        //投擲ブロック生成
+        else ThrowBlockGenerate();
+    }
+
+    //========================================================================
+    //隣接ブロック取得
+    //========================================================================
+    //index;  基準のブロックの番号
+    //return; 隣接ブロックリスト
+    //========================================================================
+    List<int[]> AdjacentAcquisition(int index)
+    {
+        List<int[]> adjacentList = new List<int[]>();   //隣接ブロックリスト
+        int[] refPosInd = blockPosIndex[index];         //基準ブロックの座標番号
+        int columnType = refPosInd[0];                  //配置タイプ
+
+        bool minLine   = refPosInd[1] == 0;                          //最上段?
+        bool maxLine   = refPosInd[1] == maxLineNum;                 //最下段?
+        bool maxColumn = refPosInd[2] == columnNum[columnType] - 1;  //最右列?
+        bool minColumn = refPosInd[2] == 0;                          //最左列?
+
+        //基準ブロックが9列パターンの場合
+        if (columnType == 0)
+        {
+            //右端以外
+            if (!maxColumn)
+            {
+                adjacentList.Add(new int[] { columnType, refPosInd[1], refPosInd[2] + 1 });                   //右
+                if (!minLine) adjacentList.Add(new int[] { columnType + 1, refPosInd[1] - 1, refPosInd[2] }); //右上
+                if (!maxLine) adjacentList.Add(new int[] { columnType + 1, refPosInd[1] + 1, refPosInd[2] }); //右下
+            }
+
+            //左端以外
+            if (!minColumn)
+            {
+                adjacentList.Add(new int[] { columnType, refPosInd[1], refPosInd[2] - 1 });                       //左
+                if (!minLine) adjacentList.Add(new int[] { columnType + 1, refPosInd[1] - 1, refPosInd[2] - 1 }); //左上
+                if (!maxLine) adjacentList.Add(new int[] { columnType + 1, refPosInd[1] + 1, refPosInd[2] - 1 }); //左下
+            }
+        }
+        //基準ブロックが8列パターンの場合
+        else
+        {
+            if (!maxColumn) adjacentList.Add(new int[] { columnType,     refPosInd[1],     refPosInd[2] + 1 });  //右
+            if (!minLine)   adjacentList.Add(new int[] { columnType - 1, refPosInd[1] - 1, refPosInd[2] + 1 });  //右上
+            if (!maxLine)   adjacentList.Add(new int[] { columnType - 1, refPosInd[1] + 1, refPosInd[2] + 1 });  //右下
+            if (!minColumn) adjacentList.Add(new int[] { columnType,     refPosInd[1],     refPosInd[2] - 1 });  //左
+            if (!minLine)   adjacentList.Add(new int[] { columnType - 1, refPosInd[1] - 1, refPosInd[2] });      //左上
+            if (!maxLine)   adjacentList.Add(new int[] { columnType - 1, refPosInd[1] + 1, refPosInd[2] });      //左下
+        }
+
+        return adjacentList;
     }
 
     //========================================================================
@@ -418,11 +438,6 @@ public class BlockManager : MonoBehaviour
     {
         //ブロック削除中フラグ
         blockDeleteNow = true;
-
-        //投擲ブロックのCollider無効化
-        GameObject throwBlockObj = blockObj[throwBlockIndex];
-        throwBlockCollider = throwBlockObj.GetComponent<CircleCollider2D>();
-        throwBlockCollider.enabled = false;
 
         float oneFrameTime = 0.02f;   //1フレームの時間
         float scalingSpeed = 0.05f;   //拡縮速度
@@ -437,6 +452,7 @@ public class BlockManager : MonoBehaviour
         float moveWaitTime    = Mathf.Abs(fallTarget / fallSpeed) * oneFrameTime;                          //落下待機時間
 
         //時間差設定
+        int nowBlockCount  = blockObj.Count;          //現在のブロックの総数
         int delObjCount    = deleteObjIndex.Length;   //削除ブロック数
         float[] indexArray = new float[delObjCount];  //インデックス番号
         float[] scaleWait  = new float[delObjCount];  //拡縮開始時間
@@ -450,6 +466,9 @@ public class BlockManager : MonoBehaviour
             fallWait[index]   = scaleWait[index] + scalingWaitTime + ((index == 0) ? 0 : scaleWait[index - 1]);
             scalingEnd[index] = false;
             fallStart[index]  = false;
+
+            //子オブジェクトインデックス番号変更
+            blockTra[deleteObjIndex[index]].SetSiblingIndex(nowBlockCount);
         }
 
         //接触削除
@@ -497,14 +516,10 @@ public class BlockManager : MonoBehaviour
 
         //ブロック削除
         yield return new WaitForSeconds(moveWaitTime);
-        Array.Sort(deleteObjIndex);
-        Array.Reverse(deleteObjIndex);
-        foreach (int delInd in deleteObjIndex)
-        { BlockDelete(delInd); }
+        BlockDelete(deleteObjIndex);
 
-        //投擲ブロックのCollider有効化
-        throwBlockIndex = blockObj.IndexOf(throwBlockObj);
-        throwBlockCollider.enabled = true;
+        //投擲ブロック生成
+        ThrowBlockGenerate();
 
         //ブロック削除中フラグリセット
         blockDeleteNow = false;
@@ -530,11 +545,16 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     //objIndex; 削除ブロック番号
     //========================================================================
-    void BlockDelete(int objIndex)
+    void BlockDelete(int[] objIndex)
     {
-        blockPosIndex.RemoveAt(objIndex);
-        blockTra.RemoveAt(objIndex);
-        Destroy(blockObj[objIndex]);
-        blockObj.RemoveAt(objIndex);
+        Array.Sort(objIndex);
+        Array.Reverse(objIndex);
+        foreach (int delInd in objIndex)
+        {
+            blockPosIndex.RemoveAt(delInd);
+            blockTra.RemoveAt(delInd);
+            Destroy(blockObj[delInd]);
+            blockObj.RemoveAt(delInd);
+        }
     }
 }

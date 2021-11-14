@@ -6,10 +6,12 @@ using System;
 
 public class BlockController : MonoBehaviour
 {
-    string[] blockTag;
+    bool fastContact = false; //接触判定重複防止用
+    string[] blockTag;        //ブロックタグリスト
+
     void Start()
     {
-        //野菜情報の取得
+        //ブロックタグ取得
         System.Array vegetableType = Enum.GetValues(typeof(VegetableType));
         blockTag = new string[vegetableType.Length];
         foreach (VegetableType value in vegetableType)
@@ -21,12 +23,17 @@ public class BlockController : MonoBehaviour
     //========================================================================
     void OnTriggerEnter2D(Collider2D col)
     {
-        GameObject connectObj = col.gameObject;
-        int tagIndex = Array.IndexOf(blockTag, connectObj.tag);
-        if (0 <= tagIndex)
+        if (!fastContact)
         {
-            GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>().BlockConnect(connectObj);
-            Destroy(this.GetComponent<BlockController>());
+            fastContact = true;
+            GameObject connectObj = col.gameObject;
+            string connectObjTag  = connectObj.tag;
+            int tagIndex = Array.IndexOf(blockTag, connectObjTag);
+            if (0 <= tagIndex)
+            {
+                GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>().BlockConnect(connectObj);
+                Destroy(this.GetComponent<BlockController>());
+            }
         }
     }
 }
