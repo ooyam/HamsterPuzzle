@@ -103,17 +103,20 @@ namespace MoveFunction
         //========================================================================
         //tra;        動作オブジェクトのRectTransform
         //moveSpeed;  動作速度
+        //acceleRate; 加速率
         //targetPos;  目標座標
-        //sideways;   X方向に動作？
         //========================================================================
-        public static IEnumerator MoveMovement(RectTransform tra, float moveSpeed, Vector2 targetPos, bool sideways)
+        public static IEnumerator MoveMovement(RectTransform tra, float moveSpeed, float acceleRate, Vector2 targetPos)
         {
-            float offset = 0.5f;
+            float offset   = 0.5f;                 //停止場所のオフセット
+            Vector2 nowPos = tra.anchoredPosition; //現在の座標
+            bool sideways  = Mathf.Abs(targetPos.x - nowPos.x) >= Mathf.Abs(targetPos.y - nowPos.y); //X方向に動作？
             while (true)
             {
                 yield return new WaitForFixedUpdate();
+                moveSpeed *= acceleRate;
                 tra.anchoredPosition = Vector2.MoveTowards(tra.anchoredPosition, targetPos, moveSpeed);
-                Vector2 nowPos = tra.anchoredPosition;
+                nowPos = tra.anchoredPosition;
 
                 //---------------------------------------------
                 //移動終了
@@ -125,6 +128,121 @@ namespace MoveFunction
                     break;
                 }
             }
+        }
+
+
+        //========================================================================
+        //移動動作(MoveMovement)に要する時間計算
+        //========================================================================
+        //moveSpeed;  動作速度
+        //acceleRate; 加速率
+        //startPos;   開始座標
+        //targetPos;  目標座標
+        //return;     所要時間
+        //========================================================================
+        public static float GetMoveTime(float moveSpeed, float acceleRate, Vector2 startPos, Vector2 targetPos)
+        {
+            float moveTime     = 0.0f;   //移動時間
+            float oneFrameTime = 0.02f;  //1フレームの時間
+            float offset       = 0.5f;   //停止場所のオフセット
+            float distanceX    = Mathf.Abs(targetPos.x - startPos.x) - offset;               //移動距離X
+            float distanceY    = Mathf.Abs(targetPos.y - startPos.y) - offset;               //移動距離Y
+            float moveDistance = Mathf.Sqrt(distanceX * distanceX + distanceY * distanceY);  //実移動距離
+
+            //計算
+            while (true)
+            {
+                moveSpeed    *= acceleRate;
+                moveDistance -= moveSpeed;
+                moveTime     += oneFrameTime;
+                if (moveDistance <= 0) break;
+            }
+            return moveTime;
+        }
+
+
+        //========================================================================
+        //左右揺れ動作
+        //========================================================================
+        //tra;        動作オブジェクトのRectTransform
+        //shakeSpeed; 動作速度
+        //targetPos;  目標座標
+        //shakeTimes; 移動回数
+        //delayTime;  移動間の待機時間
+        //========================================================================
+        public static IEnumerator SlideShakeMovement(RectTransform tra, float shakeSpeed, Vector2 targetPos, int shakeTimes, float delayTime)
+        {
+            float offset       = 0.5f;                 //停止場所のオフセット
+            Vector2 defaultPos = tra.anchoredPosition; //現在の座標
+            bool sideways      = Mathf.Abs(targetPos.x - defaultPos.x) >= Mathf.Abs(targetPos.y - defaultPos.y); //X方向に動作？
+
+            //往復動作
+            for (int moveCount = 0; moveCount < shakeTimes; moveCount++)
+            {
+                int vector = (moveCount % 2 == 0) ? 1 : -1;
+                Vector2 tarPos = new Vector2(targetPos.x * vector, targetPos.y * vector);
+                while (true)
+                {
+                    yield return new WaitForFixedUpdate();
+                    tra.anchoredPosition = Vector2.MoveTowards(tra.anchoredPosition, tarPos, shakeSpeed);
+                    Vector2 nowPos = tra.anchoredPosition;
+
+                    //---------------------------------------------
+                    //次の移動へ
+                    //---------------------------------------------
+                    if ((sideways && tarPos.x - offset <= nowPos.x && nowPos.x <= tarPos.x + offset) ||
+                        (!sideways && tarPos.y - offset <= nowPos.y && nowPos.y <= tarPos.y + offset))
+                    {
+                        tra.anchoredPosition = tarPos;
+                        yield return new WaitForSeconds(delayTime);
+                        break;
+                    }
+                }
+            }
+
+            //元の座標に戻る
+            while (true)
+            {
+                yield return new WaitForFixedUpdate();
+                tra.anchoredPosition = Vector2.MoveTowards(tra.anchoredPosition, defaultPos, shakeSpeed);
+                Vector2 nowPos = tra.anchoredPosition;
+
+                //---------------------------------------------
+                //移動終了
+                //---------------------------------------------
+                if ((sideways && targetPos.x - offset <= nowPos.x && nowPos.x <= targetPos.x + offset) ||
+                    (!sideways && targetPos.y - offset <= nowPos.y && nowPos.y <= targetPos.y + offset))
+                {
+                    tra.anchoredPosition = defaultPos;
+                    break;
+                }
+            }
+        }
+
+
+        //========================================================================
+        //左右揺れ動作(SlideShakeMovement)に要する時間計算
+        //========================================================================
+        //shakeSpeed; 動作速度
+        //startPos;   開始座標
+        //targetPos;  目標座標
+        //shakeTimes; 移動回数
+        //delayTime;  移動間の待機時間
+        //========================================================================
+        public static float GetSlideShakeTime(float shakeSpeed, float offsetX, float offsetY, int shakeTimes, float delayTime)
+        {
+            float moveTime     = 0.0f;   //移動時間
+            float oneFrameTime = 0.02f;  //1フレームの時間
+            float offset       = 0.5f;   //停止場所のオフセット
+            float moveDistance = Mathf.Sqrt((offsetX * offsetX) - offset + (offsetY * offsetY) - offset);  //実移動距離
+
+            //計算
+            if (shakeTimes != 0)
+            {
+                moveTime = moveDistance * shakeTimes * 2 / shakeSpeed * oneFrameTime + delayTime * shakeTimes;
+            }
+
+            return moveTime;
         }
 
 
