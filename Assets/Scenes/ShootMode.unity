@@ -6229,7 +6229,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1743309513}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -6292,6 +6292,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e285077c6473bb4baa130a457f01bc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hamsterSprite:
+  - {fileID: -8680216518235983974, guid: deff4e0c27f4cc44b95981d3d3015810, type: 3}
+  - {fileID: 8920710052246408498, guid: 6da8f4c4d3a11cf42bcd61115b2edb3b, type: 3}
   blockMan: {fileID: 1171080476}
 --- !u!120 &1743309518
 LineRenderer:

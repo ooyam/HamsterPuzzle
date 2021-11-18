@@ -166,21 +166,22 @@ namespace MoveFunction
         //========================================================================
         //tra;        動作オブジェクトのRectTransform
         //shakeSpeed; 動作速度
-        //targetPos;  目標座標
+        //offsetX;    目標座標オフセットX
+        //offsetY;    目標座標オフセットY
         //shakeTimes; 移動回数
         //delayTime;  移動間の待機時間
         //========================================================================
-        public static IEnumerator SlideShakeMovement(RectTransform tra, float shakeSpeed, Vector2 targetPos, int shakeTimes, float delayTime)
+        public static IEnumerator SlideShakeMovement(RectTransform tra, float shakeSpeed, float offsetX, float offsetY, int shakeTimes, float delayTime)
         {
             float offset       = 0.5f;                 //停止場所のオフセット
-            Vector2 defaultPos = tra.anchoredPosition; //現在の座標
-            bool sideways      = Mathf.Abs(targetPos.x - defaultPos.x) >= Mathf.Abs(targetPos.y - defaultPos.y); //X方向に動作？
+            Vector2 defaultPos = tra.anchoredPosition; //初期座標取得
+            bool sideways      = Mathf.Abs(offsetX) >= Mathf.Abs(offsetY); //X方向に動作？
 
             //往復動作
             for (int moveCount = 0; moveCount < shakeTimes; moveCount++)
             {
                 int vector = (moveCount % 2 == 0) ? 1 : -1;
-                Vector2 tarPos = new Vector2(targetPos.x * vector, targetPos.y * vector);
+                Vector2 tarPos = new Vector2(defaultPos.x + offsetX * vector, defaultPos.y + offsetY * vector);
                 while (true)
                 {
                     yield return new WaitForFixedUpdate();
@@ -210,8 +211,8 @@ namespace MoveFunction
                 //---------------------------------------------
                 //移動終了
                 //---------------------------------------------
-                if ((sideways && targetPos.x - offset <= nowPos.x && nowPos.x <= targetPos.x + offset) ||
-                    (!sideways && targetPos.y - offset <= nowPos.y && nowPos.y <= targetPos.y + offset))
+                if ((sideways && defaultPos.x - offset <= nowPos.x && nowPos.x <= defaultPos.x + offset) ||
+                    (!sideways && defaultPos.y - offset <= nowPos.y && nowPos.y <= defaultPos.y + offset))
                 {
                     tra.anchoredPosition = defaultPos;
                     break;
@@ -224,8 +225,8 @@ namespace MoveFunction
         //左右揺れ動作(SlideShakeMovement)に要する時間計算
         //========================================================================
         //shakeSpeed; 動作速度
-        //startPos;   開始座標
-        //targetPos;  目標座標
+        //offsetX;    目標座標オフセットX
+        //offsetY;    目標座標オフセットY
         //shakeTimes; 移動回数
         //delayTime;  移動間の待機時間
         //========================================================================
@@ -233,8 +234,7 @@ namespace MoveFunction
         {
             float moveTime     = 0.0f;   //移動時間
             float oneFrameTime = 0.02f;  //1フレームの時間
-            float offset       = 0.5f;   //停止場所のオフセット
-            float moveDistance = Mathf.Sqrt((offsetX * offsetX) - offset + (offsetY * offsetY) - offset);  //実移動距離
+            float moveDistance = Mathf.Sqrt((offsetX * offsetX) + (offsetY * offsetY));  //実移動距離
 
             //計算
             if (shakeTimes != 0)

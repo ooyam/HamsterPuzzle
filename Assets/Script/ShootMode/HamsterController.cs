@@ -1,14 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ShootMode
 {
     public class HamsterController : MonoBehaviour
     {
         RectTransform tra;                 //RectTransform
+        Image ima;                         //Image
         RectTransform canvasTra;           //CanvasのRectTransform
         LineRenderer line;                 //LineRenderer
+
+        [Header("Sprite")]
+        public Sprite[] hamsterSprite;    //0:通常(右向き) 1:反転(左向き)
+        [System.NonSerialized]
+        public bool spriteDefault = true; //0番使用中？
 
         [Header("BlockManager")]
         public BlockManager blockMan;
@@ -31,15 +38,17 @@ namespace ShootMode
 
         void Start()
         {
-            tra = GetComponent<RectTransform>();
+            tra       = GetComponent<RectTransform>();
+            ima       = GetComponent<Image>();
             canvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
-            line = GetComponent<LineRenderer>();
-            canvasHigh = canvasTra.sizeDelta.y;
-            canvasWidth = canvasTra.sizeDelta.x;
-            differenceX = canvasWidth / 2;
-            differenceY = canvasHigh / 2;
+            line      = GetComponent<LineRenderer>();
+
+            canvasHigh    = canvasTra.sizeDelta.y;
+            canvasWidth   = canvasTra.sizeDelta.x;
+            differenceX   = canvasWidth / 2;
+            differenceY   = canvasHigh / 2;
             magnification = canvasWidth / Screen.width;
-            maxX = differenceX - 50.0f;
+            maxX          = differenceX - 50.0f;
         }
 
         //========================================================================
@@ -106,14 +115,28 @@ namespace ShootMode
             float linePosX  = 0.0f;
             float linePosY  = 0.0f;
             float hamPosX   = tra.anchoredPosition.x;
-            bool rightThrow = mousePos.x < hamPosX;                                             //右に投げ始める?
-            //float maxY = canvasHigh - (blockMan.blockPosY * (blockMan.nowLineNum - 1)) + posY;  //Y最大値
-            float maxY = canvasHigh / 2 - posY - blockMan.blockDiameter / 2;  //Y最大値
-            float[] maxX = new float[2];
-            maxX[0] = (rightThrow) ? differenceX - hamPosX : -differenceX - hamPosX;            //X最大値
-            maxX[1] = (rightThrow) ? -differenceX - hamPosX : differenceX - hamPosX;
-            float multiplierX = maxX[0] / -(mousePos.x - hamPosX);                              //乗数         
-            linePosY = multiplierX * -mousePos.y;                                               //Y座標算出
+            bool rightThrow = mousePos.x < hamPosX;                                //右に投げ始める?
+            float maxY      = canvasHigh / 2 - posY - blockMan.blockDiameter / 2;  //Y最大値
+            float[] maxX    = new float[2];                                        //X最大値
+            maxX[0]         = (rightThrow) ? differenceX - hamPosX : -differenceX - hamPosX;
+            maxX[1]         = (rightThrow) ? -differenceX - hamPosX : differenceX - hamPosX;
+            linePosY        = (maxX[0] / -(mousePos.x - hamPosX)) * -mousePos.y;   //Y座標算出
+
+            //---------------------------------------------
+            //ハムスターの向き指定
+            //---------------------------------------------
+            if (rightThrow && !spriteDefault)
+            {
+                ima.sprite = hamsterSprite[0];
+                blockMan.ThrowBlockPosChange(0);
+                spriteDefault = true;
+            }
+            else if(!rightThrow && spriteDefault)
+            {
+                ima.sprite = hamsterSprite[1];
+                blockMan.ThrowBlockPosChange(1);
+                spriteDefault = false;
+            }
 
             if (linePosY < maxY)
             {

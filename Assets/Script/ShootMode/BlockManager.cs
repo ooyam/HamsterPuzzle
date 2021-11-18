@@ -25,6 +25,7 @@ public class BlockManager : MonoBehaviour
     [Header("ハムスターボックス")]
     [SerializeField]
     Transform hamsterBox;
+    HamsterController hamsterScr;  //HamsterController
 
     [Header("カメラの取得")]
     [SerializeField]
@@ -33,30 +34,34 @@ public class BlockManager : MonoBehaviour
     float differenceX;        //座標修正数X
     float differenceY;        //座標修正数Y
 
-    int[] columnNum = new int[] { 9, 8 };     //1行の列数
-    Vector2[][][] blockPos;                   //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
+    int[] columnNum = new int[] { 9, 8 };      //1行の列数
+    Vector2[][][] blockPos;                    //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
     [System.NonSerialized]
-    public int nowLineNum  = 0;               //現在の行数
-    int maxLineNum         = 12;              //最大行数
+    public int nowLineNum   = 0;               //現在の行数
+    int maxLineNum          = 12;              //最大行数
     [System.NonSerialized]
-    public float blockPosY = 103.8f;          //ブロック生成位置Y
-    float[][] blockPosX    = new float[2][];  //ブロック生成位置X
-    bool generateEnd       = false;           //生成終了？
+    public float blockPosY  = 103.8f;          //ブロック生成位置Y
+    float[][] blockPosX     = new float[2][];  //ブロック生成位置X
+    Vector2[] throwBlockPos = new Vector2[2];  //投擲ブロック生成座標
+    bool generateEnd        = false;           //生成終了？
     [System.NonSerialized]
-    public bool throwNow   = false;           //投擲中？
+    public bool throwNow    = false;           //投擲中？
     [System.NonSerialized]
-    public bool blockDeleteNow = false;       //ブロック削除中？
+    public bool blockDeleteNow = false;        //ブロック削除中？
     [System.NonSerialized]
-    public float blockDiameter = 120.0f;      //ブロック直径
+    public float blockDiameter = 120.0f;       //ブロック直径
 
     //int stageNum = 0;   //ステージ番号
     int vegTypeNum = Enum.GetValues(typeof(VegetableType)).Length; //使用する野菜の数
 
     void Start()
     {
-        canvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
+        hamsterScr  = hamsterBox.GetChild(0).gameObject.GetComponent<HamsterController>();
+        canvasTra   = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
         differenceX = canvasTra.sizeDelta.x / 2;
         differenceY = canvasTra.sizeDelta.y;
+        throwBlockPos[0] = new Vector2(70.0f, -10.0f);
+        throwBlockPos[1] = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
 
         //ブロック配置座標指定
         float[] posXFix = new float[] { 480.0f, 420.0f };
@@ -110,9 +115,17 @@ public class BlockManager : MonoBehaviour
     {
         int blockGeneIndex = UnityEngine.Random.Range(0, vegTypeNum);
         int index = BlockGenerate(blockGeneIndex, true);
-        blockTra[index].anchoredPosition = new Vector2(70.0f, -10.0f);
+        blockTra[index].anchoredPosition = (hamsterScr.spriteDefault) ? throwBlockPos[0] : throwBlockPos[1];
         throwBlockIndex = index;
         blockObj[index].AddComponent<BlockController>();
+    }
+
+    //========================================================================
+    //投擲ブロック座標反転
+    //========================================================================
+    public void ThrowBlockPosChange(int posIndex)
+    {
+        blockTra[throwBlockIndex].anchoredPosition = throwBlockPos[posIndex];
     }
 
     //========================================================================
@@ -561,14 +574,15 @@ public class BlockManager : MonoBehaviour
         float changeScale     = 1.5f;   //変更後の拡大率
         float defaultScale    = 1.0f;   //初期拡大率
         int   scalingTimes    = 1;      //拡縮回数
-        float scalingWaitTime = Mathf.Abs((changeScale - defaultScale) * 2 / scalingSpeed * oneFrameTime); //拡縮待機時間
+        float scalingWaitTime = Mathf.Abs((changeScale - defaultScale) * 2 / scalingSpeed * oneFrameTime);  //拡縮待機時間
 
         //左右揺れ設定
-        float shakeSpeed    = 10.0f;    //移動速度
-        float shakeTarget   = 50.0f;    //移動座標
+        float shakeSpeed    = 20.0f;    //移動速度
+        float shakeOffsetX  = 20.0f;    //移動座標X
+        float shakeOffsetY  = 0.0f;     //移動座標Y
         int shakeTimes      = 4;        //揺れ回数
         float delayTime     = 0.0f;     //移動間の遅延時間
-        float shakeWaitTime = GetSlideShakeTime(shakeSpeed, shakeTarget, 0.0f, shakeTimes, delayTime);     //揺れ待機時間
+        float shakeWaitTime = GetSlideShakeTime(shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime);  //揺れ待機時間
 
         //落下設定
         float fallSpeed     = 5.0f;     //移動速度
@@ -580,16 +594,15 @@ public class BlockManager : MonoBehaviour
         int nowBlockCount   = blockObj.Count;          //現在のブロックの総数
         int delObjCount     = deleteObjIndex.Length;   //削除ブロック数
         float[] indexArray  = new float[delObjCount];  //インデックス番号
-        float[] scaleWait   = new float[delObjCount];  //拡縮開始時間
+        float[] DirectWait  = new float[delObjCount];  //演出開始時間
         float[] fallWait    = new float[delObjCount];  //落下開始時間
         bool[] directingEnd = new bool[delObjCount];   //落下前演出終了？
         bool[] fallStart    = new bool[delObjCount];   //落下開始？
         for (int index = 0; index < delObjCount; index++)
         {
             indexArray[index]   = index;
-            scaleWait[index]    = (index == 0) ? 0.0f : UnityEngine.Random.Range(0.1f, 0.4f);
-            if (connect) fallWait[index] = scaleWait[index] + scalingWaitTime + ((index == 0) ? 0 : scaleWait[index - 1]);
-            else fallWait[index] = scaleWait[index] + shakeWaitTime + ((index == 0) ? 0 : scaleWait[index - 1]);
+            DirectWait[index]   = (index == 0) ? 0.0f : UnityEngine.Random.Range(0.0f, 0.2f) + DirectWait[index - 1];
+            fallWait[index]     = DirectWait[index] + ((connect) ? scalingWaitTime : shakeWaitTime);
             directingEnd[index] = false;
             fallStart[index]    = false;
 
@@ -603,31 +616,18 @@ public class BlockManager : MonoBehaviour
         {
             while (true)
             {
-                //接触削除
-                if (connect)
+                //落下前演出
+                if (!directingEnd[loopTimes] && elapsedTime >= DirectWait[loopTimes])
                 {
-                    //ブロック拡縮
-                    if (!directingEnd[loopTimes] && elapsedTime >= scaleWait[loopTimes])
-                    {
-                        directingEnd[loopTimes] = true;
-                        StartCoroutine(ScaleChange(blockTra[delInd], scalingSpeed, changeScale, defaultScale, scalingTimes));
-                    }
-                }
-                //自由落下
-                else
-                {
-                    //ブロック左右揺れ
-                    if (!directingEnd[loopTimes] && elapsedTime >= scaleWait[loopTimes])
-                    {
-                        directingEnd[loopTimes] = true;
-                        SlideShakeStart(blockTra[delInd], shakeSpeed, shakeTarget, shakeTimes, delayTime);
-                    }
+                    directingEnd[loopTimes] = true;
+                    if (connect) StartCoroutine(ScaleChange(blockTra[delInd], scalingSpeed, changeScale, defaultScale, scalingTimes));        //ブロック拡縮
+                    else StartCoroutine(SlideShakeMovement(blockTra[delInd], shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime)); //ブロック左右揺れ
                 }
 
                 //落下開始
                 for (int index = 0; index <= loopTimes; index++)
                 {
-                    if (!fallStart[index] && elapsedTime >= fallWait[index])
+                    if (!fallStart[index] && elapsedTime > fallWait[index])
                     {
                         fallStart[index] = true;
                         moveWaitTime = BlockFallStart(deleteObjIndex[index], fallSpeed, acceleRate, fallTarget);
@@ -683,22 +683,6 @@ public class BlockManager : MonoBehaviour
         StartCoroutine(MoveMovement(blockTra[objIndex], fallSpeed, acceleRate, targetPos));
         //blockObj[objIndex].SetActive(false);
         return GetMoveTime(fallSpeed, acceleRate, nowPos, targetPos);
-    }
-
-    //========================================================================
-    //ブロック左右揺れ
-    //========================================================================
-    //tra;        動作オブジェクトのRectTransform
-    //shakeSpeed; 動作速度
-    //offsetX;    目標X座標
-    //shakeTimes; 移動回数
-    //delayTime;  移動間の待機時間
-    //========================================================================
-    void SlideShakeStart(RectTransform tra, float shakeSpeed, float offsetX, int shakeTimes, float delayTime)
-    {
-        Vector2 nowPos = tra.anchoredPosition;
-        Vector2 targetPos = new Vector2(nowPos.x + offsetX, nowPos.y);
-        StartCoroutine(SlideShakeMovement(tra, shakeSpeed, targetPos, shakeTimes, delayTime));
     }
 
     //========================================================================
