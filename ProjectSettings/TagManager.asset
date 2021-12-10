@@ -29,6 +29,7 @@ TagManager:
   - Vegetable
   - HintScreen
   - BlockManager
+  - UpperLimit
   layers:
   - Default
   - TransparentFX

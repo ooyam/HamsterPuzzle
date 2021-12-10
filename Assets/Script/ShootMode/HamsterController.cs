@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using ShootMode;
+using System;
 
 namespace ShootMode
 {
@@ -11,6 +13,7 @@ namespace ShootMode
         Image ima;                         //Image
         RectTransform canvasTra;           //CanvasのRectTransform
         LineRenderer line;                 //LineRenderer
+        Camera mainCamra;                  //MainCamera
 
         [Header("Sprite")]
         public Sprite[] hamsterSprite;    //0:通常(右向き) 1:反転(左向き)
@@ -32,9 +35,12 @@ namespace ShootMode
         bool throwOperation = false;       //投げる動作
         float throwTriggerTapPos = -100.0f;//投げ始める位置
         float throwStopTapPos = -50.0f;    //投げるのをやめる位置
-        Vector3 lineStartPos = new Vector3(0.0f, 30.0f, 0.0f);//投擲ラインのスタート位置
+        float lineStartPosX = 70.0f;       //投擲ラインのスタート位置X
+        float lineStartPosY = 30.0f;       //投擲ラインのスタート位置Y
+        Vector3 lineStartPos;              //投擲ラインのスタート位置
         [System.NonSerialized]
         public bool gameStart = false;     //ゲーム開始？
+        string[] blockTag;                 //ブロックタグリスト
 
         void Start()
         {
@@ -42,13 +48,20 @@ namespace ShootMode
             ima       = GetComponent<Image>();
             canvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
             line      = GetComponent<LineRenderer>();
+            mainCamra = Camera.main;
 
             canvasHigh    = canvasTra.sizeDelta.y;
             canvasWidth   = canvasTra.sizeDelta.x;
             differenceX   = canvasWidth / 2;
-            differenceY   = canvasHigh / 2;
+            differenceY   = canvasHigh  / 2;
             magnification = canvasWidth / Screen.width;
             maxX          = differenceX - 50.0f;
+
+            //ブロックタグ取得
+            System.Array vegetableType = Enum.GetValues(typeof(VegetableType));
+            blockTag = new string[vegetableType.Length];
+            foreach (VegetableType value in vegetableType)
+            { blockTag[(int)value] = Enum.GetName(typeof(VegetableType), value); }
         }
 
         //========================================================================
@@ -112,15 +125,17 @@ namespace ShootMode
         //========================================================================
         Vector3[] LineCalculation(Vector3 mousePos)
         {
-            float linePosX  = 0.0f;
-            float linePosY  = 0.0f;
-            float hamPosX   = tra.anchoredPosition.x;
-            bool rightThrow = mousePos.x < hamPosX;                                //右に投げ始める?
-            float maxY      = canvasHigh / 2 - posY - blockMan.blockDiameter / 2;  //Y最大値
-            float[] maxX    = new float[2];                                        //X最大値
-            maxX[0]         = (rightThrow) ? differenceX - hamPosX : -differenceX - hamPosX;
-            maxX[1]         = (rightThrow) ? -differenceX - hamPosX : differenceX - hamPosX;
-            linePosY        = (maxX[0] / -(mousePos.x - hamPosX)) * -mousePos.y;   //Y座標算出
+            float linePosX   = 0.0f;
+            float linePosY   = 0.0f;
+            float hamPosX    = tra.anchoredPosition.x;
+            bool  rightThrow = mousePos.x < hamPosX;                                //右に投げ始める?
+            float lineStartX = (rightThrow) ? lineStartPosX : -lineStartPosX;       //投擲ブロックのX座標
+            lineStartPos     = new Vector3(lineStartX, lineStartPosY, 0.0f);        //ライン投擲開始座標
+            float maxY       = canvasHigh / 2 - posY - blockMan.blockDiameter / 2;  //Y最大値
+            float[] maxX     = new float[2];                                        //X最大値
+            maxX[0]          = (rightThrow) ? differenceX - hamPosX : -differenceX - hamPosX;
+            maxX[1]          = (rightThrow) ? -differenceX - hamPosX : differenceX - hamPosX;
+            linePosY         = (maxX[0] / -(mousePos.x - hamPosX)) * -mousePos.y;   //Y座標算出
 
             //---------------------------------------------
             //ハムスターの向き指定
@@ -146,30 +161,42 @@ namespace ShootMode
                 linePosX = maxX[0];
                 List<Vector3> linePos = new List<Vector3>();
                 linePos.Add(lineStartPos);
-                linePos.Add(new Vector3(linePosX, linePosY, 0.0f));
+                bool lineStop = false;
+
+                //Rayを飛ばす
+                Vector3 lineEmdPos = FlyRay(lineStartPos, new Vector3(linePosX, linePosY, 0.0f));
+                if (lineEmdPos.x != linePosX || lineEmdPos.y != linePosY) lineStop = true;
+                linePos.Add(lineEmdPos);
 
                 //---------------------------------------------
                 //反射計算
                 //---------------------------------------------
                 bool frastReflection = true;
-                while (true)
+                while (!lineStop)
                 {
                     int frontLineIndex = linePos.Count - 1;
-                    float quotient = ((frastReflection) ? linePos[frontLineIndex].x : linePos[frontLineIndex].x * 2.0f) / (linePos[frontLineIndex].y - linePos[frontLineIndex - 1].y);
-                    float multiplier = canvasWidth / quotient;
+                    float quotient     = ((frastReflection) ? linePos[frontLineIndex].x : linePos[frontLineIndex].x * 2.0f) / (linePos[frontLineIndex].y - linePos[frontLineIndex - 1].y);
+                    float multiplier   = canvasWidth / quotient;
                     float nextLinePosY = Mathf.Abs(multiplier) + linePos[frontLineIndex].y;
-                    int maxXIndex = ((rightThrow && linePos[frontLineIndex].x < 0) || (!rightThrow && linePos[frontLineIndex].x > 0)) ? 0 : 1;
+                    int   maxXIndex    = ((rightThrow && linePos[frontLineIndex].x < 0) || (!rightThrow && linePos[frontLineIndex].x > 0)) ? 0 : 1;
                     float nextLinePosX = maxX[maxXIndex];
                     if (nextLinePosY < maxY)
                     {
-                        linePos.Add(new Vector3(nextLinePosX, nextLinePosY, 0.0f));
+                        //Rayを飛ばす
+                        Vector3 nextLinePos = FlyRay(linePos[linePos.Count - 1], new Vector3(nextLinePosX, nextLinePosY, 0.0f));
+                        if (nextLinePos.x != nextLinePosX || nextLinePos.y != nextLinePosY) lineStop = true;
+                        linePos.Add(nextLinePos);
                     }
                     else
                     {
                         float multiplierY = (maxY - linePos[frontLineIndex].y) * (((frastReflection) ? linePos[frontLineIndex].x : linePos[frontLineIndex].x * 2.0f) / (linePos[frontLineIndex].y - linePos[frontLineIndex - 1].y));
                         nextLinePosY = maxY;
                         nextLinePosX = linePos[frontLineIndex].x - multiplierY;
-                        linePos.Add(new Vector3(nextLinePosX, nextLinePosY, 0.0f));
+
+                        //Rayを飛ばす
+                        Vector3 nextLinePos = FlyRay(linePos[linePos.Count - 1], new Vector3(nextLinePosX, nextLinePosY, 0.0f));
+                        if (nextLinePos.x != nextLinePosX || nextLinePos.y != nextLinePosY) lineStop = true;
+                        linePos.Add(nextLinePos);
                         break;
                     }
                     if (frastReflection) frastReflection = false;
@@ -186,11 +213,52 @@ namespace ShootMode
                 linePosY = maxY;
                 linePosX = multiplierY * -(mousePos.x - hamPosX);
 
+                //Rayを飛ばす
+                Vector3 lineEmdPos = FlyRay(lineStartPos, new Vector3(linePosX, linePosY, 0.0f));
+
                 //---------------------------------------------
                 //投擲ライン出力
                 //---------------------------------------------
-                return new Vector3[] { lineStartPos, new Vector3(linePosX, linePosY, 0.0f) };
+                return new Vector3[] { lineStartPos, lineEmdPos };
             }
+        }
+
+        //========================================================================
+        //Rayを飛ばす
+        //========================================================================
+        //frontPos;  開始地点の座標
+        //nextPos;   終着地点の座標
+        //return;    ライン終着座標
+        //========================================================================
+        Vector3 FlyRay(Vector3 frontPos, Vector3 nextPos)
+        {
+            //座標設定
+            float nextLinePosX = nextPos.x;
+            float nextLinePosY = nextPos.y;
+
+            frontPos = new Vector3((frontPos.x + differenceX) / magnification, (frontPos.y + posY) / magnification + differenceY, 0.0f);
+            frontPos = mainCamra.ScreenToWorldPoint(frontPos);
+            nextPos  = new Vector3((nextLinePosX + differenceX) / magnification, (nextLinePosY + posY) / magnification + differenceY, 0.0f);
+            nextPos  = mainCamra.ScreenToWorldPoint(nextPos);
+
+            //Rayの作成
+            Ray2D ray = new Ray2D(frontPos, new Vector2(nextPos.x - frontPos.x, nextPos.y - frontPos.y));
+            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
+
+            //接触判定
+            if (hit.collider)
+            {
+                string connectObjTag = hit.collider.gameObject.tag;
+                if (0 <= Array.IndexOf(blockTag, connectObjTag))
+                {
+                    Vector3 connectPos = RectTransformUtility.WorldToScreenPoint(mainCamra, hit.point);
+                    nextLinePosX = connectPos.x * magnification - differenceX;
+                    nextLinePosY = (connectPos.y * magnification - differenceY) - posY;
+                }
+            }
+
+            //終点座標を返す
+            return new Vector3(nextLinePosX, nextLinePosY, 0.0f);
         }
 
         //========================================================================
@@ -201,8 +269,8 @@ namespace ShootMode
         void DrawLine(Vector3[] linePos)
         {
             line.positionCount = linePos.Length;
-            line.startWidth = 20.0f;
-            line.endWidth = 20.0f;
+            line.startWidth    = 20.0f;
+            line.endWidth      = 20.0f;
             line.SetPositions(linePos);
         }
     }

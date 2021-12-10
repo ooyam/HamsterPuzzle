@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using ShootMode;
+using static ShootMode.ShootModeDefine;
 using static MoveFunction.ObjectMove;
 
 public class BlockManager : MonoBehaviour
@@ -16,6 +17,7 @@ public class BlockManager : MonoBehaviour
     List<int[]> blockPosIndex    = new List<int[]>();          //生成ブロック座標番号
     List<int> nowDeleteIndex     = new List<int>();            //削除中ブロックのオブジェクト番号リスト
     int throwBlockIndex;                                       //投擲ブロックのリスト番号
+    int nextThrowBlockIndex;                                   //次の投擲ブロックのリスト番号
     CircleCollider2D throwBlockCollider;                       //投擲ブロックのCollider
 
     [Header("ブロックボックス")]
@@ -24,25 +26,32 @@ public class BlockManager : MonoBehaviour
 
     [Header("ハムスターボックス")]
     [SerializeField]
-    Transform hamsterBox;
+    Transform hamsterBoxTra;
     HamsterController hamsterScr;  //HamsterController
+
+    [Header("ハムスターのアイコン")]
+    [SerializeField]
+    RectTransform hamsterFaceTra;
+    Vector2 hamsterFacePos;
 
     [Header("カメラの取得")]
     [SerializeField]
     Camera cameraMain;        //カメラの取得
     RectTransform canvasTra;  //CanvasのRectTransform
+    float canvasWidth;        //Canvas幅
     float differenceX;        //座標修正数X
-    float differenceY;        //座標修正数Y
+    float differenceY;        //座標修正数Y(Canvas高さ)
 
     int[] columnNum = new int[] { 9, 8 };      //1行の列数
     Vector2[][][] blockPos;                    //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
+    int generatePattern     = 0;               //ライン生成するパターン番号
     [System.NonSerialized]
     public int nowLineNum   = 0;               //現在の行数
-    int maxLineNum          = 12;              //最大行数
     [System.NonSerialized]
     public float blockPosY  = 103.8f;          //ブロック生成位置Y
     float[][] blockPosX     = new float[2][];  //ブロック生成位置X
     Vector2[] throwBlockPos = new Vector2[2];  //投擲ブロック生成座標
+    Vector2 nextThrowBlockPos;                 //次の投擲ブロック生成座標
     bool generateEnd        = false;           //生成終了？
     [System.NonSerialized]
     public bool throwNow    = false;           //投擲中？
@@ -51,17 +60,21 @@ public class BlockManager : MonoBehaviour
     [System.NonSerialized]
     public float blockDiameter = 120.0f;       //ブロック直径
 
+    bool gameOver  = false;  //ゲーム終了？
     //int stageNum = 0;   //ステージ番号
     int vegTypeNum = Enum.GetValues(typeof(VegetableType)).Length; //使用する野菜の数
 
     void Start()
     {
-        hamsterScr  = hamsterBox.GetChild(0).gameObject.GetComponent<HamsterController>();
+        hamsterScr  = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController>();
         canvasTra   = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
-        differenceX = canvasTra.sizeDelta.x / 2;
+        canvasWidth = canvasTra.sizeDelta.x;
+        differenceX = canvasWidth / 2;
         differenceY = canvasTra.sizeDelta.y;
-        throwBlockPos[0] = new Vector2(70.0f, -10.0f);
-        throwBlockPos[1] = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
+        throwBlockPos[0]  = new Vector2(70.0f, -10.0f);
+        throwBlockPos[1]  = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
+        hamsterFacePos    = hamsterFaceTra.anchoredPosition;
+        nextThrowBlockPos = new Vector2(-75.0f, -80.0f);
 
         //ブロック配置座標指定
         float[] posXFix = new float[] { 480.0f, 420.0f };
@@ -69,8 +82,8 @@ public class BlockManager : MonoBehaviour
         blockPos = new Vector2[patternNum][][];
         for (int ind_1 = 0; ind_1 < patternNum; ind_1++)
         {
-            blockPos[ind_1] = new Vector2[maxLineNum][];
-            for (int ind_2 = 0; ind_2 < maxLineNum; ind_2++)
+            blockPos[ind_1] = new Vector2[BLOCK_MAX_LINE_NUM][];
+            for (int ind_2 = 0; ind_2 < BLOCK_MAX_LINE_NUM; ind_2++)
             {
                 blockPos[ind_1][ind_2] = new Vector2[columnNum[ind_1]];
                 for (int ind_3 = 0; ind_3 < columnNum[ind_1]; ind_3++)
@@ -83,10 +96,14 @@ public class BlockManager : MonoBehaviour
         }
 
         //投擲用ブロック生成
+        int blockGeneIndex  = UnityEngine.Random.Range(0, vegTypeNum);
+        nextThrowBlockIndex = BlockGenerate(blockGeneIndex, true);
+        blockTra[nextThrowBlockIndex].SetParent(hamsterFaceTra, false);
+        blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
         ThrowBlockGenerate();
-        int firstGenerateLinesNum = 3;
 
         //ブロックを3列生成
+        int firstGenerateLinesNum = 3;
         StartCoroutine(LineBlockGenerate(firstGenerateLinesNum));
     }
 
@@ -100,8 +117,11 @@ public class BlockManager : MonoBehaviour
     {
         GameObject blockObject = Instantiate(blockPre[blockPreIndex]);
         RectTransform blockRectTra = blockObject.GetComponent<RectTransform>();
-        blockRectTra.SetParent((throwBlock) ? hamsterBox : blockBoxTra, false);
-        blockRectTra.SetSiblingIndex(0);
+        if (!throwBlock)
+        {
+            blockRectTra.SetParent(blockBoxTra, false);
+            blockRectTra.SetSiblingIndex(0);
+        }
         blockObj.Add(blockObject);
         blockTra.Add(blockRectTra);
         blockPosIndex.Add(new int[0]);
@@ -111,13 +131,25 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     //投擲ブロック生成指示
     //========================================================================
-    public void ThrowBlockGenerate()
+    void ThrowBlockGenerate()
     {
+        //投擲ブロックを持つ
+        throwBlockIndex = nextThrowBlockIndex;
+        blockTra[throwBlockIndex].SetParent(hamsterBoxTra, false);
+        blockTra[throwBlockIndex].SetSiblingIndex(0);
+        blockTra[throwBlockIndex].anchoredPosition = (hamsterScr.spriteDefault) ? throwBlockPos[0] : throwBlockPos[1];
+        blockObj[throwBlockIndex].AddComponent<BlockController>();
+        throwBlockCollider = blockObj[throwBlockIndex].GetComponent<CircleCollider2D>();
+        throwBlockCollider.enabled = false;
+
+        //次の投擲ブロック生成
         int blockGeneIndex = UnityEngine.Random.Range(0, vegTypeNum);
-        int index = BlockGenerate(blockGeneIndex, true);
-        blockTra[index].anchoredPosition = (hamsterScr.spriteDefault) ? throwBlockPos[0] : throwBlockPos[1];
-        throwBlockIndex = index;
-        blockObj[index].AddComponent<BlockController>();
+        nextThrowBlockIndex = BlockGenerate(blockGeneIndex, true);
+        blockTra[nextThrowBlockIndex].SetParent(hamsterFaceTra, false);
+        blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
+
+        //ブロック最大ライン数更新
+        NowLineNumUpdate();
     }
 
     //========================================================================
@@ -143,6 +175,13 @@ public class BlockManager : MonoBehaviour
         for (int lineIndex = 0; lineIndex < generatLineNum; lineIndex++)
         {
             //---------------------------------------------
+            //投擲・ブロック削除が終了するまで待機
+            //---------------------------------------------
+            yield return new WaitWhile(() => throwNow == true);
+            yield return new WaitWhile(() => blockDeleteNow == true);
+            yield return null;
+
+            //---------------------------------------------
             //同じブロック2つを1組として､4組生成
             //---------------------------------------------
             for (int genePattIndex = 0; genePattIndex < patternNum; genePattIndex++)
@@ -151,32 +190,35 @@ public class BlockManager : MonoBehaviour
                 geneInd[genePattIndex] = blockGeneIndex;
             }
 
-            int blockPosFirstIndex = nowLineNum % 2;  //ブロック座標FirstIndex番号
-            int blockPosThirdIndex = 0;               //ブロック座標ThirdIndex番号
-            int outputThreeInd = (blockPosFirstIndex == 0) ? UnityEngine.Random.Range(0, patternNum) : -1;  //ループ何回目に3つ1組にするか
-
             //---------------------------------------------
-            //パターン数分ループ
+            //ブロック生成
             //---------------------------------------------
+            int blockPosThirdIndex = 0;
+            int outputThreeInd = (generatePattern == 0) ? UnityEngine.Random.Range(0, patternNum) : -1;  //ループ何回目に3つ1組にするか
             for (int patternIndex = 0; patternIndex < patternNum; patternIndex++)
             {
                 int generatezNum = (outputThreeInd == patternIndex) ? 3 : 2;
                 for (int i = 0; i < generatezNum; i++)
                 {
                     int objIndex = BlockGenerate(geneInd[patternIndex], false);                             //ブロック生成
-                    blockTra[objIndex].anchoredPosition = blockPos[blockPosFirstIndex][0][blockPosThirdIndex]; //ブロック座標指定
-                    blockPosIndex[objIndex] = new int[] { blockPosFirstIndex, 0, blockPosThirdIndex };        //ブロックの座標の保存
+                    blockTra[objIndex].anchoredPosition = blockPos[generatePattern][0][blockPosThirdIndex]; //ブロック座標指定
+                    blockPosIndex[objIndex] = new int[] { generatePattern, 0, blockPosThirdIndex };         //ブロックの座標の保存
                     blockPosThirdIndex++;
                 }
             }
+            generatePattern = (generatePattern == 0) ? 1 : 0;
+
             //---------------------------------------------
             //一列下げる
             //---------------------------------------------
-            nowLineNum++;
             generateEnd = false;
             StartCoroutine(LineDown());
             yield return new WaitUntil(() => generateEnd == true);
             yield return new WaitForSeconds(0.5f);  //0.5秒遅延
+
+            //ブロック最大ライン数更新
+            NowLineNumUpdate();
+            if (gameOver) break;
         }
     }
 
@@ -202,7 +244,7 @@ public class BlockManager : MonoBehaviour
                 //---------------------------------------------
                 for (int objIndex = 0; objIndex < objCount; objIndex++)
                 {
-                    if(throwBlockIndex != objIndex && nowDeleteIndex.IndexOf(objIndex) < 0)
+                    if(throwBlockIndex != objIndex && nextThrowBlockIndex != objIndex && nowDeleteIndex.IndexOf(objIndex) < 0)
                     {
                         Vector2 targetPos = blockPos[blockPosIndex[objIndex][0]][blockPosIndex[objIndex][1] + 1][blockPosIndex[objIndex][2]];
                         float targetPosY = targetPos.y - boundHigh;
@@ -218,7 +260,7 @@ public class BlockManager : MonoBehaviour
                 //---------------------------------------------
                 for (int objIndex = 0; objIndex < objCount; objIndex++)
                 {
-                    if (throwBlockIndex != objIndex && nowDeleteIndex.IndexOf(objIndex) < 0)
+                    if (throwBlockIndex != objIndex && nextThrowBlockIndex != objIndex && nowDeleteIndex.IndexOf(objIndex) < 0)
                     {
                         Vector2 targetPos = blockPos[blockPosIndex[objIndex][0]][blockPosIndex[objIndex][1] + 1][blockPosIndex[objIndex][2]];
                         float targetPosY = targetPos.y + boundHigh;
@@ -235,7 +277,7 @@ public class BlockManager : MonoBehaviour
         //座標番号リスト更新
         //---------------------------------------------
         for (int posIndex = 0; posIndex < blockPosIndex.Count; posIndex++)
-        { if (throwBlockIndex != posIndex) blockPosIndex[posIndex][1]++; }
+        { if (throwBlockIndex != posIndex && nextThrowBlockIndex != posIndex) blockPosIndex[posIndex][1]++; }
         generateEnd = true;
     }
 
@@ -247,6 +289,7 @@ public class BlockManager : MonoBehaviour
     public IEnumerator BlockThrow(Vector3[] linePoints)
     {
         throwNow = true;
+        throwBlockCollider.enabled = true;
         float oneFrameTime = 0.02f;
         float throwSpeed   = 50.0f;
         float maxRangeFix  = 60.0f;
@@ -269,7 +312,6 @@ public class BlockManager : MonoBehaviour
     //ブロック接触
     //========================================================================
     //obj;    接触したブロック
-    //conPos; 接触箇所
     //========================================================================
     public void BlockConnect(GameObject obj)
     {
@@ -279,11 +321,11 @@ public class BlockManager : MonoBehaviour
         //ブロックボックスの子オブジェクトに変更
         blockTra[throwBlockIndex].SetParent(blockBoxTra, true);
 
-        int connectObjIndex = blockObj.IndexOf(obj);                           //接触したブロックの番号取得
+        int connectObjIndex   = blockObj.IndexOf(obj);                         //接触したブロックの番号取得
         Vector3 connectObjPos = blockTra[connectObjIndex].anchoredPosition;    //接触したブロックの座標
         Vector3 throwBlockPos = blockTra[throwBlockIndex].anchoredPosition;    //投擲ブロックの座標
 
-        float sameLineJudge = 40.0f;       //同列判定配置座標
+        float sameLineJudge  = 40.0f;      //同列判定配置座標
         int[] arrangementPos = new int[3]; //投擲ブロック配置座標 0:パターン番号 1:行番号 2:列番号
 
         //下の行にセットする
@@ -317,9 +359,42 @@ public class BlockManager : MonoBehaviour
 
         //ブロック削除
         AdjacentSameTagBlockJudgment(throwBlockIndex);
+    }
 
+    //========================================================================
+    //ブロック上限接触
+    //========================================================================
+    public void UpperLimitConnect()
+    {
+        //投擲終了
+        throwNow = false;
 
-        //if (posLineInd > nowLineNum) nowLineNum = posLineInd;
+        //投擲ブロック停止座標設定
+        float throwblockPosX = blockTra[throwBlockIndex].anchoredPosition.x;
+        int refPatNum = (generatePattern == 0) ? 1 : 0;
+        int arrangementColumnIndex = 0;
+        float provisionalPosX = canvasWidth;
+        int index = 0;
+        foreach (Vector2 refPos in blockPos[refPatNum][1])
+        {
+            float offsetX = Mathf.Abs(refPos.x - throwblockPosX);
+            if (offsetX < provisionalPosX)
+            {
+                provisionalPosX = offsetX;
+                arrangementColumnIndex = index;
+            }
+            index++;
+        }
+
+        //ブロックボックスの子オブジェクトに変更
+        blockTra[throwBlockIndex].SetParent(blockBoxTra, true);
+        
+        //座標指定
+        blockTra[throwBlockIndex].anchoredPosition = blockPos[refPatNum][1][arrangementColumnIndex];
+        blockPosIndex[throwBlockIndex] = new int[] { refPatNum, 1, arrangementColumnIndex };
+
+        //ブロック削除
+        AdjacentSameTagBlockJudgment(throwBlockIndex);
     }
 
     //========================================================================
@@ -386,6 +461,9 @@ public class BlockManager : MonoBehaviour
                     add = true;
                 }
             }
+
+            //次投擲ブロックは消さない
+            referenceBlockIndexList.Remove(nextThrowBlockIndex);
             if (!add) break;
         }
 
@@ -419,15 +497,16 @@ public class BlockManager : MonoBehaviour
         for (int objIndex = 0; objIndex < blockObjCount; objIndex++)
         {
             //削除予定ブロック判定
-            bool deleteblock = nowDeleteIndex.IndexOf(objIndex) >= 0;
+            if(nowDeleteIndex.IndexOf(objIndex) < 0 && nextThrowBlockIndex != objIndex)
+            {
+                //削除予定の無いブロックリスト取得
+                if (throwBlockIndex != objIndex)
+                    activeBlockList.Add(objIndex);
 
-            //削除予定の無いブロックリスト取得
-            if (throwBlockIndex != objIndex && !deleteblock)
-                activeBlockList.Add(objIndex);
-
-            //1行目のブロック番号取得
-            if (blockPosIndex[objIndex][1] == 1 && !deleteblock)
-                topLineConnectList.Add(objIndex);
+                //1行目のブロック番号取得
+                if (blockPosIndex[objIndex][1] == 1)
+                    topLineConnectList.Add(objIndex);
+            }
         }
 
         //1行目のブロックの隣接ブロック取得
@@ -482,6 +561,9 @@ public class BlockManager : MonoBehaviour
                     add = true;
                 }
             }
+
+            //次投擲ブロックは消さない
+            topLineConnectList.Remove(nextThrowBlockIndex);
             if (!add) break;
         }
 
@@ -519,7 +601,7 @@ public class BlockManager : MonoBehaviour
         int columnType  = refPosInd[0];                  //配置タイプ
 
         bool minLine   = refPosInd[1] == 1;                          //最上段?
-        bool maxLine   = refPosInd[1] == maxLineNum;                 //最下段?
+        bool maxLine   = refPosInd[1] == BLOCK_MAX_LINE_NUM;         //最下段?
         bool maxColumn = refPosInd[2] == columnNum[columnType] - 1;  //最右列?
         bool minColumn = refPosInd[2] == 0;                          //最左列?
 
@@ -602,7 +684,7 @@ public class BlockManager : MonoBehaviour
         {
             indexArray[index]   = index;
             DirectWait[index]   = (index == 0) ? 0.0f : UnityEngine.Random.Range(0.0f, 0.2f) + DirectWait[index - 1];
-            fallWait[index]     = DirectWait[index] + ((connect) ? scalingWaitTime : shakeWaitTime);
+            fallWait[index]     = DirectWait[index] + ((connect) ? scalingWaitTime : shakeWaitTime) + 0.1f;
             directingEnd[index] = false;
             fallStart[index]    = false;
 
@@ -654,7 +736,15 @@ public class BlockManager : MonoBehaviour
             //ブロック削除
             yield return new WaitForSeconds(moveWaitTime * 3 / 4); //落下待機
             yield return new WaitForSeconds(0.5f);                 //落下後0.5秒待機
+
+            //次投擲ブロックの保持
+            GameObject nextThrowBlockObj = blockObj[nextThrowBlockIndex];
+
+            //削除
             BlockDelete(nowDeleteIndex.ToArray());
+
+            //次の投擲ブロック番号更新
+            nextThrowBlockIndex = blockObj.IndexOf(nextThrowBlockObj);
 
             //投擲ブロック生成
             ThrowBlockGenerate();
@@ -700,6 +790,30 @@ public class BlockManager : MonoBehaviour
             blockTra.RemoveAt(delInd);
             Destroy(blockObj[delInd]);
             blockObj.RemoveAt(delInd);
+        }
+    }
+
+    //========================================================================
+    //現在のブロックライン数更新
+    //========================================================================
+    void NowLineNumUpdate()
+    {
+        int maxLineNumber = 0;
+        foreach (int[] posInd in blockPosIndex)
+        {
+            int blockIndex = blockPosIndex.IndexOf(posInd);
+            if (blockIndex != throwBlockIndex && blockIndex != nextThrowBlockIndex)
+            {
+                if (maxLineNumber < posInd[1])
+                    maxLineNumber = posInd[1];
+            }
+        }
+        nowLineNum = maxLineNumber;
+
+        //ゲームオーバー
+        if(BLOCK_MAX_LINE_NUM <= nowLineNum)
+        {
+            gameOver = true;
         }
     }
 }

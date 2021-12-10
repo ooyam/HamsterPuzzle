@@ -31,7 +31,14 @@ public class BlockController : MonoBehaviour
             int tagIndex = Array.IndexOf(blockTag, connectObjTag);
             if (0 <= tagIndex)
             {
+                //ëºÉuÉçÉbÉNê⁄êG
                 GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>().BlockConnect(connectObj);
+                Destroy(this.GetComponent<BlockController>());
+            }
+            else if (connectObjTag == "UpperLimit")
+            {
+                //è„å¿ê⁄êG
+                GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>().UpperLimitConnect();
                 Destroy(this.GetComponent<BlockController>());
             }
         }
