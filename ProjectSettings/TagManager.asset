@@ -30,6 +30,7 @@ TagManager:
   - HintScreen
   - BlockManager
   - UpperLimit
+  - NextBlockBoard
   layers:
   - Default
   - TransparentFX

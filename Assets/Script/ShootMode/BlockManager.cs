@@ -12,13 +12,13 @@ public class BlockManager : MonoBehaviour
     [Header("ブロックの取得")]
     [SerializeField]
     GameObject[] blockPre;
-    List<GameObject> blockObj    = new List<GameObject>();     //生成ブロックobject
-    List<RectTransform> blockTra = new List<RectTransform>();  //生成ブロックRectTransform
-    List<int[]> blockPosIndex    = new List<int[]>();          //生成ブロック座標番号
-    List<int> nowDeleteIndex     = new List<int>();            //削除中ブロックのオブジェクト番号リスト
-    int throwBlockIndex;                                       //投擲ブロックのリスト番号
-    int nextThrowBlockIndex;                                   //次の投擲ブロックのリスト番号
-    CircleCollider2D throwBlockCollider;                       //投擲ブロックのCollider
+    List<GameObject> blockObj    = new List<GameObject>();           //生成ブロックobject
+    List<RectTransform> blockTra = new List<RectTransform>();        //生成ブロックRectTransform
+    List<int[]> blockPosIndex    = new List<int[]>();                //生成ブロック座標番号
+    List<int> nowDeleteIndex     = new List<int>();                  //削除中ブロックのオブジェクト番号リスト
+    int throwBlockIndex;                                             //投擲ブロックのリスト番号
+    int nextThrowBlockIndex;                                         //次の投擲ブロックのリスト番号
+    CircleCollider2D[] throwBlockCollider = new CircleCollider2D[2]; //Collider 0:次投擲ブロック 1:投擲ブロック
 
     [Header("ブロックボックス")]
     [SerializeField]
@@ -29,10 +29,9 @@ public class BlockManager : MonoBehaviour
     Transform hamsterBoxTra;
     HamsterController hamsterScr;  //HamsterController
 
-    [Header("ハムスターのアイコン")]
+    [Header("次投擲ブロック表示ボード")]
     [SerializeField]
-    RectTransform hamsterFaceTra;
-    Vector2 hamsterFacePos;
+    RectTransform nextBlockBoardTra;
 
     [Header("カメラの取得")]
     [SerializeField]
@@ -73,8 +72,7 @@ public class BlockManager : MonoBehaviour
         differenceY = canvasTra.sizeDelta.y;
         throwBlockPos[0]  = new Vector2(70.0f, -10.0f);
         throwBlockPos[1]  = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
-        hamsterFacePos    = hamsterFaceTra.anchoredPosition;
-        nextThrowBlockPos = new Vector2(-75.0f, -80.0f);
+        nextThrowBlockPos = new Vector2(0.0f, -30.0f);
 
         //ブロック配置座標指定
         float[] posXFix = new float[] { 480.0f, 420.0f };
@@ -96,10 +94,7 @@ public class BlockManager : MonoBehaviour
         }
 
         //投擲用ブロック生成
-        int blockGeneIndex  = UnityEngine.Random.Range(0, vegTypeNum);
-        nextThrowBlockIndex = BlockGenerate(blockGeneIndex, true);
-        blockTra[nextThrowBlockIndex].SetParent(hamsterFaceTra, false);
-        blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
+        NextThrowBlockGenerate();
         ThrowBlockGenerate();
 
         //ブロックを3列生成
@@ -134,23 +129,57 @@ public class BlockManager : MonoBehaviour
     void ThrowBlockGenerate()
     {
         //投擲ブロックを持つ
-        throwBlockIndex = nextThrowBlockIndex;
-        blockTra[throwBlockIndex].SetParent(hamsterBoxTra, false);
-        blockTra[throwBlockIndex].SetSiblingIndex(0);
-        blockTra[throwBlockIndex].anchoredPosition = (hamsterScr.spriteDefault) ? throwBlockPos[0] : throwBlockPos[1];
-        blockObj[throwBlockIndex].AddComponent<BlockController>();
-        throwBlockCollider = blockObj[throwBlockIndex].GetComponent<CircleCollider2D>();
-        throwBlockCollider.enabled = false;
+        HaveThrowBlock();
 
         //次の投擲ブロック生成
-        int blockGeneIndex = UnityEngine.Random.Range(0, vegTypeNum);
-        nextThrowBlockIndex = BlockGenerate(blockGeneIndex, true);
-        blockTra[nextThrowBlockIndex].SetParent(hamsterFaceTra, false);
-        blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
+        NextThrowBlockGenerate();
 
         //ブロック最大ライン数更新
         NowLineNumUpdate();
     }
+
+    //========================================================================
+    //次投擲ブロック生成
+    //========================================================================
+    void NextThrowBlockGenerate()
+    {
+        int blockGeneIndex = UnityEngine.Random.Range(0, vegTypeNum);
+        nextThrowBlockIndex = BlockGenerate(blockGeneIndex, true);
+        blockTra[nextThrowBlockIndex].SetParent(nextBlockBoardTra, false);
+        blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
+        blockObj[nextThrowBlockIndex].AddComponent<BlockController>();
+        throwBlockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
+        throwBlockCollider[0].enabled = false;
+    }
+
+    //========================================================================
+    //次投擲ブロックを持つ
+    //========================================================================
+    void HaveThrowBlock()
+    {
+        throwBlockIndex = nextThrowBlockIndex;
+        blockTra[throwBlockIndex].SetParent(hamsterBoxTra, false);
+        blockTra[throwBlockIndex].SetSiblingIndex(0);
+        blockTra[throwBlockIndex].anchoredPosition = (hamsterScr.spriteDefault) ? throwBlockPos[0] : throwBlockPos[1];
+        throwBlockCollider[1] = blockObj[throwBlockIndex].GetComponent<CircleCollider2D>();
+    }
+
+    //========================================================================
+    //投擲ブロック交換
+    //========================================================================
+    public void ThrowBlockChange()
+    {
+        //次投擲ブロックを持つ
+        int nowThorwBlockIndex = throwBlockIndex;
+        HaveThrowBlock();
+
+        //投擲ブロックを次投擲ブロックに置換
+        nextThrowBlockIndex = nowThorwBlockIndex;
+        blockTra[nextThrowBlockIndex].SetParent(nextBlockBoardTra, false);
+        blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
+        throwBlockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
+    }
+
 
     //========================================================================
     //投擲ブロック座標反転
@@ -289,7 +318,7 @@ public class BlockManager : MonoBehaviour
     public IEnumerator BlockThrow(Vector3[] linePoints)
     {
         throwNow = true;
-        throwBlockCollider.enabled = true;
+        throwBlockCollider[1].enabled = true;
         float oneFrameTime = 0.02f;
         float throwSpeed   = 50.0f;
         float maxRangeFix  = 60.0f;
@@ -669,7 +698,7 @@ public class BlockManager : MonoBehaviour
         //落下設定
         float fallSpeed     = 5.0f;     //移動速度
         float acceleRate    = 1.1f;     //移動速度の加速率
-        float fallTarget    = -1500.0f; //落下座標
+        float fallTarget    = -1300.0f; //落下座標
         float moveWaitTime  = 0.0f;     //落下待機時間
 
         //時間差設定
