@@ -178,6 +178,10 @@ public class BlockManager : MonoBehaviour
         blockTra[nextThrowBlockIndex].SetParent(nextBlockBoardTra, false);
         blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
         throwBlockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
+
+        //演出実装
+
+
     }
 
 

@@ -2002,6 +2002,7 @@ GameObject:
   - component: {fileID: 387283809}
   - component: {fileID: 387283808}
   - component: {fileID: 387283807}
+  - component: {fileID: 387283810}
   m_Layer: 5
   m_Name: BackGround
   m_TagString: Untagged
@@ -2016,7 +2017,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 387283805}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2092,6 +2093,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 387283805}
   m_CullTransparentMesh: 0
+--- !u!114 &387283810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 387283805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &407902146
 GameObject:
   m_ObjectHideFlags: 0
@@ -2574,7 +2589,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.17}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 0.85}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3742,7 +3757,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 5
+  far clip plane: 2
   field of view: 60
   orthographic: 1
   orthographic size: 5
@@ -4632,7 +4647,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1023487897}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -5021,7 +5036,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 10
+  far clip plane: 2
   field of view: 60
   orthographic: 1
   orthographic size: 5
@@ -8341,6 +8356,7 @@ MonoBehaviour:
   hamsterSprite:
   - {fileID: -8680216518235983974, guid: deff4e0c27f4cc44b95981d3d3015810, type: 3}
   - {fileID: 8920710052246408498, guid: 6da8f4c4d3a11cf42bcd61115b2edb3b, type: 3}
+  backGroundTra: {fileID: 387283806}
   blockBoxTra: {fileID: 1144189542}
   blockMan: {fileID: 1171080476}
 --- !u!120 &1743309518
@@ -8432,8 +8448,8 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
-    numCapVertices: 0
+    numCornerVertices: 50
+    numCapVertices: 50
     alignment: 1
     textureMode: 0
     shadowBias: 0.5

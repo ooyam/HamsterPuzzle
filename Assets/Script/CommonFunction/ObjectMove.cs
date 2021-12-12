@@ -312,9 +312,9 @@ namespace MoveFunction
         public static bool changeEnd = false;
         public static IEnumerator PaletteChange(Image ima, Text tex, float changeSpeed, Color[] colArray, int[] compArray, int chengeCount)
         {
-            float oneFrameTime = 0.02f;                //1フレーム時間
-            int loopTimes = 0;                         //繰り返し回数
-            int colCount = colArray.Length;            //変更色の数
+            float oneFrameTime = 0.02f;      //1フレーム時間
+            int loopTimes = 0;               //繰り返し回数
+            int colCount = colArray.Length;  //変更色の数
 
             int nowIndex = 0;    //現在の色
             int nextIndex = 1;   //次の色
