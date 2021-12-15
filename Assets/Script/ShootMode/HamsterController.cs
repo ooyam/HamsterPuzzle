@@ -86,7 +86,7 @@ namespace ShootMode
         {
             if (gameStart)
             {
-                if (!blockMan.throwNow && !blockMan.blockDeleteNow)
+                if (!blockMan.throwNow && !blockMan.blockDeleteNow&& !blockMan.blockChangeNow)
                 {
                     if (Input.GetMouseButtonDown(0))
                     {

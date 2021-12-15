@@ -247,6 +247,106 @@ namespace MoveFunction
 
 
         //========================================================================
+        //回転動作
+        //========================================================================
+        //traArray;    動作オブジェクトのRectTransform[]
+        //rotSpeed;    拡縮速度
+        //stopRot;     回転後の角度(絶対角)
+        //========================================================================
+        public static IEnumerator RotateMovement(RectTransform[] traArray, Vector3 rotSpeed, Vector3 stopRot)
+        {
+            //最も多く動作する軸判定
+            int axis = 0;
+            if (rotSpeed.x < rotSpeed.y)
+                axis = (rotSpeed.y > rotSpeed.z) ? 1 : 2;
+            else if (rotSpeed.x < rotSpeed.z)
+                axis = 2;
+
+            //回転
+            float tolerance = 5.0f;
+            while (true)
+            {
+                yield return new WaitForFixedUpdate();
+                foreach (RectTransform tra in traArray)
+                { tra.Rotate(rotSpeed.x, rotSpeed.y, rotSpeed.z); }
+                Vector3 nowRot   = traArray[0].localEulerAngles;
+                float refRot     = nowRot.x;
+                float refStopRot = stopRot.x;
+                switch (axis)
+                {
+                    case 1:
+                        refRot     = nowRot.y;
+                        refStopRot = stopRot.y;
+                        break;
+                    case 2:
+                        refRot     = nowRot.z;
+                        refStopRot = stopRot.z;
+                        break;
+                }
+                if (refStopRot - tolerance <= refRot && refRot <= refStopRot + tolerance) break;
+            }
+
+            //最終角度に合わせる
+            foreach (RectTransform tra in traArray)
+            { tra.localRotation = Quaternion.Euler(stopRot.x, stopRot.y, stopRot.z); }
+        }
+
+
+        //========================================================================
+        //回転動作(RotateMovement)に要する時間計算
+        //========================================================================
+        //obj;         動作オブジェクト
+        //tra;         動作オブジェクトのRectTransform
+        //rotSpeed;    拡縮速度
+        //stopRot;     回転後の角度(絶対角)
+        //========================================================================
+        public static float GetRotateMoveTime(GameObject obj, RectTransform tra, Vector3 rotSpeed, Vector3 stopRot)
+        {
+            //オブジェクトクローン作製
+            GameObject clone       = GameObject.Instantiate(obj) as GameObject;
+            RectTransform cloneTra = clone.GetComponent<RectTransform>();
+            Transform parentTra    = tra.parent.gameObject.transform;
+            cloneTra.SetParent(parentTra, false);
+            cloneTra.localRotation = tra.localRotation;
+
+            //最も多く動作する軸判定
+            int axis = 0;
+            if (rotSpeed.x < rotSpeed.y)
+                axis = (rotSpeed.y > rotSpeed.z) ? 1 : 2;
+            else if (rotSpeed.x < rotSpeed.z)
+                axis = 2;
+
+            //回転
+            float oneFrameTime = 0.02f;
+            float moveTime     = 0.0f;
+            float tolerance    = 5.0f;
+            while (true)
+            {
+                moveTime += oneFrameTime;
+                cloneTra.Rotate(rotSpeed.x, rotSpeed.y, rotSpeed.z);
+                Vector3 nowRot = cloneTra.localEulerAngles;
+                float refRot = nowRot.x;
+                float refStopRot = stopRot.x;
+                switch (axis)
+                {
+                    case 1:
+                        refRot = nowRot.y;
+                        refStopRot = stopRot.y;
+                        break;
+                    case 2:
+                        refRot = nowRot.z;
+                        refStopRot = stopRot.z;
+                        break;
+                }
+                if (refStopRot - tolerance <= refRot && refRot <= refStopRot + tolerance) break;
+            }
+
+            Destroy(clone);  //クローン削除
+            return moveTime; //時間を返す
+        }
+
+
+        //========================================================================
         //拡大縮小動作
         //========================================================================
         //tra;          動作オブジェクトのRectTransform
@@ -312,23 +412,23 @@ namespace MoveFunction
         public static bool changeEnd = false;
         public static IEnumerator PaletteChange(Image ima, Text tex, float changeSpeed, Color[] colArray, int[] compArray, int chengeCount)
         {
-            float oneFrameTime = 0.02f;      //1フレーム時間
-            int loopTimes = 0;               //繰り返し回数
-            int colCount = colArray.Length;  //変更色の数
+            float oneFrameTime = 0.02f;            //1フレーム時間
+            int loopTimes      = 0;                //繰り返し回数
+            int colCount       = colArray.Length;  //変更色の数
 
-            int nowIndex = 0;    //現在の色
-            int nextIndex = 1;   //次の色
-            float nextCompCol = colArray[nextIndex][compArray[nowIndex]]; //比較色指定
-            float judgeRange = 5.0f / 255.0f;                             //判定範囲
+            int nowIndex  = 0;    //現在の色
+            int nextIndex = 1;    //次の色
+            float nextCompCol = colArray[nextIndex][compArray[nowIndex]];   //比較色指定
+            float judgeRange  = 5.0f / 255.0f;                              //判定範囲
 
-            if (ima != null)
+            if (tex == null)
             {
                 //-------------------------
                 //Image
                 //-------------------------
                 while (!changeEnd)
                 {
-                    ima.color = Color.Lerp(tex.color, colArray[nextIndex], changeSpeed);
+                    ima.color = Color.Lerp(ima.color, colArray[nextIndex], changeSpeed);
                     float nowCompCol = ima.color[compArray[nowIndex]];
                     if (nowCompCol + judgeRange >= nextCompCol && nextCompCol >= nowCompCol - judgeRange)
                     {

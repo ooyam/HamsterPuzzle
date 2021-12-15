@@ -57,7 +57,10 @@ public class BlockManager : MonoBehaviour
     [System.NonSerialized]
     public bool blockDeleteNow = false;        //ブロック削除中？
     [System.NonSerialized]
+    public bool blockChangeNow = false;        //ブロック交換中？
+    [System.NonSerialized]
     public float blockDiameter = 120.0f;       //ブロック直径
+    float[] blockRotDirecting = new float[] { 90.0f, 270.0f };  //演出用ブロック角度
 
     bool gameOver  = false;  //ゲーム終了？
     //int stageNum = 0;   //ステージ番号
@@ -95,7 +98,7 @@ public class BlockManager : MonoBehaviour
 
         //投擲用ブロック生成
         NextThrowBlockGenerate();
-        ThrowBlockGenerate();
+        StartCoroutine(ThrowBlockGenerate());
 
         //ブロックを3列生成
         int firstGenerateLinesNum = 3;
@@ -124,15 +127,27 @@ public class BlockManager : MonoBehaviour
     }
 
     //========================================================================
-    //投擲ブロック生成指示
+    //投擲ブロック生成
     //========================================================================
-    void ThrowBlockGenerate()
+    IEnumerator ThrowBlockGenerate()
     {
+        //次投擲ブロック回転
+        blockChangeNow = true;
+        float waitTime = ThrowBlockChangeDirecting(new int[] { nextThrowBlockIndex }, new Vector3(0.0f, blockRotDirecting[0], 0.0f));
+        yield return new WaitForSeconds(waitTime);
+
         //投擲ブロックを持つ
         HaveThrowBlock();
 
         //次の投擲ブロック生成
         NextThrowBlockGenerate();
+
+        //各ブロック回転表示
+        blockTra[throwBlockIndex].localRotation     = Quaternion.Euler(0.0f, blockRotDirecting[1], 0.0f);
+        blockTra[nextThrowBlockIndex].localRotation = Quaternion.Euler(0.0f, blockRotDirecting[1], 0.0f);
+        waitTime = ThrowBlockChangeDirecting(new int[] { throwBlockIndex, nextThrowBlockIndex }, Vector3.zero);
+        yield return new WaitForSeconds(waitTime);
+        blockChangeNow = false;
 
         //ブロック最大ライン数更新
         NowLineNumUpdate();
@@ -143,6 +158,7 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     void NextThrowBlockGenerate()
     {
+        //生成
         int blockGeneIndex = UnityEngine.Random.Range(0, vegTypeNum);
         nextThrowBlockIndex = BlockGenerate(blockGeneIndex, true);
         blockTra[nextThrowBlockIndex].SetParent(nextBlockBoardTra, false);
@@ -165,10 +181,26 @@ public class BlockManager : MonoBehaviour
     }
 
     //========================================================================
+    //次投擲ブロックタップ
+    //========================================================================
+    public void NextThrowBlockTap()
+    {
+        if (!throwNow && !blockDeleteNow && !blockChangeNow)
+            StartCoroutine(ThrowBlockChange());
+    }
+
+    //========================================================================
     //投擲ブロック交換
     //========================================================================
-    public void ThrowBlockChange()
+    IEnumerator ThrowBlockChange()
     {
+        blockChangeNow = true;
+
+        //交換演出
+        int[] blockIndexArray = new int[] { throwBlockIndex, nextThrowBlockIndex };
+        float waitTime = ThrowBlockChangeDirecting(blockIndexArray, new Vector3(0.0f, blockRotDirecting[0], 0.0f));
+        yield return new WaitForSeconds(waitTime);
+
         //次投擲ブロックを持つ
         int nowThorwBlockIndex = throwBlockIndex;
         HaveThrowBlock();
@@ -179,11 +211,39 @@ public class BlockManager : MonoBehaviour
         blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
         throwBlockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
 
-        //演出実装
+        //各ブロックをの角度を270に設定
+        blockTra[throwBlockIndex].localRotation     = Quaternion.Euler(0.0f, blockRotDirecting[1], 0.0f);
+        blockTra[nextThrowBlockIndex].localRotation = Quaternion.Euler(0.0f, blockRotDirecting[1], 0.0f);
 
+        //交換演出
+        waitTime = ThrowBlockChangeDirecting(blockIndexArray, Vector3.zero);
+        yield return new WaitForSeconds(waitTime);
 
+        blockChangeNow = false;
     }
 
+    //========================================================================
+    //投擲ブロック交換演出
+    //========================================================================
+    //indexArray;  動作オブジェクトのブロック番号
+    //stopRot;     停止角度
+    //return;      所要時間
+    //========================================================================
+    float ThrowBlockChangeDirecting(int[] blockIndexArray, Vector3 stopRot)
+    {
+        //動作ブロック取得
+        int blockNum = blockIndexArray.Length;
+        RectTransform[] traArray = new RectTransform[blockNum];
+        for (int arrayIndex = 0; arrayIndex < blockNum; arrayIndex++)
+        { traArray[arrayIndex] = blockTra[blockIndexArray[arrayIndex]]; }
+
+        //移動開始
+        Vector3 rotSpeed = new Vector3(0.0f, 10.0f, 0.0f);
+        float waitTime   = GetRotateMoveTime(blockObj[blockIndexArray[0]], traArray[0], rotSpeed, stopRot);
+        StartCoroutine(RotateMovement(traArray, rotSpeed, stopRot));
+
+        return waitTime;
+    }
 
     //========================================================================
     //投擲ブロック座標反転
@@ -267,6 +327,12 @@ public class BlockManager : MonoBehaviour
         bool loopEnd       = false;           //下降終了？
         int objCount       = blockObj.Count;  //オブジェクトの数
 
+        //---------------------------------------------
+        //座標番号リスト更新
+        //---------------------------------------------
+        for (int posIndex = 0; posIndex < blockPosIndex.Count; posIndex++)
+        { if (throwBlockIndex != posIndex && nextThrowBlockIndex != posIndex) blockPosIndex[posIndex][1]++; }
+
         //一行下げる
         while (true)
         {
@@ -279,7 +345,7 @@ public class BlockManager : MonoBehaviour
                 {
                     if(throwBlockIndex != objIndex && nextThrowBlockIndex != objIndex && nowDeleteIndex.IndexOf(objIndex) < 0)
                     {
-                        Vector2 targetPos = blockPos[blockPosIndex[objIndex][0]][blockPosIndex[objIndex][1] + 1][blockPosIndex[objIndex][2]];
+                        Vector2 targetPos = blockPos[blockPosIndex[objIndex][0]][blockPosIndex[objIndex][1]][blockPosIndex[objIndex][2]];
                         float targetPosY = targetPos.y - boundHigh;
                         blockTra[objIndex].anchoredPosition = Vector2.Lerp(blockTra[objIndex].anchoredPosition, new Vector2(targetPos.x, targetPosY), speed);
                         if (objIndex == objCount - 1 && blockTra[objIndex].anchoredPosition.y < targetPosY + 5.0f) bound = true;
@@ -295,7 +361,7 @@ public class BlockManager : MonoBehaviour
                 {
                     if (throwBlockIndex != objIndex && nextThrowBlockIndex != objIndex && nowDeleteIndex.IndexOf(objIndex) < 0)
                     {
-                        Vector2 targetPos = blockPos[blockPosIndex[objIndex][0]][blockPosIndex[objIndex][1] + 1][blockPosIndex[objIndex][2]];
+                        Vector2 targetPos = blockPos[blockPosIndex[objIndex][0]][blockPosIndex[objIndex][1]][blockPosIndex[objIndex][2]];
                         float targetPosY = targetPos.y + boundHigh;
                         blockTra[objIndex].anchoredPosition = Vector2.Lerp(blockTra[objIndex].anchoredPosition, new Vector2(targetPos.x, targetPosY), speed);
                         if (objIndex == objCount - 1 && blockTra[objIndex].anchoredPosition.y > targetPos.y) loopEnd = true;
@@ -305,12 +371,6 @@ public class BlockManager : MonoBehaviour
             }
             yield return new WaitForSeconds(oneFrameTime);
         }
-
-        //---------------------------------------------
-        //座標番号リスト更新
-        //---------------------------------------------
-        for (int posIndex = 0; posIndex < blockPosIndex.Count; posIndex++)
-        { if (throwBlockIndex != posIndex && nextThrowBlockIndex != posIndex) blockPosIndex[posIndex][1]++; }
         generateEnd = true;
     }
 
@@ -348,9 +408,6 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     public void BlockConnect(GameObject obj)
     {
-        //投擲終了
-        throwNow = false;
-
         //ブロックボックスの子オブジェクトに変更
         blockTra[throwBlockIndex].SetParent(blockBoxTra, true);
 
@@ -392,6 +449,9 @@ public class BlockManager : MonoBehaviour
 
         //ブロック削除
         AdjacentSameTagBlockJudgment(throwBlockIndex);
+
+        //投擲終了
+        throwNow = false;
     }
 
     //========================================================================
@@ -511,7 +571,7 @@ public class BlockManager : MonoBehaviour
             StartCoroutine(BlockDeleteStart(deleteBlocks, true));
         }
         //投擲ブロック生成
-        else ThrowBlockGenerate();
+        else StartCoroutine(ThrowBlockGenerate());
     }
 
     //========================================================================
@@ -780,7 +840,7 @@ public class BlockManager : MonoBehaviour
             nextThrowBlockIndex = blockObj.IndexOf(nextThrowBlockObj);
 
             //投擲ブロック生成
-            ThrowBlockGenerate();
+            StartCoroutine(ThrowBlockGenerate());
 
             //削除中リストリセット
             nowDeleteIndex.Clear();
