@@ -268,11 +268,11 @@ public class BlockManager : MonoBehaviour
         for (int lineIndex = 0; lineIndex < generatLineNum; lineIndex++)
         {
             //---------------------------------------------
-            //投擲・ブロック削除が終了するまで待機
+            //投擲・ブロック削除・投擲ブロック交換が終了するまで待機
             //---------------------------------------------
             yield return new WaitWhile(() => throwNow == true);
             yield return new WaitWhile(() => blockDeleteNow == true);
-            yield return null;
+            yield return new WaitWhile(() => blockChangeNow == true);
 
             //---------------------------------------------
             //同じブロック2つを1組として､4組生成
@@ -402,46 +402,54 @@ public class BlockManager : MonoBehaviour
     }
 
     //========================================================================
-    //ブロック接触
+    //ブロック接続
     //========================================================================
-    //obj;    接触したブロック
+    //obj; 接続するブロック
     //========================================================================
     public void BlockConnect(GameObject obj)
     {
         //ブロックボックスの子オブジェクトに変更
         blockTra[throwBlockIndex].SetParent(blockBoxTra, true);
 
-        int connectObjIndex   = blockObj.IndexOf(obj);                         //接触したブロックの番号取得
-        Vector3 connectObjPos = blockTra[connectObjIndex].anchoredPosition;    //接触したブロックの座標
+        int conObjIndex       = blockObj.IndexOf(obj);                         //接続ブロックの番号取得
+        int[] conObjPosIndex  = blockPosIndex[conObjIndex];                    //接続ブロックの座標番号
+        Vector3 conObjPos     = blockTra[conObjIndex].anchoredPosition;        //接続ブロックの座標
         Vector3 throwBlockPos = blockTra[throwBlockIndex].anchoredPosition;    //投擲ブロックの座標
 
-        float sameLineJudge  = 40.0f;      //同列判定配置座標
+        float onJudge    = 10.0f;                                              //上に配置判定座標
+        float underJudge = 40.0f;                                              //下に配置判定座標
+        bool placedOn    = throwBlockPos.y >= conObjPos.y + onJudge;           //上に配置
+        bool placedUnder = throwBlockPos.y <= conObjPos.y - underJudge;        //下に配置
+        bool placedRight = throwBlockPos.x >= conObjPos.x;                     //右側に接触？
+        bool conBlockPatternEight = conObjPosIndex[0] == 1;                    //接続ブロックが8列パターン？
+
         int[] arrangementPos = new int[3]; //投擲ブロック配置座標 0:パターン番号 1:行番号 2:列番号
 
-        //下の行にセットする
-        //(接触ブロックが8列パターン && ((接触ブロックが最左 && 左に接触) || (接触ブロックが最右 && 右に接触))) || 接触Y座標が一定以下
-        if ((blockPosIndex[connectObjIndex][0] == 1 &&
-            ((blockPosIndex[connectObjIndex][2] == 0 && connectObjPos.x >= throwBlockPos.x) ||
-            (blockPosIndex[connectObjIndex][2] == columnNum[1] - 1 && connectObjPos.x <= throwBlockPos.x))) ||
-            throwBlockPos.y <= connectObjPos.y - sameLineJudge)
-        {
-            arrangementPos[0] = (blockPosIndex[connectObjIndex][0] == 0) ? 1 : 0;
-            arrangementPos[1] = blockPosIndex[connectObjIndex][1] + 1;
+        //パターン指定
+        if (placedUnder || placedOn) arrangementPos[0] = (conBlockPatternEight) ? 0 : 1;
+        else arrangementPos[0] = conObjPosIndex[0];
 
-            //接触ブロックが9列パターン && (ブロックの左側に接触 || 接触ブロックが最左)
-            if (blockPosIndex[connectObjIndex][0] == 0 && ((blockPosIndex[connectObjIndex][2] != 0 && connectObjPos.x >= throwBlockPos.x) || blockPosIndex[connectObjIndex][2] == columnNum[0] - 1))
-                arrangementPos[2] = blockPosIndex[connectObjIndex][2] - 1;
-            else if (blockPosIndex[connectObjIndex][0] == 1 && connectObjPos.x <= throwBlockPos.x)
-                arrangementPos[2] = blockPosIndex[connectObjIndex][2] + 1;
-            else arrangementPos[2] = blockPosIndex[connectObjIndex][2];
-        }
-        //同じ行にセットする
-        else
+        //行指定
+        if (placedUnder)   arrangementPos[1] = conObjPosIndex[1] + 1;  //下の行にセット
+        else if (placedOn) arrangementPos[1] = conObjPosIndex[1] - 1;  //上の行にセット
+        else               arrangementPos[1] = conObjPosIndex[1];      //同じ行にセット
+
+        //列指定
+        if (placedUnder || placedOn)
         {
-            arrangementPos[0] = (blockPosIndex[connectObjIndex][0] == 0) ? 0 : 1;
-            arrangementPos[1] = blockPosIndex[connectObjIndex][1];
-            arrangementPos[2] = (connectObjPos.x <= throwBlockPos.x) ? blockPosIndex[connectObjIndex][2] + 1 : blockPosIndex[connectObjIndex][2] - 1;
+            //8列パターン
+            if (conBlockPatternEight) arrangementPos[2] = (placedRight) ? conObjPosIndex[2] + 1 : conObjPosIndex[2];
+            //9列パターン
+            else
+            {
+                bool leftEnd  = conObjPosIndex[2] == 0;                                  //接続ブロックが左端？
+                bool rightEnd = columnNum[conObjPosIndex[0]] - 1 == conObjPosIndex[2];   //接続ブロックが右端？
+
+                if (placedRight) arrangementPos[2] = (rightEnd) ? conObjPosIndex[2] - 1 : conObjPosIndex[2]; //右配置
+                else arrangementPos[2] = (leftEnd) ? conObjPosIndex[2] : conObjPosIndex[2] - 1;              //左配置
+            }
         }
+        else arrangementPos[2] = (placedRight) ? conObjPosIndex[2] + 1 : conObjPosIndex[2] - 1; //同列配置
 
         //投擲ブロック停止座標指定
         blockTra[throwBlockIndex].anchoredPosition = blockPos[arrangementPos[0]][arrangementPos[1]][arrangementPos[2]];
@@ -459,9 +467,6 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     public void UpperLimitConnect()
     {
-        //投擲終了
-        throwNow = false;
-
         //投擲ブロック停止座標設定
         float throwblockPosX = blockTra[throwBlockIndex].anchoredPosition.x;
         int refPatNum = (generatePattern == 0) ? 1 : 0;
@@ -488,6 +493,9 @@ public class BlockManager : MonoBehaviour
 
         //ブロック削除
         AdjacentSameTagBlockJudgment(throwBlockIndex);
+
+        //投擲終了
+        throwNow = false;
     }
 
     //========================================================================
