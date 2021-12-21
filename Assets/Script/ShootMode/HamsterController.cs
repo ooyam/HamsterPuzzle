@@ -20,14 +20,10 @@ namespace ShootMode
         [System.NonSerialized]
         public bool spriteDefault = true; //0番使用中？
 
-        [Header("BackGround")]
-        [SerializeField]
-        RectTransform backGroundTra;
-        Vector2 backGroundSize;   //backGroundの幅
-
         [Header("BlockBox")]
         [SerializeField]
         RectTransform blockBoxTra;
+        Rect blockBoxSize;   //backGroundの幅
 
         [Header("BlockManager")]
         [SerializeField]
@@ -68,9 +64,9 @@ namespace ShootMode
             differenceY    = canvasHigh  / 2.0f;
             magnification  = canvasWidth / Screen.width;
             hamsterPosX    = tra.anchoredPosition.x;
-            backGroundSize = backGroundTra.sizeDelta;
-            topLimit  = backGroundSize.y / 2.0f + blockBoxTra.anchoredPosition.y - posY - 100.0f;
-            sideLimit = new float[] { backGroundSize.x / 2.0f - hamsterPosX, -backGroundSize.x / 2.0f - hamsterPosX };
+            blockBoxSize   = blockBoxTra.rect;
+            topLimit  = blockBoxSize.height / 2.0f + blockBoxTra.anchoredPosition.y - posY;
+            sideLimit = new float[] { blockBoxSize.width / 2.0f - hamsterPosX, -blockBoxSize.width / 2.0f - hamsterPosX };
 
             //ブロックタグ取得
             System.Array vegetableType = Enum.GetValues(typeof(VegetableType));
@@ -86,7 +82,7 @@ namespace ShootMode
         {
             if (gameStart)
             {
-                if (!blockMan.throwNow && !blockMan.blockDeleteNow&& !blockMan.blockChangeNow)
+                if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow)
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
@@ -197,7 +193,7 @@ namespace ShootMode
                 {
                     int frontLineIndex = linePos.Count - 1;
                     float quotient     = ((frastReflection) ? linePos[frontLineIndex].x : linePos[frontLineIndex].x * 2.0f) / (linePos[frontLineIndex].y - linePos[frontLineIndex - 1].y);
-                    float multiplier   = backGroundSize.x / quotient;
+                    float multiplier   = blockBoxSize.width / quotient;
                     float nextLinePosY = Mathf.Abs(multiplier) + linePos[frontLineIndex].y;
                     int   maxXIndex    = ((rightThrow && linePos[frontLineIndex].x < 0) || (!rightThrow && linePos[frontLineIndex].x > 0)) ? 0 : 1;
                     float nextLinePosX = maxX[maxXIndex];

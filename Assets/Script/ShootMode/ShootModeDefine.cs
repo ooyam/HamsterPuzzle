@@ -17,6 +17,8 @@ namespace ShootMode
 
     public class ShootModeDefine : MonoBehaviour
     {
+        public static bool  GAME_START = false;           //ゲーム開始？
+        public static bool  GAME_OVER  = false;           //ゲーム終了？
         public static int   BLOCK_MAX_LINE_NUM  = 12;     //ブロック最大数
         public static float BLOCK_GENERATE_TIME = 20.0f;  //ブロック生成時間
     }

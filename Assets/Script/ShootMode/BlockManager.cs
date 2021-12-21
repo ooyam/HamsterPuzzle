@@ -12,17 +12,19 @@ public class BlockManager : MonoBehaviour
     [Header("ブロックの取得")]
     [SerializeField]
     GameObject[] blockPre;
-    List<GameObject> blockObj    = new List<GameObject>();           //生成ブロックobject
-    List<RectTransform> blockTra = new List<RectTransform>();        //生成ブロックRectTransform
-    List<int[]> blockPosIndex    = new List<int[]>();                //生成ブロック座標番号
-    List<int> nowDeleteIndex     = new List<int>();                  //削除中ブロックのオブジェクト番号リスト
-    int throwBlockIndex;                                             //投擲ブロックのリスト番号
-    int nextThrowBlockIndex;                                         //次の投擲ブロックのリスト番号
-    CircleCollider2D[] throwBlockCollider = new CircleCollider2D[2]; //Collider 0:次投擲ブロック 1:投擲ブロック
+    List<GameObject> blockObj    = new List<GameObject>();       //生成ブロックobject
+    List<RectTransform> blockTra = new List<RectTransform>();    //生成ブロックRectTransform
+    List<int[]> blockPosIndex    = new List<int[]>();            //生成ブロック座標番号
+    List<int> nowDeleteIndex     = new List<int>();              //削除中ブロックのオブジェクト番号リスト
+    int throwBlockIndex;                                         //投擲ブロックのリスト番号
+    int nextThrowBlockIndex;                                     //次の投擲ブロックのリスト番号
+    CircleCollider2D[] blockCollider = new CircleCollider2D[3];  //Collider 0:次投擲ブロック 1:投擲ブロック 2:その他
 
     [Header("ブロックボックス")]
     [SerializeField]
     RectTransform blockBoxTra;
+    float blockBoxHight;  //ブロックボックス高さ
+    float blockPosFixY;   //ブロックボックス高さ / 2 - ブロック半半径
 
     [Header("ハムスターボックス")]
     [SerializeField]
@@ -41,7 +43,7 @@ public class BlockManager : MonoBehaviour
     float differenceX;        //座標修正数X
     float differenceY;        //座標修正数Y(Canvas高さ)
 
-    int[] columnNum = new int[] { 9, 8 };      //1行の列数
+    int[] columnNum = new int[] { 9, 10 };     //1行の列数
     Vector2[][][] blockPos;                    //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
     int generatePattern     = 0;               //ライン生成するパターン番号
     [System.NonSerialized]
@@ -62,11 +64,10 @@ public class BlockManager : MonoBehaviour
     public float blockDiameter = 120.0f;       //ブロック直径
     float[] blockRotDirecting = new float[] { 90.0f, 270.0f };  //演出用ブロック角度
 
-    bool gameOver  = false;  //ゲーム終了？
     //int stageNum = 0;   //ステージ番号
     int vegTypeNum = Enum.GetValues(typeof(VegetableType)).Length; //使用する野菜の数
 
-    void Start()
+    IEnumerator Start()
     {
         hamsterScr  = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController>();
         canvasTra   = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
@@ -78,7 +79,10 @@ public class BlockManager : MonoBehaviour
         nextThrowBlockPos = new Vector2(0.0f, -30.0f);
 
         //ブロック配置座標指定
-        float[] posXFix = new float[] { 480.0f, 420.0f };
+        float blockRadius = blockDiameter / 2.0f;　//ブロック半径
+        blockBoxHight     = blockBoxTra.rect.height;
+        blockPosFixY      = blockBoxHight / 2.0f + blockRadius;
+        float[] posXFix = new float[] { (columnNum[0] - 1) * blockRadius, (columnNum[1] - 1) * blockRadius };
         int patternNum = columnNum.Length;
         blockPos = new Vector2[patternNum][][];
         for (int ind_1 = 0; ind_1 < patternNum; ind_1++)
@@ -89,20 +93,23 @@ public class BlockManager : MonoBehaviour
                 blockPos[ind_1][ind_2] = new Vector2[columnNum[ind_1]];
                 for (int ind_3 = 0; ind_3 < columnNum[ind_1]; ind_3++)
                 {
-                    float posX = blockDiameter * ind_3 - posXFix[ind_1];       //X座標計算
-                    float posY = -blockPosY * ind_2 - blockDiameter / 2.0f;    //Y座標計算
+                    float posX = blockDiameter * ind_3 - posXFix[ind_1];                      //X座標計算
+                    float posY = -blockPosY * ind_2 - blockDiameter / 2.0f + blockPosFixY;    //Y座標計算
                     blockPos[ind_1][ind_2][ind_3] = new Vector2(posX, posY);
                 }
             }
         }
 
-        //投擲用ブロック生成
-        NextThrowBlockGenerate();
-        StartCoroutine(ThrowBlockGenerate());
-
         //ブロックを3列生成
         int firstGenerateLinesNum = 3;
         StartCoroutine(LineBlockGenerate(firstGenerateLinesNum));
+
+        //投擲用ブロック生成
+        NextThrowBlockGenerate();
+
+        //ゲーム開始待ち
+        yield return new WaitUntil(() => GAME_START == true);
+        StartCoroutine(ThrowBlockGenerate());
     }
 
     //========================================================================
@@ -113,12 +120,13 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     int BlockGenerate(int blockPreIndex, bool throwBlock)
     {
-        GameObject blockObject = Instantiate(blockPre[blockPreIndex]);
+        GameObject blockObject     = Instantiate(blockPre[blockPreIndex]);
         RectTransform blockRectTra = blockObject.GetComponent<RectTransform>();
         if (!throwBlock)
         {
             blockRectTra.SetParent(blockBoxTra, false);
             blockRectTra.SetSiblingIndex(0);
+            //blockCollider[2] = blockObject.GetComponent<CircleCollider2D>();
         }
         blockObj.Add(blockObject);
         blockTra.Add(blockRectTra);
@@ -164,8 +172,7 @@ public class BlockManager : MonoBehaviour
         blockTra[nextThrowBlockIndex].SetParent(nextBlockBoardTra, false);
         blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
         blockObj[nextThrowBlockIndex].AddComponent<BlockController>();
-        throwBlockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
-        throwBlockCollider[0].enabled = false;
+        blockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
     }
 
     //========================================================================
@@ -177,7 +184,7 @@ public class BlockManager : MonoBehaviour
         blockTra[throwBlockIndex].SetParent(hamsterBoxTra, false);
         blockTra[throwBlockIndex].SetSiblingIndex(0);
         blockTra[throwBlockIndex].anchoredPosition = (hamsterScr.spriteDefault) ? throwBlockPos[0] : throwBlockPos[1];
-        throwBlockCollider[1] = blockObj[throwBlockIndex].GetComponent<CircleCollider2D>();
+        blockCollider[1] = blockObj[throwBlockIndex].GetComponent<CircleCollider2D>();
     }
 
     //========================================================================
@@ -185,7 +192,7 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     public void NextThrowBlockTap()
     {
-        if (!throwNow && !blockDeleteNow && !blockChangeNow)
+        if (GAME_START && !GAME_OVER && !throwNow && !blockDeleteNow && !blockChangeNow)
             StartCoroutine(ThrowBlockChange());
     }
 
@@ -209,7 +216,7 @@ public class BlockManager : MonoBehaviour
         nextThrowBlockIndex = nowThorwBlockIndex;
         blockTra[nextThrowBlockIndex].SetParent(nextBlockBoardTra, false);
         blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
-        throwBlockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
+        blockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
 
         //各ブロックをの角度を270に設定
         blockTra[throwBlockIndex].localRotation     = Quaternion.Euler(0.0f, blockRotDirecting[1], 0.0f);
@@ -260,8 +267,6 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     public IEnumerator LineBlockGenerate(int generatLineNum)
     {
-        int patternNum = 4;
-        int[] geneInd = new int[patternNum];
         //---------------------------------------------
         //指定行数ループ
         //---------------------------------------------
@@ -274,8 +279,13 @@ public class BlockManager : MonoBehaviour
             yield return new WaitWhile(() => blockDeleteNow == true);
             yield return new WaitWhile(() => blockChangeNow == true);
 
+            //生成パターン数設定
+            //int patternNum = (int)Mathf.Floor(columnNum[generatePattern] / 2); //10列生成
+            int patternNum = (int)Mathf.Floor(columnNum[0] / 2);                 //8列生成
+            int[] geneInd = new int[patternNum];
+
             //---------------------------------------------
-            //同じブロック2つを1組として､4組生成
+            //同じブロック2つを1組として生成
             //---------------------------------------------
             for (int genePattIndex = 0; genePattIndex < patternNum; genePattIndex++)
             {
@@ -286,8 +296,10 @@ public class BlockManager : MonoBehaviour
             //---------------------------------------------
             //ブロック生成
             //---------------------------------------------
-            int blockPosThirdIndex = 0;
+            //int blockPosThirdIndex = 0;                            //10列生成
+            int blockPosThirdIndex = (generatePattern == 0) ? 0 : 1; //8列生成
             int outputThreeInd = (generatePattern == 0) ? UnityEngine.Random.Range(0, patternNum) : -1;  //ループ何回目に3つ1組にするか
+            List<int> generateObjInd = new List<int>();
             for (int patternIndex = 0; patternIndex < patternNum; patternIndex++)
             {
                 int generatezNum = (outputThreeInd == patternIndex) ? 3 : 2;
@@ -296,9 +308,15 @@ public class BlockManager : MonoBehaviour
                     int objIndex = BlockGenerate(geneInd[patternIndex], false);                             //ブロック生成
                     blockTra[objIndex].anchoredPosition = blockPos[generatePattern][0][blockPosThirdIndex]; //ブロック座標指定
                     blockPosIndex[objIndex] = new int[] { generatePattern, 0, blockPosThirdIndex };         //ブロックの座標の保存
+                    generateObjInd.Add(objIndex);
                     blockPosThirdIndex++;
                 }
             }
+
+            //colliderをアクティブ(Ray接触対策)
+            yield return null;
+            foreach (int geneObjInd in generateObjInd)
+            { blockObj[geneObjInd].GetComponent<CircleCollider2D>().enabled = true; }
             generatePattern = (generatePattern == 0) ? 1 : 0;
 
             //---------------------------------------------
@@ -311,7 +329,7 @@ public class BlockManager : MonoBehaviour
 
             //ブロック最大ライン数更新
             NowLineNumUpdate();
-            if (gameOver) break;
+            if (GAME_OVER) break;
         }
     }
 
@@ -382,7 +400,7 @@ public class BlockManager : MonoBehaviour
     public IEnumerator BlockThrow(Vector3[] linePoints)
     {
         throwNow = true;
-        throwBlockCollider[1].enabled = true;
+        blockCollider[1].enabled = true;
         float oneFrameTime = 0.02f;
         float throwSpeed   = 50.0f;
         float maxRangeFix  = 60.0f;
@@ -416,17 +434,16 @@ public class BlockManager : MonoBehaviour
         Vector3 conObjPos     = blockTra[conObjIndex].anchoredPosition;        //接続ブロックの座標
         Vector3 throwBlockPos = blockTra[throwBlockIndex].anchoredPosition;    //投擲ブロックの座標
 
-        float onJudge    = 10.0f;                                              //上に配置判定座標
-        float underJudge = 40.0f;                                              //下に配置判定座標
-        bool placedOn    = throwBlockPos.y >= conObjPos.y + onJudge;           //上に配置
-        bool placedUnder = throwBlockPos.y <= conObjPos.y - underJudge;        //下に配置
+        float posJudge   = blockDiameter / 3.0f;                               //配置判定座標
+        bool placedOn    = throwBlockPos.y >= conObjPos.y + posJudge;          //上に配置
+        bool placedUnder = throwBlockPos.y <= conObjPos.y - posJudge;          //下に配置
         bool placedRight = throwBlockPos.x >= conObjPos.x;                     //右側に接触？
-        bool conBlockPatternEight = conObjPosIndex[0] == 1;                    //接続ブロックが8列パターン？
+        bool conBlockPatternTen = conObjPosIndex[0] == 1;                      //接続ブロックが10列パターン？
 
         int[] arrangementPos = new int[3]; //投擲ブロック配置座標 0:パターン番号 1:行番号 2:列番号
 
         //パターン指定
-        if (placedUnder || placedOn) arrangementPos[0] = (conBlockPatternEight) ? 0 : 1;
+        if (placedUnder || placedOn) arrangementPos[0] = (conBlockPatternTen) ? 0 : 1;
         else arrangementPos[0] = conObjPosIndex[0];
 
         //行指定
@@ -437,17 +454,10 @@ public class BlockManager : MonoBehaviour
         //列指定
         if (placedUnder || placedOn)
         {
-            //8列パターン
-            if (conBlockPatternEight) arrangementPos[2] = (placedRight) ? conObjPosIndex[2] + 1 : conObjPosIndex[2];
+            //10列パターン
+            if (conBlockPatternTen) arrangementPos[2] = (placedRight) ? conObjPosIndex[2] : conObjPosIndex[2] - 1;
             //9列パターン
-            else
-            {
-                bool leftEnd  = conObjPosIndex[2] == 0;                                  //接続ブロックが左端？
-                bool rightEnd = columnNum[conObjPosIndex[0]] - 1 == conObjPosIndex[2];   //接続ブロックが右端？
-
-                if (placedRight) arrangementPos[2] = (rightEnd) ? conObjPosIndex[2] - 1 : conObjPosIndex[2]; //右配置
-                else arrangementPos[2] = (leftEnd) ? conObjPosIndex[2] : conObjPosIndex[2] - 1;              //左配置
-            }
+            else arrangementPos[2] = (placedRight) ? conObjPosIndex[2] + 1 : conObjPosIndex[2];
         }
         else arrangementPos[2] = (placedRight) ? conObjPosIndex[2] + 1 : conObjPosIndex[2] - 1; //同列配置
 
@@ -709,32 +719,24 @@ public class BlockManager : MonoBehaviour
         //基準ブロックが9列パターンの場合
         if (columnType == 0)
         {
-            //右端以外
-            if (!maxColumn)
-            {
-                adjacentPosList.Add(new int[] { columnType, refPosInd[1], refPosInd[2] + 1 });                   //右
-                if (!minLine) adjacentPosList.Add(new int[] { columnType + 1, refPosInd[1] - 1, refPosInd[2] }); //右上
-                if (!maxLine) adjacentPosList.Add(new int[] { columnType + 1, refPosInd[1] + 1, refPosInd[2] }); //右下
-            }
-
-            //左端以外
-            if (!minColumn)
-            {
-                adjacentPosList.Add(new int[] { columnType, refPosInd[1], refPosInd[2] - 1 });                       //左
-                if (!minLine) adjacentPosList.Add(new int[] { columnType + 1, refPosInd[1] - 1, refPosInd[2] - 1 }); //左上
-                if (!maxLine) adjacentPosList.Add(new int[] { columnType + 1, refPosInd[1] + 1, refPosInd[2] - 1 }); //左下
-            }
+            int pattern = 1;
+            if (!minLine) adjacentPosList.Add(new int[] { pattern, refPosInd[1] - 1, refPosInd[2] + 1 });  //右上
+            if (!maxLine) adjacentPosList.Add(new int[] { pattern, refPosInd[1] + 1, refPosInd[2] + 1 });  //右下
+            if (!minLine) adjacentPosList.Add(new int[] { pattern, refPosInd[1] - 1, refPosInd[2]     });  //左上
+            if (!maxLine) adjacentPosList.Add(new int[] { pattern, refPosInd[1] + 1, refPosInd[2]     });  //左下
         }
-        //基準ブロックが8列パターンの場合
+        //基準ブロックが10列パターンの場合
         else
         {
-            if (!maxColumn) adjacentPosList.Add(new int[] { columnType,     refPosInd[1],     refPosInd[2] + 1 });  //右
-            if (!minLine)   adjacentPosList.Add(new int[] { columnType - 1, refPosInd[1] - 1, refPosInd[2] + 1 });  //右上
-            if (!maxLine)   adjacentPosList.Add(new int[] { columnType - 1, refPosInd[1] + 1, refPosInd[2] + 1 });  //右下
-            if (!minColumn) adjacentPosList.Add(new int[] { columnType,     refPosInd[1],     refPosInd[2] - 1 });  //左
-            if (!minLine)   adjacentPosList.Add(new int[] { columnType - 1, refPosInd[1] - 1, refPosInd[2] });      //左上
-            if (!maxLine)   adjacentPosList.Add(new int[] { columnType - 1, refPosInd[1] + 1, refPosInd[2] });      //左下
+            int pattern = 0;
+            if (!minLine) adjacentPosList.Add(new int[] { pattern, refPosInd[1] - 1, refPosInd[2]     });  //右上
+            if (!maxLine) adjacentPosList.Add(new int[] { pattern, refPosInd[1] + 1, refPosInd[2]     });  //右下
+            if (!minLine) adjacentPosList.Add(new int[] { pattern, refPosInd[1] - 1, refPosInd[2] - 1 });  //左上
+            if (!maxLine) adjacentPosList.Add(new int[] { pattern, refPosInd[1] + 1, refPosInd[2] - 1 });  //左下
         }
+        //共通
+        if (!maxColumn) adjacentPosList.Add(new int[] { columnType, refPosInd[1], refPosInd[2] + 1 });  //右
+        if (!minColumn) adjacentPosList.Add(new int[] { columnType, refPosInd[1], refPosInd[2] - 1 });  //左
 
         return adjacentPosList;
     }
@@ -770,7 +772,6 @@ public class BlockManager : MonoBehaviour
         //落下設定
         float fallSpeed     = 5.0f;     //移動速度
         float acceleRate    = 1.1f;     //移動速度の加速率
-        float fallTarget    = -1300.0f; //落下座標
         float moveWaitTime  = 0.0f;     //落下待機時間
 
         //時間差設定
@@ -813,7 +814,7 @@ public class BlockManager : MonoBehaviour
                     if (!fallStart[index] && elapsedTime > fallWait[index])
                     {
                         fallStart[index] = true;
-                        moveWaitTime = BlockFallStart(deleteObjIndex[index], fallSpeed, acceleRate, fallTarget);
+                        moveWaitTime = BlockFallStart(deleteObjIndex[index], fallSpeed, acceleRate, -blockPosFixY);
                     }
                 }
 
@@ -914,7 +915,7 @@ public class BlockManager : MonoBehaviour
         //ゲームオーバー
         if(BLOCK_MAX_LINE_NUM <= nowLineNum)
         {
-            gameOver = true;
+            GAME_OVER = true;
         }
     }
 }

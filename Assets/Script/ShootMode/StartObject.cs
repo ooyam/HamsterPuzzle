@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static MoveFunction.ObjectMove;
+using static ShootMode.ShootModeDefine;
 
 public class StartObject : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class StartObject : MonoBehaviour
         RectTransform hamsterTra = tra.GetChild(2).gameObject.GetComponent<RectTransform>();
         hamsterTra.SetParent(backGroundTra, true);
         hamsterTra.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+        GAME_START = true; //ゲーム開始フラグ
 
         float rotX = 0.0f;
         while (true)
