@@ -46,6 +46,7 @@ public class TimeManager : MonoBehaviour
         {
             yield return new WaitForSeconds(generateTime);
             StartCoroutine(blockMan.LineBlockGenerate(1));
+            if (GAME_OVER) break;
         }
     }
 }

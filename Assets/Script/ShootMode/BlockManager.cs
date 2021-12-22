@@ -43,6 +43,10 @@ public class BlockManager : MonoBehaviour
     float differenceX;        //座標修正数X
     float differenceY;        //座標修正数Y(Canvas高さ)
 
+    [Header("ゲームオーバーオブジェクト")]
+    [SerializeField]
+    GameObject gameOverObj;
+
     int[] columnNum = new int[] { 9, 10 };     //1行の列数
     Vector2[][][] blockPos;                    //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
     int generatePattern     = 0;               //ライン生成するパターン番号
@@ -873,7 +877,6 @@ public class BlockManager : MonoBehaviour
         Vector2 nowPos    = blockTra[objIndex].anchoredPosition;
         Vector2 targetPos = new Vector2(nowPos.x, fallTarget);
         StartCoroutine(MoveMovement(blockTra[objIndex], fallSpeed, acceleRate, targetPos));
-        //blockObj[objIndex].SetActive(false);
         return GetMoveTime(fallSpeed, acceleRate, nowPos, targetPos);
     }
 
@@ -913,9 +916,10 @@ public class BlockManager : MonoBehaviour
         nowLineNum = maxLineNumber;
 
         //ゲームオーバー
-        if(BLOCK_MAX_LINE_NUM <= nowLineNum)
+        if(BLOCK_MAX_LINE_NUM <= nowLineNum + 1)
         {
             GAME_OVER = true;
+            gameOverObj.SetActive(true);
         }
     }
 }
