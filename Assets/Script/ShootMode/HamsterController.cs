@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ShootMode;
 using System;
+using static ShootMode.ShootModeDefine;
 
 namespace ShootMode
 {
@@ -45,8 +46,6 @@ namespace ShootMode
         float lineStartPosX = 70.0f;       //投擲ラインのスタート位置X
         float lineStartPosY = 30.0f;       //投擲ラインのスタート位置Y
         Vector3 lineStartPos;              //投擲ラインのスタート位置
-        [System.NonSerialized]
-        public bool gameStart = false;     //ゲーム開始？
         string[] blockTag;                 //ブロックタグリスト
         string NextBlockBoardTag = "NextBlockBoard"; //次投擲表示ボードタグ
 
@@ -80,7 +79,7 @@ namespace ShootMode
         //========================================================================
         void FixedUpdate()
         {
-            if (gameStart)
+            if (GAME_START && !GAME_OVER && !GAME_CLEAR)
             {
                 if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow)
                 {

@@ -33,13 +33,13 @@ public class BlockController : MonoBehaviour
             {
                 //‘¼ƒuƒƒbƒNÚG
                 GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>().BlockConnect(connectObj);
-                Destroy(this.GetComponent<BlockController>());
+                Destroy(this);
             }
             else if (connectObjTag == "UpperLimit")
             {
                 //ãŒÀÚG
                 GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>().UpperLimitConnect();
-                Destroy(this.GetComponent<BlockController>());
+                Destroy(this);
             }
         }
     }

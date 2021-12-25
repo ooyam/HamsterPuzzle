@@ -24,7 +24,7 @@ public class TimeManager : MonoBehaviour
             yield return new WaitForSeconds(countTime);
             if (count == stratTime) break;
         }
-        hamCon.gameStart = true;
+        GAME_START = true;
         StartCoroutine(LineBlockGenerateInterval());
     }
 
@@ -42,11 +42,21 @@ public class TimeManager : MonoBehaviour
             default:
                 break;
         }
-        while (true)
+        while (!GAME_OVER && !GAME_CLEAR)
         {
+            //待機
             yield return new WaitForSeconds(generateTime);
+
+            //投擲・ブロック削除・投擲ブロック交換が終了するまで待機
+            yield return new WaitWhile(() => blockMan.throwNow == true);
+            yield return new WaitWhile(() => blockMan.blockDeleteNow == true);
+            yield return new WaitWhile(() => blockMan.blockChangeNow == true);
+
+            //ゲーム終了？
+            if (GAME_OVER || GAME_CLEAR) break;
+
+            //1行生成
             StartCoroutine(blockMan.LineBlockGenerate(1));
-            if (GAME_OVER) break;
         }
     }
 }

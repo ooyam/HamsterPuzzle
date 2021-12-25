@@ -18,13 +18,17 @@ public class BlockManager : MonoBehaviour
     List<int> nowDeleteIndex     = new List<int>();              //削除中ブロックのオブジェクト番号リスト
     int throwBlockIndex;                                         //投擲ブロックのリスト番号
     int nextThrowBlockIndex;                                     //次の投擲ブロックのリスト番号
-    CircleCollider2D[] blockCollider = new CircleCollider2D[3];  //Collider 0:次投擲ブロック 1:投擲ブロック 2:その他
+    CircleCollider2D[] blockCollider = new CircleCollider2D[2];  //Collider 0:次投擲ブロック 1:投擲ブロック
+
+    [Header("シュートモードマネージャー")]
+    [SerializeField]
+    ShootModeManager ShootModeMan;
 
     [Header("ブロックボックス")]
     [SerializeField]
     RectTransform blockBoxTra;
     float blockBoxHight;  //ブロックボックス高さ
-    float blockPosFixY;   //ブロックボックス高さ / 2 - ブロック半半径
+    float blockPosFixY;   //ブロックボックス高さ / 2 - ブロック半径
 
     [Header("ハムスターボックス")]
     [SerializeField]
@@ -42,10 +46,6 @@ public class BlockManager : MonoBehaviour
     float canvasWidth;        //Canvas幅
     float differenceX;        //座標修正数X
     float differenceY;        //座標修正数Y(Canvas高さ)
-
-    [Header("ゲームオーバーオブジェクト")]
-    [SerializeField]
-    GameObject gameOverObj;
 
     int[] columnNum = new int[] { 9, 10 };     //1行の列数
     Vector2[][][] blockPos;                    //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
@@ -130,7 +130,6 @@ public class BlockManager : MonoBehaviour
         {
             blockRectTra.SetParent(blockBoxTra, false);
             blockRectTra.SetSiblingIndex(0);
-            //blockCollider[2] = blockObject.GetComponent<CircleCollider2D>();
         }
         blockObj.Add(blockObject);
         blockTra.Add(blockRectTra);
@@ -771,7 +770,7 @@ public class BlockManager : MonoBehaviour
         float shakeOffsetY  = 0.0f;     //移動座標Y
         int shakeTimes      = 4;        //揺れ回数
         float delayTime     = 0.0f;     //移動間の遅延時間
-        float shakeWaitTime = GetSlideShakeTime(shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime);  //揺れ待機時間
+        float shakeWaitTime = GetSlideShakeTime(blockObj[0], blockTra[0], shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime);  //揺れ待機時間
 
         //落下設定
         float fallSpeed     = 5.0f;     //移動速度
@@ -916,10 +915,6 @@ public class BlockManager : MonoBehaviour
         nowLineNum = maxLineNumber;
 
         //ゲームオーバー
-        if(BLOCK_MAX_LINE_NUM <= nowLineNum + 1)
-        {
-            GAME_OVER = true;
-            gameOverObj.SetActive(true);
-        }
+        if(BLOCK_MAX_LINE_NUM <= nowLineNum + 1) StartCoroutine(ShootModeMan.GameOver());
     }
 }
