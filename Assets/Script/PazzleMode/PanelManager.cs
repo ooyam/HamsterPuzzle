@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using SoundFunction;
 using System;
 
 public class PanelManager : MonoBehaviour

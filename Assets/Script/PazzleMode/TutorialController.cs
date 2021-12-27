@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using SoundFunction;
 using GFramework; //SimpleRoundedImageを使用する
 using static MoveFunction.ObjectMove;
 

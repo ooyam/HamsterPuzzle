@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using SoundFunction;
 using System;
 
 public class TitleMenuController : MonoBehaviour

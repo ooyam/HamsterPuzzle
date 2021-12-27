@@ -249,7 +249,7 @@ public class BlockManager : MonoBehaviour
 
         //移動開始
         Vector3 rotSpeed = new Vector3(0.0f, 10.0f, 0.0f);
-        float waitTime   = GetRotateMoveTime(blockObj[blockIndexArray[0]], traArray[0], rotSpeed, stopRot);
+        float waitTime   = GetRotateMoveTime(traArray[0], rotSpeed, stopRot);
         StartCoroutine(RotateMovement(traArray, rotSpeed, stopRot));
 
         return waitTime;
@@ -752,17 +752,16 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     IEnumerator BlockDeleteStart(int[] deleteObjIndex, bool connect)
     {
-        //ブロック削除中フラグ
-        blockDeleteNow = true;
+        blockDeleteNow     = true;   //ブロック削除中フラグ
+        bool blockDelete   = true;   //ブロックリスト削除実施フラグ
+        float oneFrameTime = 0.02f;  //1フレームの時間
 
         //拡縮設定
-        bool blockDelete      = true;   //ブロックリスト削除実施フラグ
-        float oneFrameTime    = 0.02f;  //1フレームの時間
-        float scalingSpeed    = 0.05f;  //拡縮速度
+        Vector3 scalingSpeed  = new Vector3(0.05f, 0.05f, 0.05f);  //拡縮速度
         float changeScale     = 1.5f;   //変更後の拡大率
         float defaultScale    = 1.0f;   //初期拡大率
         int   scalingTimes    = 1;      //拡縮回数
-        float scalingWaitTime = Mathf.Abs((changeScale - defaultScale) * 2 / scalingSpeed * oneFrameTime);  //拡縮待機時間
+        float scalingWaitTime = GetScaleChangeTime(blockTra[0], scalingSpeed, changeScale, defaultScale, scalingTimes);  //拡縮待機時間
 
         //左右揺れ設定
         float shakeSpeed    = 20.0f;    //移動速度
@@ -770,7 +769,7 @@ public class BlockManager : MonoBehaviour
         float shakeOffsetY  = 0.0f;     //移動座標Y
         int shakeTimes      = 4;        //揺れ回数
         float delayTime     = 0.0f;     //移動間の遅延時間
-        float shakeWaitTime = GetSlideShakeTime(blockObj[0], blockTra[0], shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime);  //揺れ待機時間
+        float shakeWaitTime = GetSlideShakeTime(blockTra[0], shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime);  //揺れ待機時間
 
         //落下設定
         float fallSpeed     = 5.0f;     //移動速度

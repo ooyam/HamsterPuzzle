@@ -224,7 +224,6 @@ namespace MoveFunction
         //========================================================================
         //左右揺れ動作(SlideShakeMovement)に要する時間計算
         //========================================================================
-        //obj;        動作オブジェクト
         //tra;        動作オブジェクトのRectTransform
         //shakeSpeed; 動作速度
         //offsetX;    目標座標オフセットX
@@ -232,10 +231,10 @@ namespace MoveFunction
         //shakeTimes; 移動回数
         //delayTime;  移動間の待機時間
         //========================================================================
-        public static float GetSlideShakeTime(GameObject obj, RectTransform tra, float shakeSpeed, float offsetX, float offsetY, int shakeTimes, float delayTime)
+        public static float GetSlideShakeTime(RectTransform tra, float shakeSpeed, float offsetX, float offsetY, int shakeTimes, float delayTime)
         {
-            GameObject clone = CloneCreate(obj, tra);
-            RectTransform cloneTra = clone.GetComponent<RectTransform>();
+            //クローン作製
+            RectTransform cloneTra = CloneCreate(tra);
 
             //時間計算用
             float oneFrameTime = 0.02f;
@@ -287,8 +286,8 @@ namespace MoveFunction
                 }
             }
 
-            Destroy(clone);  //クローン削除
-            return moveTime; //時間を返す
+            Destroy(cloneTra.gameObject);  //クローン削除
+            return moveTime;               //時間を返す
         }
 
 
@@ -341,19 +340,14 @@ namespace MoveFunction
         //========================================================================
         //回転動作(RotateMovement)に要する時間計算
         //========================================================================
-        //obj;         動作オブジェクト
         //tra;         動作オブジェクトのRectTransform
         //rotSpeed;    拡縮速度
         //stopRot;     回転後の角度(絶対角)
         //========================================================================
-        public static float GetRotateMoveTime(GameObject obj, RectTransform tra, Vector3 rotSpeed, Vector3 stopRot)
+        public static float GetRotateMoveTime(RectTransform tra, Vector3 rotSpeed, Vector3 stopRot)
         {
-            //オブジェクトクローン作製
-            GameObject clone       = GameObject.Instantiate(obj) as GameObject;
-            RectTransform cloneTra = clone.GetComponent<RectTransform>();
-            Transform parentTra    = tra.parent.gameObject.transform;
-            cloneTra.SetParent(parentTra, false);
-            cloneTra.localRotation = tra.localRotation;
+            //クローン作製
+            RectTransform cloneTra = CloneCreate(tra);
 
             //時間計算用
             float oneFrameTime = 0.02f;
@@ -389,8 +383,8 @@ namespace MoveFunction
                 if (refStopRot - tolerance <= refRot && refRot <= refStopRot + tolerance) break;
             }
 
-            Destroy(clone);  //クローン削除
-            return moveTime; //時間を返す
+            Destroy(cloneTra.gameObject);  //クローン削除
+            return moveTime;               //時間を返す
         }
 
 
@@ -403,44 +397,55 @@ namespace MoveFunction
         //endScale;     終了時の拡大率
         //scalingTimes; 拡縮回数
         //========================================================================
-        public static IEnumerator ScaleChange(RectTransform tra, float scalingSpeed, float changeScale, float endScale, int scalingTimes)
+        public static IEnumerator ScaleChange(RectTransform tra, Vector3 scalingSpeed, float changeScale, float endScale, int scalingTimes)
         {
-            Vector3 nowScale = tra.localScale;    //現在の拡大率
-            bool scaleUp     = scalingSpeed > 0;  //拡大？
-            bool scaleChange = true;              //変更動作中？
-            bool end         = false;             //変更動作終了？
+
+            Vector3 nowScale = tra.localScale;          //現在の拡大率
+            float judgeAxis  = 0.0f;                    //判定軸
+            bool scaleChange = true;                    //変更動作中？
+            bool scaleUp     = changeScale > endScale;  //拡大？
+
+            //最も多く拡縮する軸判定
+            int axis = 0;
+            if (scaleUp && (scalingSpeed.x < scalingSpeed.y) || !scaleUp && (scalingSpeed.x > scalingSpeed.y))
+                axis = (scaleUp && (scalingSpeed.y > scalingSpeed.z) || !scaleUp && (scalingSpeed.y < scalingSpeed.z)) ? 1 : 2;
+            else if (scaleUp && (scalingSpeed.x < scalingSpeed.z) || !scaleUp && (scalingSpeed.x > scalingSpeed.z))
+                axis = 2;
 
             for (int loopTimes = 0; loopTimes < scalingTimes; loopTimes++)
             {
                 while (true)
                 {
                     yield return new WaitForFixedUpdate();
+
+                    //拡縮率更新
+                    tra.localScale = nowScale;
+
+                    //判定基準軸指定
+                    switch (axis)
+                    {
+                        case 0: judgeAxis = nowScale.x; break;
+                        case 1: judgeAxis = nowScale.y; break;
+                        case 2: judgeAxis = nowScale.z; break;
+                    }
+
                     if (scaleChange)
                     {
-                        //---------------------------------------------
                         //変更動作
-                        //---------------------------------------------
-                        nowScale = Vector3.one * (nowScale.x + scalingSpeed);
-                        if ((scaleUp && nowScale.x >= changeScale) || (!scaleUp && nowScale.x <= changeScale))
-                            scaleChange = false;
+                        if ((scaleUp && judgeAxis >= changeScale) || (!scaleUp && judgeAxis <= changeScale)) scaleChange = false;
+                        nowScale = new Vector3(nowScale.x + scalingSpeed.x, nowScale.y + scalingSpeed.y, nowScale.z + scalingSpeed.z);
                     }
                     else
                     {
-                        //---------------------------------------------
                         //終了動作
-                        //---------------------------------------------
-                        nowScale = Vector3.one * (nowScale.x - scalingSpeed);
-                        if ((scaleUp && nowScale.x <= endScale) || (!scaleUp && nowScale.x >= endScale))
-                            end = true;
+                        if ((scaleUp && judgeAxis <= endScale) || (!scaleUp && judgeAxis >= endScale)) break;
+                        nowScale = new Vector3(nowScale.x - scalingSpeed.x, nowScale.y - scalingSpeed.y, nowScale.z - scalingSpeed.z);
                     }
-                    tra.localScale = nowScale;
-                    if (end) break;
                 }
 
                 //変数リセット
                 tra.localScale = Vector3.one * endScale;
                 scaleChange = true;
-                end = false;
             }
         }
 
@@ -448,66 +453,71 @@ namespace MoveFunction
         //========================================================================
         //拡大縮小動作(ScaleChange)に要する時間計算
         //========================================================================
-        //obj;          動作オブジェクト
         //tra;          動作オブジェクトのRectTransform
         //scalingSpeed; 拡縮速度
         //changeScale;  変更時の拡大率
         //endScale;     終了時の拡大率
         //scalingTimes; 拡縮回数
         //========================================================================
-        public static float GetScaleChangeTime(GameObject obj, RectTransform tra, float scalingSpeed, float changeScale, float endScale, int scalingTimes)
+        public static float GetScaleChangeTime(RectTransform tra, Vector3 scalingSpeed, float changeScale, float endScale, int scalingTimes)
         {
-            //オブジェクトクローン作製
-            GameObject clone       = GameObject.Instantiate(obj) as GameObject;
-            RectTransform cloneTra = clone.GetComponent<RectTransform>();
-            Transform parentTra    = tra.parent.gameObject.transform;
-            cloneTra.SetParent(parentTra, false);
-            cloneTra.localRotation = tra.localRotation;
+            //クローン作製
+            RectTransform cloneTra = CloneCreate(tra);
 
             //時間計算用
             float oneFrameTime = 0.02f;
             float moveTime     = 0.0f;
 
-            Vector3 nowScale = tra.localScale;    //現在の拡大率
-            bool scaleUp     = scalingSpeed > 0;  //拡大？
-            bool scaleChange = true;              //変更動作中？
-            bool end         = false;             //変更動作終了？
+            Vector3 nowScale = cloneTra.localScale;     //現在の拡大率
+            float judgeAxis  = 0.0f;                    //判定軸
+            bool scaleChange = true;                    //変更動作中？
+            bool scaleUp     = changeScale > endScale;  //拡大？
+
+            //最も多く拡縮する軸判定
+            int axis = 0;
+            if (scaleUp && (scalingSpeed.x < scalingSpeed.y) || !scaleUp && (scalingSpeed.x > scalingSpeed.y))
+                axis = (scaleUp && (scalingSpeed.y > scalingSpeed.z) || !scaleUp && (scalingSpeed.y < scalingSpeed.z)) ? 1 : 2;
+            else if (scaleUp && (scalingSpeed.x < scalingSpeed.z) || !scaleUp && (scalingSpeed.x > scalingSpeed.z))
+                axis = 2;
 
             for (int loopTimes = 0; loopTimes < scalingTimes; loopTimes++)
             {
                 while (true)
                 {
                     moveTime += oneFrameTime;
+
+                    //拡縮率更新
+                    cloneTra.localScale = nowScale;
+
+                    //判定基準軸指定
+                    switch (axis)
+                    {
+                        case 0: judgeAxis = nowScale.x; break;
+                        case 1: judgeAxis = nowScale.y; break;
+                        case 2: judgeAxis = nowScale.z; break;
+                    }
+
                     if (scaleChange)
                     {
-                        //---------------------------------------------
                         //変更動作
-                        //---------------------------------------------
-                        nowScale = Vector3.one * (nowScale.x + scalingSpeed);
-                        if ((scaleUp && nowScale.x >= changeScale) || (!scaleUp && nowScale.x <= changeScale))
-                            scaleChange = false;
+                        if ((scaleUp && judgeAxis >= changeScale) || (!scaleUp && judgeAxis <= changeScale)) scaleChange = false;
+                        nowScale = new Vector3(nowScale.x + scalingSpeed.x, nowScale.y + scalingSpeed.y, nowScale.z + scalingSpeed.z);
                     }
                     else
                     {
-                        //---------------------------------------------
                         //終了動作
-                        //---------------------------------------------
-                        nowScale = Vector3.one * (nowScale.x - scalingSpeed);
-                        if ((scaleUp && nowScale.x <= endScale) || (!scaleUp && nowScale.x >= endScale))
-                            end = true;
+                        if ((scaleUp && judgeAxis <= endScale) || (!scaleUp && judgeAxis >= endScale)) break;
+                        nowScale = new Vector3(nowScale.x - scalingSpeed.x, nowScale.y - scalingSpeed.y, nowScale.z - scalingSpeed.z);
                     }
-                    tra.localScale = nowScale;
-                    if (end) break;
                 }
 
                 //変数リセット
-                tra.localScale = Vector3.one * endScale;
+                cloneTra.localScale = Vector3.one * endScale;
                 scaleChange = true;
-                end = false;
             }
 
-            Destroy(clone);  //クローン削除
-            return moveTime; //時間を返す
+            Destroy(cloneTra.gameObject);  //クローン削除
+            return moveTime;               //時間を返す
         }
 
 
@@ -580,19 +590,18 @@ namespace MoveFunction
 
 
         //========================================================================
-        //クローン作成
+        //クローンをオリジナルと同座標にセット
         //========================================================================
-        //obj;  動作オブジェクト
-        //tra;        動作オブジェクトのRectTransform
+        //tra;  　動作オブジェクトのRectTransform
         //========================================================================
-        static GameObject CloneCreate(GameObject obj, RectTransform tra)
+        public static RectTransform CloneCreate(RectTransform tra)
         {
-            GameObject clone = GameObject.Instantiate(obj) as GameObject;
+            GameObject clone = GameObject.Instantiate(tra.gameObject) as GameObject;
             RectTransform cloneTra = clone.GetComponent<RectTransform>();
             Transform parentTra = tra.parent.gameObject.transform;
             cloneTra.SetParent(parentTra, false);
             cloneTra.localRotation = tra.localRotation;
-            return clone;
+            return cloneTra;
         }
     }
 }
