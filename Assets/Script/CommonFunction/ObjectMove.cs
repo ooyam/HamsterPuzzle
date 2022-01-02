@@ -403,14 +403,26 @@ namespace MoveFunction
             Vector3 nowScale = tra.localScale;          //åªç›ÇÃägëÂó¶
             float judgeAxis  = 0.0f;                    //îªíËé≤
             bool scaleChange = true;                    //ïœçXìÆçÏíÜÅH
-            bool scaleUp     = changeScale > endScale;  //ägëÂÅH
 
             //ç≈Ç‡ëΩÇ≠ägèkÇ∑ÇÈé≤îªíË
-            int axis = 0;
-            if (scaleUp && (scalingSpeed.x < scalingSpeed.y) || !scaleUp && (scalingSpeed.x > scalingSpeed.y))
-                axis = (scaleUp && (scalingSpeed.y > scalingSpeed.z) || !scaleUp && (scalingSpeed.y < scalingSpeed.z)) ? 1 : 2;
-            else if (scaleUp && (scalingSpeed.x < scalingSpeed.z) || !scaleUp && (scalingSpeed.x > scalingSpeed.z))
+            int axis    = 0;
+            float mathX = Mathf.Abs(scalingSpeed.x);
+            float mathY = Mathf.Abs(scalingSpeed.y);
+            float mathZ = Mathf.Abs(scalingSpeed.z);
+            if (mathX < mathY)
+                axis = (mathY > mathZ) ? 1 : 2;
+            else if (mathX < mathZ)
                 axis = 2;
+
+            //ägëÂîªíË
+            switch (axis)
+            {
+                case 0: judgeAxis = nowScale.x; break;
+                case 1: judgeAxis = nowScale.y; break;
+                case 2: judgeAxis = nowScale.z; break;
+            }
+            bool scaleUp = changeScale > judgeAxis;
+
 
             for (int loopTimes = 0; loopTimes < scalingTimes; loopTimes++)
             {

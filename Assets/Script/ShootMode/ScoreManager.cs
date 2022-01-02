@@ -95,7 +95,12 @@ namespace ShootMode
             }
         }
 
+
+        //========================================================================
         //野菜収穫
+        //========================================================================
+        //vegetableName; 野菜の名前(タグ名)
+        //========================================================================
         public void HarvestVegetable(string vegetableName)
         {
             int vegIndex = Array.IndexOf(vegName, vegetableName);
@@ -114,13 +119,13 @@ namespace ShootMode
 
                 //目標野菜収穫完了判断
                 int targetIndexIndex = Array.IndexOf(targetIndex, vegIndex);
-                if (targetIndexIndex >= 0 && targetNum_[targetIndexIndex] <= harvestNum[vegIndex])
+                if (targetIndexIndex >= 0 && !clearJudge[targetIndexIndex] && targetNum_[targetIndexIndex] <= harvestNum[vegIndex])
                 {
                     clearJudge[targetIndexIndex] = true;
 
                     //クリア判定
-                    if (Array.IndexOf(clearJudge, false) < 0)
-                        Debug.Log("クリアですぞよ");
+                    if (!GAME_CLEAR && Array.IndexOf(clearJudge, false) < 0)
+                        GAME_CLEAR = true;
                 }
             }
         }

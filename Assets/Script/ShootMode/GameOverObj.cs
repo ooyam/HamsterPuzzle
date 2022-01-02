@@ -8,10 +8,8 @@ namespace ShootMode
 {
     public class GameOverObj : MonoBehaviour
     {
-        public IEnumerator DirectGameOver(ShootModeManager ShootModeMan)
+        public IEnumerator DirectGameOver(ShootModeManager ShootModeMan, SoundManager soundMan)
         {
-            SoundManager soundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
-
             //ˆÚ“®İ’è
             RectTransform tra  = GetComponent<RectTransform>();
             float moveSpeed    = 20.0f;

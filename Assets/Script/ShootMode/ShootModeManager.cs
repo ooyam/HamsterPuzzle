@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using SoundFunction;
 using static ShootMode.ShootModeDefine;
 
 namespace ShootMode
@@ -21,10 +22,15 @@ namespace ShootMode
         [Header("ゲームクリアプレハブ")]
         [SerializeField]
         GameObject gameClearObjPre;
+        [System.NonSerialized]
+        public bool gameClearObjDis = false;  //表示中フラグ
 
         [Header("リザルト画面プレハブ")]
         [SerializeField]
         GameObject resultScreenPre;
+
+        GameObject soundManObj;
+        SoundManager soundManScr;  //SoundManger
 
         public static VegetableType[] tartgetVeg;   //目標野菜
         public static int targetVegetableNum;       //目標野菜の個数
@@ -36,7 +42,12 @@ namespace ShootMode
 
         void Awake()
         {
+            //各フラグリセット
             FlagReset();
+
+            //SoundoManager取得
+            soundManObj = GameObject.FindWithTag("SoundManager");
+            soundManScr = soundManObj.GetComponent<SoundManager>();
 
             //enum取得
             var vegetableType = Enum.GetValues(typeof(VegetableType));
@@ -54,6 +65,10 @@ namespace ShootMode
             BLOCK_GENERATE_TIME = blickGenerateTime;
         }
 
+
+        //========================================================================
+        //ゲームオーバー
+        //========================================================================
         public IEnumerator GameOver()
         {
             if (!gameOverObjDis)
@@ -64,12 +79,32 @@ namespace ShootMode
                 gameOverObjDis = true;
                 GameObject gameOverObj = Instantiate(gameOverObjPre);
                 gameOverObj.GetComponent<RectTransform>().SetParent(backGroundTra, false);
-                StartCoroutine(gameOverObj.GetComponent<GameOverObj>().DirectGameOver(this));
+                StartCoroutine(gameOverObj.GetComponent<GameOverObj>().DirectGameOver(this, soundManScr));
                 yield return new WaitWhile(() => gameOverObjDis == true);
 
                 //リザルト画面表示
                 GameObject resultScreenObj = Instantiate(resultScreenPre);
                 resultScreenObj.GetComponent<RectTransform>().SetParent(backGroundTra, false);
+            }
+        }
+
+        //========================================================================
+        //ゲームクリア
+        //========================================================================
+        public IEnumerator GameClear()
+        {
+            if (!gameClearObjDis)
+            {
+                //ゲームクリアオブジェクト生成
+                gameClearObjDis = true;
+                GameObject gameOverObj = Instantiate(gameClearObjPre);
+                gameOverObj.GetComponent<RectTransform>().SetParent(backGroundTra, false);
+                StartCoroutine(gameOverObj.GetComponent<GameClearObj>().DirectGameClear(this, soundManScr));
+                yield return new WaitWhile(() => gameClearObjDis == true);
+
+                //タイトル画面へ戻る
+                Destroy(soundManObj);
+                SceneNavigator.Instance.Change("TitleScene", 1.0f);
             }
         }
     }

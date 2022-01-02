@@ -894,6 +894,12 @@ public class BlockManager : MonoBehaviour
             Destroy(blockObj[delInd]);
             blockObj.RemoveAt(delInd);
         }
+
+        //クリア判定
+        if (GAME_CLEAR)
+        {
+            StartCoroutine(ShootModeMan.GameClear());
+        }
     }
 
     //========================================================================
