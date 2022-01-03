@@ -9,8 +9,8 @@ namespace ShootMode
     {
         Broccoli = 0,
         Cabbage,
-        Carrot,
         Paprika,
+        Carrot,
         Pumpkin,
         Corn
     }

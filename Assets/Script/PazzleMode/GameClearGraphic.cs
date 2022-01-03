@@ -24,7 +24,7 @@ public class GameClearGraphic : MonoBehaviour
         tra.localScale = startScale;
         moveSpeed = 0.0f;
         moveEnd = false;
-        GameObject.FindWithTag("SaveDataManager").GetComponent<SaveDataManager>().PuzzleModeSaveData(PuzzleMainController.stageNum + 1);
+        GameObject.FindWithTag("SaveDataManager").GetComponent<SaveDataManager>().WritePuzzleModeSaveData(PuzzleMainController.stageNum);
     }
 
     // Update is called once per frame

@@ -55,13 +55,7 @@ namespace ShootMode
             foreach (VegetableType vegeValue in vegetableType)
             { vegName[(int)vegeValue] = Enum.GetName(typeof(VegetableType), vegeValue); }
 
-            //ステージ設定(仮)
-            tartgetVeg = new VegetableType[] { VegetableType.Broccoli };
-            targetVegetableNum = 1;
-            targetNum = new int[] { 1 };
-            blickGenerateTime = 15.0f;
-            stageNum = 0;
-            tutorial = false;
+            //ブロック生成時間設定
             BLOCK_GENERATE_TIME = blickGenerateTime;
         }
 
@@ -101,6 +95,9 @@ namespace ShootMode
                 gameOverObj.GetComponent<RectTransform>().SetParent(backGroundTra, false);
                 StartCoroutine(gameOverObj.GetComponent<GameClearObj>().DirectGameClear(this, soundManScr));
                 yield return new WaitWhile(() => gameClearObjDis == true);
+
+                //クリアステージ番号書き込み
+                GameObject.FindWithTag("SaveDataManager").GetComponent<SaveDataManager>().WriteShootModeSaveData(stageNum);
 
                 //タイトル画面へ戻る
                 Destroy(soundManObj);

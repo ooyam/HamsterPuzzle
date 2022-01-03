@@ -43,9 +43,9 @@ public class TitleMenuController : MonoBehaviour
     int[]           stageNum      = new int[modeNum];           //ステージ数
     GameObject[]    selectBackObj = new GameObject[modeNum];    //選択画面に戻るボタンオブジェクト
     GameObject[]    rightArrow    = new GameObject[modeNum];    //右矢印ボタンオブジェクト
-    RectTransform[] rightArrowTra = new RectTransform[modeNum]; //右矢印ボタンオブジェクト
+    RectTransform[] rightArrowTra = new RectTransform[modeNum]; //右矢印ボタンRectTransform 
     GameObject[]    leftArrow     = new GameObject[modeNum];    //左矢印ボタンオブジェクト
-    RectTransform[] leftArrowTra  = new RectTransform[modeNum]; //左矢印ボタンオブジェクト
+    RectTransform[] leftArrowTra  = new RectTransform[modeNum]; //左矢印ボタンRectTransform 
 
     [Header("SoundManager")]
     [SerializeField]
@@ -95,8 +95,8 @@ public class TitleMenuController : MonoBehaviour
         //セーブデータ読み取り
         //========================================================================
         SaveDataManager saveMan = GameObject.FindWithTag("SaveDataManager").GetComponent<SaveDataManager>();
-        saveMan.PuzzleModeLoadData();
-        displayStageNum = new int[] { saveMan.puzzelModeStageNum, saveMan.shootModeStageNum };
+        saveMan.ReadSaveData();
+        displayStageNum = new int[] { saveMan.puzzleModeStageNum, saveMan.shootModeStageNum };
         //========================================================================
 
 
@@ -130,7 +130,7 @@ public class TitleMenuController : MonoBehaviour
             //チュートリアルボタンオブジェクト
             tutorialObj[modeNumber] = modeTra.GetChild(1).gameObject;
             tutorialBut[modeNumber] = tutorialObj[modeNumber].GetComponent<Button>();
-            if (displayStageNum[modeNumber] == 0)
+            if (displayStageNum[modeNumber] < 0)
             {
                 //手オブジェクト取得
                 handObj[modeNumber]     = modeTra.GetChild(2).gameObject;
@@ -177,16 +177,16 @@ public class TitleMenuController : MonoBehaviour
                 case puzzleModeNum:
                     modeSelectBut.onClick.AddListener(() => OnClickPuzzleMode(true));
                     selectBackBut.onClick.AddListener(() => OnClickPuzzleMode(false));
-                    rightArrowbut.onClick.AddListener(() => PuzzleStageDisplay(1));
-                    leftArrowbut.onClick.AddListener (() => PuzzleStageDisplay(0));
+                    rightArrowbut.onClick.AddListener(() => StartCoroutine(PuzzleStageDisplay(1)));
+                    leftArrowbut.onClick.AddListener (() => StartCoroutine(PuzzleStageDisplay(0)));
                     break;
 
                 //シュートモード
                 case shootModeNum:
                     modeSelectBut.onClick.AddListener(() => OnClickShootMode(true));
                     selectBackBut.onClick.AddListener(() => OnClickShootMode(false));
-                    rightArrowbut.onClick.AddListener(() => ShootStageDisplay(1));
-                    leftArrowbut.onClick.AddListener (() => ShootStageDisplay(0));
+                    rightArrowbut.onClick.AddListener(() => StartCoroutine(ShootStageDisplay(1)));
+                    leftArrowbut.onClick.AddListener (() => StartCoroutine(ShootStageDisplay(0)));
                     break;
             }
         }
@@ -278,19 +278,14 @@ public class TitleMenuController : MonoBehaviour
         }
 
         //Clear表示
-        for (int i = 1; i < displayStageNum[puzzleModeNum]; i++)
+        for (int i = 0; i < displayStageNum[puzzleModeNum]; i++)
         {
             GameObject clearObj = Instantiate(stageClearPre);
-            Transform clearTra = clearObj.transform;
+            Transform clearTra  = clearObj.transform;
             clearTra.SetParent(stageObj[puzzleModeNum][i].transform, false);
-            int targetCount = puzzleTargetVeg[i].Length;
+            int targetCount = puzzleTargetVeg[i + 1].Length;
             for (int a = 0; a < clearTra.childCount; a++)
-            {
-                if (targetCount > a)
-                    clearTra.GetChild(a).gameObject.GetComponent<Image>().sprite = vegSprite[(int)puzzleTargetVeg[i][a]];
-                else
-                    clearTra.GetChild(a).gameObject.GetComponent<Image>().sprite = vegSprite[6];
-            }
+            { clearTra.GetChild(a).gameObject.GetComponent<Image>().sprite = (targetCount > a) ? vegSprite[(int)puzzleTargetVeg[i + 1][a]] : vegSprite[6]; }
         }
         //========================================================================
 
@@ -380,19 +375,14 @@ public class TitleMenuController : MonoBehaviour
         }
 
         //Clear表示
-        for (int i = 1; i < displayStageNum[shootModeNum]; i++)
+        for (int i = 0; i < displayStageNum[shootModeNum]; i++)
         {
             GameObject clearObj = Instantiate(stageClearPre);
             Transform clearTra = clearObj.transform;
             clearTra.SetParent(stageObj[shootModeNum][i].transform, false);
-            int targetCount = shootTargetVeg[i].Length;
+            int targetCount = shootTargetVeg[i + 1].Length;
             for (int a = 0; a < clearTra.childCount; a++)
-            {
-                if (targetCount > a)
-                    clearTra.GetChild(a).gameObject.GetComponent<Image>().sprite = vegSprite[(int)shootTargetVeg[i][a]];
-                else
-                    clearTra.GetChild(a).gameObject.GetComponent<Image>().sprite = vegSprite[6];
-            }
+            { clearTra.GetChild(a).gameObject.GetComponent<Image>().sprite = (targetCount > a) ? vegSprite[(int)shootTargetVeg[i + 1][a]] : vegSprite[6]; }
         }
         //========================================================================
 
@@ -417,8 +407,8 @@ public class TitleMenuController : MonoBehaviour
         //チュートリアルボタン表示切替
         tutorialObj[puzzleModeNum].SetActive(selectMode);
 
-        //ステージクリア数0
-        if (displayStageNum[puzzleModeNum] == 0)
+        //チュートリアル未クリア
+        if (displayStageNum[puzzleModeNum] < 0)
         {
             //手オブジェクト表示切替
             handObj[puzzleModeNum].SetActive(selectMode);
@@ -428,8 +418,8 @@ public class TitleMenuController : MonoBehaviour
         else
         {
             //ステージ選択ボタン表示切替
-            for (int stageInd = 0; stageInd < displayStageNum[puzzleModeNum] + 1; stageInd++)
-            { stageObj[puzzleModeNum][stageInd].SetActive(selectMode); }
+            for (int stageInd = 0; stageInd <= displayStageNum[puzzleModeNum]; stageInd++)
+            { if (stageNum[puzzleModeNum] > stageInd) stageObj[puzzleModeNum][stageInd].SetActive(selectMode); }
         }
 
         //戻るボタン表示切替
@@ -447,6 +437,7 @@ public class TitleMenuController : MonoBehaviour
             moveArrow[puzzleModeNum] = false;
             rightArrow[puzzleModeNum].SetActive(false);
             leftArrow[puzzleModeNum].SetActive(false);
+            displayPageNum = -1;
             nowDisplayMode = -1;
         }
     }
@@ -454,10 +445,11 @@ public class TitleMenuController : MonoBehaviour
     //========================================================================
     //ステージ選択ボタン表示(パズルモード)
     //========================================================================
-    //displayPageNum; ステージ表示ページ番号
+    //disPageNum; ステージ表示ページ番号
     //========================================================================
-    IEnumerator PuzzleStageDisplay(int displayPageNum)
+    IEnumerator PuzzleStageDisplay(int disPageNum)
     {
+        displayPageNum = disPageNum;
         if (displayStageNum[puzzleModeNum] <= maxDisplay)
         {
             //矢印動作させない
@@ -533,8 +525,8 @@ public class TitleMenuController : MonoBehaviour
         //チュートリアルボタン表示切替
         tutorialObj[shootModeNum].SetActive(selectMode);
 
-        //ステージクリア数0
-        if (displayStageNum[shootModeNum] == 0)
+        //チュートリアル未クリア
+        if (displayStageNum[shootModeNum] < 0)
         {
             //手オブジェクト表示切替
             handObj[shootModeNum].SetActive(selectMode);
@@ -544,8 +536,8 @@ public class TitleMenuController : MonoBehaviour
         else
         {
             //ステージ選択ボタン表示切替
-            for (int stageInd = 0; stageInd < displayStageNum[shootModeNum] + 1; stageInd++)
-            { stageObj[shootModeNum][stageInd].SetActive(selectMode); }
+            for (int stageInd = 0; stageInd <= displayStageNum[shootModeNum]; stageInd++)
+            { if (stageNum[shootModeNum] > stageInd) stageObj[shootModeNum][stageInd].SetActive(selectMode); }
         }
 
         //戻るボタン表示切替
@@ -563,6 +555,7 @@ public class TitleMenuController : MonoBehaviour
             moveArrow[shootModeNum] = false;
             rightArrow[shootModeNum].SetActive(false);
             leftArrow[shootModeNum].SetActive(false);
+            displayPageNum = -1;
             nowDisplayMode = -1;
         }
     }
@@ -570,10 +563,11 @@ public class TitleMenuController : MonoBehaviour
     //========================================================================
     //ステージ選択ボタン表示(シュートモード)
     //========================================================================
-    //displayPageNum; ステージ表示ページ番号
+    //disPageNum; ステージ表示ページ番号
     //========================================================================
-    IEnumerator ShootStageDisplay(int displayPageNum)
+    IEnumerator ShootStageDisplay(int disPageNum)
     {
+        displayPageNum = disPageNum;
         if (displayStageNum[shootModeNum] <= maxDisplay)
         {
             //矢印動作させない
@@ -620,11 +614,11 @@ public class TitleMenuController : MonoBehaviour
         SceneNavigator.Instance.Change("ShootMode", 0.5f);
 
         ShootModeManager.tartgetVeg = new VegetableType[targetVegetableNum];
-        ShootModeManager.targetNum = new int[targetVegetableNum];
+        ShootModeManager.targetNum  = new int[targetVegetableNum];
         for (int i = 0; i < targetVegetableNum; i++)
         {
             ShootModeManager.tartgetVeg[i] = (VegetableType)(int)targetVeg[i];
-            ShootModeManager.targetNum[i] = targetNum[i];
+            ShootModeManager.targetNum[i]  = targetNum[i];
         }
         ShootModeManager.targetVegetableNum = targetVegetableNum;
         ShootModeManager.blickGenerateTime = blickGenerateTime;

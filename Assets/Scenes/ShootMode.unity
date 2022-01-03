@@ -180,15 +180,15 @@ MonoBehaviour:
   scoreObj:
   - {fileID: 317223572}
   - {fileID: 1487373453}
-  - {fileID: 9587181}
   - {fileID: 1281065143}
+  - {fileID: 9587181}
   - {fileID: 1853992490}
   - {fileID: 1353729681}
   targetObj:
   - {fileID: 1781997067}
   - {fileID: 1696530850}
-  - {fileID: 1348949369}
   - {fileID: 1557231793}
+  - {fileID: 1348949369}
   - {fileID: 1461545057}
   - {fileID: 1606232437}
 --- !u!4 &5813893
@@ -5104,8 +5104,8 @@ RectTransform:
   m_Children:
   - {fileID: 1781997068}
   - {fileID: 1696530851}
-  - {fileID: 1348949370}
   - {fileID: 1557231794}
+  - {fileID: 1348949370}
   - {fileID: 1461545058}
   - {fileID: 1606232438}
   - {fileID: 1610363452}
@@ -6777,7 +6777,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1348949370}
   m_Layer: 5
-  m_Name: Target_3
+  m_Name: Target_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6797,11 +6797,11 @@ RectTransform:
   - {fileID: 1903856787}
   - {fileID: 346784565}
   m_Father: {fileID: 1101590687}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -65, y: -10}
+  m_AnchoredPosition: {x: 65, y: -10}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1352204077
@@ -7520,7 +7520,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1557231794}
   m_Layer: 5
-  m_Name: Target_4
+  m_Name: Target_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7540,11 +7540,11 @@ RectTransform:
   - {fileID: 1497086561}
   - {fileID: 2068423298}
   m_Father: {fileID: 1101590687}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 65, y: -10}
+  m_AnchoredPosition: {x: -65, y: -10}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1559909434

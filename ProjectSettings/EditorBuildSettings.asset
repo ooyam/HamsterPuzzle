@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PuzzleMode.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/ShootMode.unity
+    guid: 2003d997e1b6a2e4ab21bc0e3310d476
   m_configObjects: {}
