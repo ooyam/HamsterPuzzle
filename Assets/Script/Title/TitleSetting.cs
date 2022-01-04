@@ -88,7 +88,7 @@ public class TitleSetting : MonoBehaviour
             bgmImageStatus = 0;
             EnvironmentalSetting.bgm = true;
             SoundMan.BGM_Volume(0.3f);
-            StartCoroutine(SoundMan.BGM_Start(SoundMan.bgmIndex));
+            SoundMan.BGM_Restart();
         }
         bgmSwitchIma.sprite = switchSprite[bgmImageStatus];
     }

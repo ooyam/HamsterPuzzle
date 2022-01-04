@@ -386,8 +386,8 @@ public class TitleMenuController : MonoBehaviour
         }
         //========================================================================
 
-        StartCoroutine(soundMan.BGM_Start(0));  //BGM開始
-        StartCoroutine(HamsterGenerate());      //ハムスター動作開始
+        soundMan.BGM_Start(0);              //BGM開始
+        StartCoroutine(HamsterGenerate());  //ハムスター動作開始
     }
 
     //========================================================================

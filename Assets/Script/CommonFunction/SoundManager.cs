@@ -44,28 +44,44 @@ namespace SoundFunction
             }
         }
 
-        public IEnumerator BGM_Start(int seIndex)
+        public void BGM_Start(int seIndex)
         {
             bgmIndex = seIndex;
+            audio_BGM.clip = bgm[seIndex];
+            audio_BGM.Play();
             if (EnvironmentalSetting.bgm)
             {
                 float volume = (seIndex == 0) ? 0.2f : 0.5f;
-                audio_BGM.clip = bgm[seIndex];
                 audio_BGM.volume = 0.0f;
-                audio_BGM.Play();
-                while (true)
+                StartCoroutine(BGM_Volume_Fade(volume));
+            }
+        }
+
+        public void BGM_Restart()
+        {
+            if (EnvironmentalSetting.bgm)
+            {
+                float volume = (bgmIndex == 0) ? 0.2f : 0.5f;
+                audio_BGM.volume = 0.0f;
+                StartCoroutine(BGM_Volume_Fade(volume));
+            }
+        }
+
+        IEnumerator BGM_Volume_Fade(float volume)
+        {
+            while (EnvironmentalSetting.bgm)
+            {
+                float oneFlameTime = 0.02f;
+                audio_BGM.volume += oneFlameTime;
+                yield return new WaitForSecondsRealtime(oneFlameTime);
+                if (audio_BGM.volume >= volume - 0.02f)
                 {
-                    float oneFlameTime = 0.02f;
-                    audio_BGM.volume += oneFlameTime;
-                    yield return new WaitForSecondsRealtime(oneFlameTime);
-                    if (audio_BGM.volume >= volume - 0.02f)
-                    {
-                        audio_BGM.volume = volume;
-                        break;
-                    }
+                    audio_BGM.volume = volume;
+                    break;
                 }
             }
         }
+
         public void BGM_Volume(float volume)
         {
             audio_BGM.volume = volume;

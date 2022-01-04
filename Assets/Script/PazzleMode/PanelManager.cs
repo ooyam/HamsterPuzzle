@@ -101,11 +101,6 @@ public class PanelManager : MonoBehaviour
     {
         if (FirstGaneration)
         {
-            int bgmIndex = 1;
-            if (stageNum >= 8 && stageNum <= 14) bgmIndex = 2;
-            else if (stageNum >= 15) bgmIndex = 3;
-            StartCoroutine(SoundMan.BGM_Start(bgmIndex));
-
             float PosX = ScreenWidth / PanelColumns;
             float PosFixX = PosX * 2.5f;
             float PosY = (ScreenHight / PanelLines) * 0.45f;

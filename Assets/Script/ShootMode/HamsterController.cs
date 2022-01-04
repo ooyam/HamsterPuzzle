@@ -49,6 +49,9 @@ namespace ShootMode
         string[] blockTag;                 //ブロックタグリスト
         string NextBlockBoardTag = "NextBlockBoard"; //次投擲表示ボードタグ
 
+        [System.NonSerialized]
+        public bool setting = false;  //設定画面表示中？
+
         void Start()
         {
             tra       = GetComponent<RectTransform>();
@@ -81,7 +84,7 @@ namespace ShootMode
         {
             if (GAME_START && !GAME_OVER && !GAME_CLEAR)
             {
-                if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow)
+                if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow && !setting)
                 {
                     if (Input.GetMouseButtonDown(0))
                     {

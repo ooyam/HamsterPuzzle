@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SoundFunction;
 
 public class PuzzleMainController : MonoBehaviour
 {
@@ -32,5 +33,11 @@ public class PuzzleMainController : MonoBehaviour
         resultScreenObj = Instantiate(resultScreenPre);
         resultScreenObj.SetActive(false);
         resultScreenObj.transform.SetParent(GameObject.FindWithTag("CanvasMain").transform.GetChild(1).gameObject.transform, false);
+
+        //BGM開始
+        int bgmIndex = 1;
+        if (stageNum >= 8 && stageNum <= 14) bgmIndex = 2;
+        else if (stageNum >= 15) bgmIndex = 3;
+        GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>().BGM_Start(bgmIndex);
     }
 }

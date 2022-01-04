@@ -21,7 +21,7 @@ namespace ShootMode
         public static bool  GAME_OVER  = false;           //ゲームオーバー？
         public static bool  GAME_CLEAR = false;           //ゲームクリア？
         public static int   BLOCK_MAX_LINE_NUM  = 12;     //ブロック最大数
-        public static float BLOCK_GENERATE_TIME = 2.0f;  //ブロック生成時間
+        public static float BLOCK_GENERATE_TIME = 20.0f;  //ブロック生成時間
 
         //フラグリセット
         public static void FlagReset()

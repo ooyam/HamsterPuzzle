@@ -57,6 +57,12 @@ namespace ShootMode
 
             //ブロック生成時間設定
             BLOCK_GENERATE_TIME = blickGenerateTime;
+
+            //BGM開始
+            int bgmIndex = 1;
+            if (stageNum >= 8 && stageNum <= 14) bgmIndex = 2;
+            else if (stageNum >= 15) bgmIndex = 3;
+            soundManScr.BGM_Start(bgmIndex);
         }
 
 

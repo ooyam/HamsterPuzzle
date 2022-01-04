@@ -1734,7 +1734,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 984988858}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SettingController, Assembly-CSharp
         m_MethodName: RetryButtonDown
         m_Mode: 1
@@ -3069,7 +3069,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 984988858}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SettingController, Assembly-CSharp
         m_MethodName: TitlBackButtonDown
         m_Mode: 1
@@ -3380,7 +3380,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 984988858}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SettingController, Assembly-CSharp
         m_MethodName: SE_ButtonDown
         m_Mode: 1
@@ -4351,18 +4351,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 984988856}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd4a8220c3e94e0418cd8db9c74d3762, type: 3}
+  m_Script: {fileID: 11500000, guid: b5beda60442dcb648b30de8843d30cd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uiCamera: {fileID: 1074317966}
   bgmSwitchIma: {fileID: 1323209156}
   seSwitchIma: {fileID: 717754188}
   switchSprite:
   - {fileID: -1494352897237206093, guid: 10324ec466a6f6143bfc439128e9cc92, type: 3}
   - {fileID: 5207117429831932417, guid: 10324ec466a6f6143bfc439128e9cc92, type: 3}
   settingScreen: {fileID: 250256655}
-  hintScreen: {fileID: 0}
   messageBox: {fileID: 1218925921}
-  uiCamera: {fileID: 1074317966}
+  hamsterCon: {fileID: 1743309517}
 --- !u!82 &984988859
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4502,19 +4502,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 984988861}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 984988858}
-        m_TargetAssemblyTypeName: SettingController, Assembly-CSharp
-        m_MethodName: SettingButtonDown
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &984988861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4866,7 +4854,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 984988858}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SettingController, Assembly-CSharp
         m_MethodName: NoButtonDown
         m_Mode: 1
@@ -6109,7 +6097,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 984988858}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SettingController, Assembly-CSharp
         m_MethodName: YesButtonDown
         m_Mode: 1
@@ -6652,7 +6640,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 984988858}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SettingController, Assembly-CSharp
         m_MethodName: BGM_ButtonDown
         m_Mode: 1
@@ -7260,7 +7248,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 984988858}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SettingController, Assembly-CSharp
         m_MethodName: ExitButtonDown
         m_Mode: 1

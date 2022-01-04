@@ -5,7 +5,7 @@ using UnityEngine;
 using SoundFunction;
 using UnityEngine.SceneManagement;
 
-namespace PuzzleMode
+namespace ShootMode
 {
     public class SettingController : MonoBehaviour
     {
@@ -31,13 +31,13 @@ namespace PuzzleMode
         [SerializeField]
         GameObject settingScreen;
 
-        [Header("ヒント画面")]
-        [SerializeField]
-        GameObject hintScreen;
-
         [Header("確認画面")]
         [SerializeField]
         GameObject messageBox;
+
+        [Header("ハムスター")]
+        [SerializeField]
+        HamsterController hamsterCon;
 
         AudioSource Audio;                 //AudioSource
         bool settingActive = false;        //設定画面表示中？
@@ -45,11 +45,8 @@ namespace PuzzleMode
         GameObject[] messageText;          //メッセージボックス
         bool messageActive = false;        //メッセージボックス表示中？
         string messageTag;                 //メッセージボックスタグ
-        bool hintActive = false;           //ヒント表示中？
-        string hintTag;                    //ヒントタグ？
         GameObject SoundManObj;            //SoundManagerオブジェクト
         SoundManager SoundMan;             //SoundManagerスクリプト
-        HamsterPanelController hamsterCon; //HamsterPanelController
 
         void Start()
         {
@@ -57,7 +54,6 @@ namespace PuzzleMode
             Audio = this.GetComponent<AudioSource>();
             Transform tra = this.transform;
             settingTag = settingScreen.transform.tag;
-            if (hintScreen != null) hintTag = hintScreen.transform.tag;
             Transform mesTra = messageBox.transform;
             messageTag = mesTra.tag;
             messageText = new GameObject[]
@@ -81,6 +77,17 @@ namespace PuzzleMode
                 seSwitchIma.sprite = switchSprite[seImageStatus];
                 Audio.volume = 0.0f;
             }
+
+            //各ボタンに関数指定
+            Transform[] childrenTra = new Transform[] { tra.GetChild(0), tra.GetChild(1) };
+            tra.GetComponent<Button>().onClick.AddListener(() => SettingButtonDown());                          //設定ボタン
+            childrenTra[0].GetChild(0).GetComponent<Button>().onClick.AddListener(() => BGM_ButtonDown());      //BGM
+            childrenTra[0].GetChild(1).GetComponent<Button>().onClick.AddListener(() => SE_ButtonDown());       //SE
+            childrenTra[0].GetChild(2).GetComponent<Button>().onClick.AddListener(() => TitlBackButtonDown());  //タイトルへ戻る
+            childrenTra[0].GetChild(3).GetComponent<Button>().onClick.AddListener(() => RetryButtonDown());     //やり直す
+            childrenTra[0].GetChild(4).GetComponent<Button>().onClick.AddListener(() => ExitButtonDown());      //Exit
+            childrenTra[1].GetChild(2).GetComponent<Button>().onClick.AddListener(() => YesButtonDown());       //はい
+            childrenTra[1].GetChild(3).GetComponent<Button>().onClick.AddListener(() => NoButtonDown());        //いいえ
         }
 
         //========================================================================
@@ -115,30 +122,15 @@ namespace PuzzleMode
                     }
                 }
             }
-
-            //ヒント画面出力時
-            if (hintActive)
-            {
-                if (Input.GetMouseButtonDown(0))
-                {
-                    Ray ray = uiCamera.ScreenPointToRay(Input.mousePosition);
-                    RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
-                    if (!hit2d || hit2d.transform.gameObject.tag != hintTag)
-                    {
-                        HintButtonDown(false);
-                    }
-                }
-            }
         }
 
         //========================================================================
         //環境設定画面出力
         //========================================================================
-        public void SettingButtonDown()
+        void SettingButtonDown()
         {
             if (!settingActive)
             {
-                if (hamsterCon == null) hamsterCon = GameObject.FindWithTag("Hamster").GetComponent<HamsterPanelController>();
                 SoundMan.YesTapSE();
                 Time.timeScale = 0.0f;
                 hamsterCon.setting = true;
@@ -150,7 +142,7 @@ namespace PuzzleMode
         //========================================================================
         //BGMオンオフ
         //========================================================================
-        public void BGM_ButtonDown()
+        void BGM_ButtonDown()
         {
             if (bgmImageStatus == 0)
             {
@@ -173,7 +165,7 @@ namespace PuzzleMode
         //========================================================================
         //SEオンオフ
         //========================================================================
-        public void SE_ButtonDown()
+        void SE_ButtonDown()
         {
             if (seImageStatus == 0)
             {
@@ -196,7 +188,7 @@ namespace PuzzleMode
         //========================================================================
         //タイトルへ戻る
         //========================================================================
-        public void TitlBackButtonDown()
+        void TitlBackButtonDown()
         {
             SoundMan.YesTapSE();
             settingScreen.SetActive(false);
@@ -210,7 +202,7 @@ namespace PuzzleMode
         //========================================================================
         //やり直す
         //========================================================================
-        public void RetryButtonDown()
+        void RetryButtonDown()
         {
             SoundMan.YesTapSE();
             settingScreen.SetActive(false);
@@ -224,7 +216,7 @@ namespace PuzzleMode
         //========================================================================
         //｢はい｣
         //========================================================================
-        public void YesButtonDown()
+        void YesButtonDown()
         {
             if (messageText[0].activeSelf)
             {
@@ -242,7 +234,7 @@ namespace PuzzleMode
         //========================================================================
         //｢いいえ｣
         //========================================================================
-        public void NoButtonDown()
+        void NoButtonDown()
         {
             SoundMan.NoTapSE();
             settingScreen.SetActive(true);
@@ -252,40 +244,14 @@ namespace PuzzleMode
         }
 
         //========================================================================
-        //ヒント画面出力
-        //========================================================================
-        //display; 表示 or 削除
-        //========================================================================
-        public void HintButtonDown(bool display)
-        {
-            if (display)
-            {
-                SoundMan.YesTapSE();
-                settingScreen.SetActive(false);
-                settingActive = false;
-                hintScreen.SetActive(true);
-                hintActive = true;
-            }
-            else
-            {
-                SoundMan.NoTapSE();
-                settingScreen.SetActive(true);
-                settingActive = true;
-                hintScreen.SetActive(false);
-                hintActive = false;
-            }
-        }
-
-        //========================================================================
         //環境設定画面を閉じる
         //========================================================================
-        public void ExitButtonDown()
+        void ExitButtonDown()
         {
             SoundMan.NoTapSE();
             Time.timeScale = 1.0f;
             hamsterCon.setting = false;
             settingScreen.SetActive(false);
-            hintScreen.SetActive(false);
             settingActive = false;
         }
     }
