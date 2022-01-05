@@ -18,14 +18,14 @@ namespace ShootMode
         [SerializeField]
         Sprite[] targetNumSpr;
 
-        [Header("スコア表示オブジェクト")]   //0：ブロッコリー　1:キャベツ　2：ニンジン　3:パプリカ　4：カボチャ　5：トウモロコシ
+        [Header("スコア表示オブジェクト")]   //0：ブロッコリー　1:キャベツ　2：パプリカ　3:ニンジン　4：カボチャ　5：トウモロコシ
         [SerializeField]
         GameObject[] scoreObj;
         RectTransform[] scoreObjTra; //オブジェクトRectTransform
         RectTransform[] scoreNumTra; //収穫数RectTransform
         Image[][] scoreNumIma;       //出力数字
 
-        [Header("ターゲット表示オブジェクト")]   //0：ブロッコリー　1:キャベツ　2：ニンジン　3:パプリカ　4：カボチャ　5：トウモロコシ
+        [Header("ターゲット表示オブジェクト")]   //0：ブロッコリー　1:キャベツ　2：パプリカ　3:ニンジン　4：カボチャ　5：トウモロコシ
         [SerializeField]
         GameObject[] targetObj;
         RectTransform[] targetObjTra; //オブジェクトRectTransform
@@ -33,13 +33,14 @@ namespace ShootMode
         Image[][] targetNumIma;       //出力数字
         int maxDigit = 2;             //最大桁数
 
-        VegetableType[] tartgetVeg_;  //目標野菜
-        int targetVegetableNum_;      //目標野菜の個数
-        int[] targetNum_;             //種類ごとの目標個数
-        int stageNum_;                //ステージ番号
+        VegetableType[] tarVeg;  //目標野菜
+        int tarVegNum;           //目標野菜の個数
+        int usingVegNum;         //使用する野菜の個数
+        int[] tarNum;            //種類ごとの目標個数
+        int staNum;              //ステージ番号
 
         string[] vegName;  //野菜の名前
-        int vegTypeNum;    //使用する野菜の数
+        int vegTypeNum;    //野菜の数
         int[] harvestNum;  //収穫個数
         int[] targetIndex; //目標野菜のインデクス番号
         bool[] clearJudge; //クリア判定
@@ -52,13 +53,38 @@ namespace ShootMode
             foreach (VegetableType vegeValue in vegetableType)
             { vegName[(int)vegeValue] = Enum.GetName(typeof(VegetableType), vegeValue); }
 
-            scoreObjTra  = new RectTransform[vegTypeNum];
-            scoreNumTra  = new RectTransform[vegTypeNum];
-            scoreNumIma  = new Image[vegTypeNum][];
-            targetObjTra = new RectTransform[vegTypeNum];
-            targetNumTra = new RectTransform[vegTypeNum];
-            targetNumIma = new Image[vegTypeNum][];
-            for (int index = 0; index < vegTypeNum; index++)
+            usingVegNum = useVegNum;
+            Vector2[] scoreVegPos = new Vector2[usingVegNum];
+            float[] scoreVegPosY  = new float[] { -65.0f, -135.0f, -200.0f };
+            switch (usingVegNum)
+            {
+                case 3:
+                    scoreVegPos[0] = new Vector2(-450.0f, scoreVegPosY[1]);
+                    scoreVegPos[1] = new Vector2(-245.0f, scoreVegPosY[1]);
+                    scoreVegPos[2] = new Vector2(-25.0f,  scoreVegPosY[1]);
+                    break;
+                case 4:
+                    scoreVegPos[0] = new Vector2(-400.0f, scoreVegPosY[0]);
+                    scoreVegPos[1] = new Vector2(-145.0f, scoreVegPosY[0]);
+                    scoreVegPos[2] = new Vector2(-260.0f, scoreVegPosY[2]);
+                    scoreVegPos[3] = new Vector2(20.0f,   scoreVegPosY[2]);
+                    break;
+                case 5:
+                    scoreVegPos[0] = new Vector2(-300.0f, scoreVegPosY[0]);
+                    scoreVegPos[1] = new Vector2(-85.0f,  scoreVegPosY[0]);
+                    scoreVegPos[2] = new Vector2(-380.0f, scoreVegPosY[2]);
+                    scoreVegPos[3] = new Vector2(-175.0f, scoreVegPosY[2]);
+                    scoreVegPos[4] = new Vector2(45.0f,   scoreVegPosY[2]);
+                    break;
+            }
+
+            scoreObjTra  = new RectTransform[usingVegNum];
+            scoreNumTra  = new RectTransform[usingVegNum];
+            scoreNumIma  = new Image[usingVegNum][];
+            targetObjTra = new RectTransform[usingVegNum];
+            targetNumTra = new RectTransform[usingVegNum];
+            targetNumIma = new Image[usingVegNum][];
+            for (int index = 0; index < usingVegNum; index++)
             {
                 //ターゲットオブジェクト
                 targetObjTra[index]    = targetObj[index].GetComponent<RectTransform>();
@@ -73,26 +99,42 @@ namespace ShootMode
                 scoreNumIma[index]    = new Image[maxDigit];
                 scoreNumIma[index][0] = scoreNumTra[index].GetChild(0).GetComponent<Image>();
                 scoreNumIma[index][1] = scoreNumTra[index].GetChild(1).GetComponent<Image>();
+
+                //スコアオブジェクト座標指定
+                scoreObj[index].SetActive(true);
+                if (vegTypeNum > usingVegNum) scoreObjTra[index].anchoredPosition = scoreVegPos[index];
             }
-            harvestNum = new int[vegTypeNum];
+            harvestNum = new int[usingVegNum];
 
             //ステージ設定
-            tartgetVeg_         = tartgetVeg;            //目標野菜
-            targetVegetableNum_ = targetVegetableNum;    //目標野菜の個数
-            targetNum_          = targetNum;             //種類ごとの目標個数
-            stageNum_           = stageNum;              //ステージ番号
-            targetIndex = new int[targetVegetableNum_];  //目標野菜のインデクス番号
-            clearJudge  = new bool[targetVegetableNum_]; //クリア判定
-            int ten = 10;
-            for (int index = 0; index < targetVegetableNum_; index++)
+            tarVeg      = tartgetVeg;          //目標野菜
+            tarVegNum   = targetVegNum;        //目標野菜の個数
+            tarNum      = targetNum;           //種類ごとの目標個数
+            staNum      = stageNum;            //ステージ番号
+            targetIndex = new int[tarVegNum];  //目標野菜のインデクス番号
+            clearJudge  = new bool[tarVegNum]; //クリア判定
+            int ten     = 10;
+            for (int index = 0; index < tarVegNum; index++)
             {
-                int tensPlace = (int)Mathf.Floor(targetNum_[index] / ten); //10の位
-                int onesPlace = targetNum_[index] % ten;                   //1の位
-                targetIndex[index] = (int)tartgetVeg_[index];
+                int tensPlace = (int)Mathf.Floor(tarNum[index] / ten); //10の位
+                int onesPlace = tarNum[index] % ten;                   //1の位
+                targetIndex[index] = (int)tarVeg[index];
                 targetNumIma[targetIndex[index]][0].sprite = targetNumSpr[onesPlace];
                 targetNumIma[targetIndex[index]][1].sprite = (tensPlace == 0) ? targetNumSpr[ten] : targetNumSpr[tensPlace];
+                if (tensPlace == 0) targetNumTra[index].anchoredPosition = new Vector2(-26.0f, 0.0f);
                 clearJudge[index] = false;
             }
+
+            //ターゲットオブジェクト座標指定
+            float valueX = 130.0f;
+            float valueY = -20.0f;
+            float fixX   = valueX / 2.0f * (tarVegNum - 1);
+            for (int index = 0; index < tarVegNum; index++)
+            {
+                targetObjTra[targetIndex[index]].anchoredPosition = new Vector2(valueX * index - fixX, valueY);
+                targetObj[targetIndex[index]].SetActive(true);
+            }
+
         }
 
 
@@ -119,7 +161,7 @@ namespace ShootMode
 
                 //目標野菜収穫完了判断
                 int targetIndexIndex = Array.IndexOf(targetIndex, vegIndex);
-                if (targetIndexIndex >= 0 && !clearJudge[targetIndexIndex] && targetNum_[targetIndexIndex] <= harvestNum[vegIndex])
+                if (targetIndexIndex >= 0 && !clearJudge[targetIndexIndex] && tarNum[targetIndexIndex] <= harvestNum[vegIndex])
                 {
                     clearJudge[targetIndexIndex] = true;
 

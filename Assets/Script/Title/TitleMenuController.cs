@@ -296,12 +296,12 @@ public class TitleMenuController : MonoBehaviour
         //シュートモード
         //========================================================================
         VegetableType[][] shootTargetVeg = new VegetableType[stageNum[shootModeNum] + 1][];
-        shootTargetVeg[0]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage };
+        shootTargetVeg[0]  = new VegetableType[] { VegetableType.Broccoli };
         shootTargetVeg[1]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Carrot };
-        shootTargetVeg[2]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Paprika };
-        shootTargetVeg[3]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Pumpkin };
-        shootTargetVeg[4]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Corn };
-        shootTargetVeg[5]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage };
+        shootTargetVeg[2]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Paprika, VegetableType.Pumpkin };
+        shootTargetVeg[3]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Pumpkin, VegetableType.Carrot, VegetableType.Paprika };
+        shootTargetVeg[4]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Corn, VegetableType.Pumpkin, VegetableType.Carrot, VegetableType.Paprika };
+        shootTargetVeg[5]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage, VegetableType.Corn, VegetableType.Pumpkin, VegetableType.Carrot, VegetableType.Paprika };
         shootTargetVeg[6]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Carrot };
         shootTargetVeg[7]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Paprika };
         shootTargetVeg[8]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Pumpkin };
@@ -319,12 +319,12 @@ public class TitleMenuController : MonoBehaviour
         shootTargetVeg[20] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Corn };
 
         int[][] shootTargetVegNum = new int[stageNum[shootModeNum] + 1][];
-        shootTargetVegNum[0]  = new int[] { 1, 3 };
-        shootTargetVegNum[1]  = new int[] { 2, 3 };
-        shootTargetVegNum[2]  = new int[] { 3, 3 };
-        shootTargetVegNum[3]  = new int[] { 4, 3 };
-        shootTargetVegNum[4]  = new int[] { 5, 3 };
-        shootTargetVegNum[5]  = new int[] { 6, 3 };
+        shootTargetVegNum[0]  = new int[] { 1 };
+        shootTargetVegNum[1]  = new int[] { 2, 7 };
+        shootTargetVegNum[2]  = new int[] { 3, 8, 9 };
+        shootTargetVegNum[3]  = new int[] { 4, 10, 21, 32 };
+        shootTargetVegNum[4]  = new int[] { 5, 43, 54, 65, 76 };
+        shootTargetVegNum[5]  = new int[] { 6, 87, 98, 15, 86, 99 };
         shootTargetVegNum[6]  = new int[] { 7, 3 };
         shootTargetVegNum[7]  = new int[] { 8, 3 };
         shootTargetVegNum[8]  = new int[] { 9, 3 };
@@ -603,27 +603,35 @@ public class TitleMenuController : MonoBehaviour
     //シュートモードステージ選択(シュートモード開始)
     //========================================================================
     //targetVeg;          目標野菜
-    //targetVegetableNum; 目標野菜の数
+    //targetVegNum;       目標野菜の数
     //targetNum;          目標野菜の各収穫目標数
     //blickGenerateTime;  生成時間
     //stageNum;           ステージ番号
     //========================================================================
-    void OnClickShootStatge(VegetableType[] targetVeg, int targetVegetableNum, int[] targetNum, float blickGenerateTime, int stageNum)
+    void OnClickShootStatge(VegetableType[] targetVeg, int targetVegNum, int[] targetNum, float blickGenerateTime, int stageNum)
     {
         soundMan.YesTapSE();
         SceneNavigator.Instance.Change("ShootMode", 0.5f);
 
-        ShootModeManager.tartgetVeg = new VegetableType[targetVegetableNum];
-        ShootModeManager.targetNum  = new int[targetVegetableNum];
-        for (int i = 0; i < targetVegetableNum; i++)
+        ShootModeManager.tartgetVeg = new VegetableType[targetVegNum];
+        ShootModeManager.targetNum  = new int[targetVegNum];
+        for (int i = 0; i < targetVegNum; i++)
         {
             ShootModeManager.tartgetVeg[i] = (VegetableType)(int)targetVeg[i];
             ShootModeManager.targetNum[i]  = targetNum[i];
         }
-        ShootModeManager.targetVegetableNum = targetVegetableNum;
+        ShootModeManager.targetVegNum      = targetVegNum;
         ShootModeManager.blickGenerateTime = blickGenerateTime;
-        ShootModeManager.stageNum = stageNum;
-        ShootModeManager.tutorial = (stageNum == 0) ? true : false;
+        ShootModeManager.stageNum          = stageNum;
+        ShootModeManager.tutorial          = (stageNum == 0) ? true : false;
+        int useVegNum = 3;
+        //if (stageNum > 4)  useVegNum = 4;
+        //if (stageNum > 9)  useVegNum = 5;
+        //if (stageNum > 14) useVegNum = 6;
+        if (stageNum > 0)  useVegNum = 4;
+        if (stageNum > 1)  useVegNum = 5;
+        if (stageNum > 2) useVegNum = 6;
+        ShootModeManager.useVegNum = useVegNum;
     }
 
     //========================================================================

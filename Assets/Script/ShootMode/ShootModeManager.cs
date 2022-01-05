@@ -33,7 +33,8 @@ namespace ShootMode
         SoundManager soundManScr;  //SoundManger
 
         public static VegetableType[] tartgetVeg;   //目標野菜
-        public static int targetVegetableNum;       //目標野菜の個数
+        public static int targetVegNum;             //目標野菜の個数
+        public static int useVegNum;                //使用する野菜の個数
         public static int[] targetNum;              //種類ごとの目標個数
         public static float blickGenerateTime;      //生成時間
         public static int stageNum;                 //ステージ番号
