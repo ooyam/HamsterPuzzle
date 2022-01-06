@@ -32,6 +32,7 @@ namespace ShootMode
         RectTransform[] targetNumTra; //収穫数RectTransform
         Image[][] targetNumIma;       //出力数字
         int maxDigit = 2;             //最大桁数
+        float tarNumPosFixX = -26.0f; //ターゲット数量表示座標修正値
 
         VegetableType[] tarVeg;  //目標野菜
         int tarVegNum;           //目標野菜の個数
@@ -121,7 +122,7 @@ namespace ShootMode
                 targetIndex[index] = (int)tarVeg[index];
                 targetNumIma[targetIndex[index]][0].sprite = targetNumSpr[onesPlace];
                 targetNumIma[targetIndex[index]][1].sprite = (tensPlace == 0) ? targetNumSpr[ten] : targetNumSpr[tensPlace];
-                if (tensPlace == 0) targetNumTra[index].anchoredPosition = new Vector2(-26.0f, 0.0f);
+                if (tensPlace == 0) targetNumTra[index].anchoredPosition = new Vector2(tarNumPosFixX, 0.0f);
                 clearJudge[index] = false;
             }
 
@@ -163,7 +164,11 @@ namespace ShootMode
                 int targetIndexIndex = Array.IndexOf(targetIndex, vegIndex);
                 if (targetIndexIndex >= 0 && !clearJudge[targetIndexIndex] && tarNum[targetIndexIndex] <= harvestNum[vegIndex])
                 {
+                    //収穫完了判定
                     clearJudge[targetIndexIndex] = true;
+                    targetNumIma[vegIndex][0].sprite = targetNumSpr[11];
+                    targetNumIma[vegIndex][1].sprite = targetNumSpr[10];
+                    targetNumTra[vegIndex].anchoredPosition = new Vector2(0.0f, 0.0f);
 
                     //クリア判定
                     if (!GAME_CLEAR && Array.IndexOf(clearJudge, false) < 0)

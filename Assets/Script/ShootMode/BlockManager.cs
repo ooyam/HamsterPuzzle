@@ -5,6 +5,7 @@ using System;
 using UnityEngine.UI;
 using ShootMode;
 using static ShootMode.ShootModeDefine;
+using static ShootMode.ShootModeManager;
 using static MoveFunction.ObjectMove;
 
 public class BlockManager : MonoBehaviour
@@ -49,27 +50,25 @@ public class BlockManager : MonoBehaviour
 
     int[] columnNum = new int[] { 9, 10 };     //1行の列数
     Vector2[][][] blockPos;                    //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
-    int generatePattern     = 0;               //ライン生成するパターン番号
+    int generatePattern;                       //ライン生成するパターン番号
+    int usingVegNum;                           //使用する野菜の数
     [System.NonSerialized]
-    public int nowLineNum   = 0;               //現在の行数
+    public int nowLineNum;                     //現在の行数
     [System.NonSerialized]
     public float blockPosY  = 103.8f;          //ブロック生成位置Y
     float[][] blockPosX     = new float[2][];  //ブロック生成位置X
     Vector2[] throwBlockPos = new Vector2[2];  //投擲ブロック生成座標
     Vector2 nextThrowBlockPos;                 //次の投擲ブロック生成座標
-    bool generateEnd        = false;           //生成終了？
+    bool generateEnd;                          //生成終了？
     [System.NonSerialized]
-    public bool throwNow    = false;           //投擲中？
+    public bool throwNow;                      //投擲中？
     [System.NonSerialized]
-    public bool blockDeleteNow = false;        //ブロック削除中？
+    public bool blockDeleteNow;                //ブロック削除中？
     [System.NonSerialized]
-    public bool blockChangeNow = false;        //ブロック交換中？
+    public bool blockChangeNow;                //ブロック交換中？
     [System.NonSerialized]
     public float blockDiameter = 120.0f;       //ブロック直径
-    float[] blockRotDirecting = new float[] { 90.0f, 270.0f };  //演出用ブロック角度
-
-    //int stageNum = 0;   //ステージ番号
-    int vegTypeNum = Enum.GetValues(typeof(VegetableType)).Length; //使用する野菜の数
+    float[] blockRotDirecting  = new float[] { 90.0f, 270.0f };  //演出用ブロック角度
 
     IEnumerator Start()
     {
@@ -78,6 +77,7 @@ public class BlockManager : MonoBehaviour
         canvasWidth = canvasTra.sizeDelta.x;
         differenceX = canvasWidth / 2;
         differenceY = canvasTra.sizeDelta.y;
+        usingVegNum = useVegNum;
         throwBlockPos[0]  = new Vector2(70.0f, -10.0f);
         throwBlockPos[1]  = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
         nextThrowBlockPos = new Vector2(0.0f, -30.0f);
@@ -170,7 +170,7 @@ public class BlockManager : MonoBehaviour
     void NextThrowBlockGenerate()
     {
         //生成
-        int blockGeneIndex = UnityEngine.Random.Range(0, vegTypeNum);
+        int blockGeneIndex = UnityEngine.Random.Range(0, usingVegNum);
         nextThrowBlockIndex = BlockGenerate(blockGeneIndex, true);
         blockTra[nextThrowBlockIndex].SetParent(nextBlockBoardTra, false);
         blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
@@ -283,8 +283,7 @@ public class BlockManager : MonoBehaviour
             yield return new WaitWhile(() => blockChangeNow == true);
 
             //生成パターン数設定
-            //int patternNum = (int)Mathf.Floor(columnNum[generatePattern] / 2); //10列生成
-            int patternNum = (int)Mathf.Floor(columnNum[0] / 2);                 //8列生成
+            int patternNum = (int)Mathf.Floor(columnNum[0] / 2);
             int[] geneInd = new int[patternNum];
 
             //---------------------------------------------
@@ -292,15 +291,14 @@ public class BlockManager : MonoBehaviour
             //---------------------------------------------
             for (int genePattIndex = 0; genePattIndex < patternNum; genePattIndex++)
             {
-                int blockGeneIndex = UnityEngine.Random.Range(0, vegTypeNum);
+                int blockGeneIndex = UnityEngine.Random.Range(0, usingVegNum);
                 geneInd[genePattIndex] = blockGeneIndex;
             }
 
             //---------------------------------------------
             //ブロック生成
             //---------------------------------------------
-            //int blockPosThirdIndex = 0;                            //10列生成
-            int blockPosThirdIndex = (generatePattern == 0) ? 0 : 1; //8列生成
+            int blockPosThirdIndex = (generatePattern == 0) ? 0 : 1;
             int outputThreeInd = (generatePattern == 0) ? UnityEngine.Random.Range(0, patternNum) : -1;  //ループ何回目に3つ1組にするか
             List<int> generateObjInd = new List<int>();
             for (int patternIndex = 0; patternIndex < patternNum; patternIndex++)
@@ -847,17 +845,25 @@ public class BlockManager : MonoBehaviour
             //削除
             BlockDelete(nowDeleteIndex.ToArray());
 
-            //次の投擲ブロック番号更新
-            nextThrowBlockIndex = blockObj.IndexOf(nextThrowBlockObj);
+            //クリア判定
+            if (GAME_CLEAR)
+            {
+                StartCoroutine(ShootModeMan.GameClear());
+            }
+            else
+            {
+                //次の投擲ブロック番号更新
+                nextThrowBlockIndex = blockObj.IndexOf(nextThrowBlockObj);
 
-            //投擲ブロック生成
-            StartCoroutine(ThrowBlockGenerate());
+                //投擲ブロック生成
+                StartCoroutine(ThrowBlockGenerate());
 
-            //削除中リストリセット
-            nowDeleteIndex.Clear();
+                //削除中リストリセット
+                nowDeleteIndex.Clear();
 
-            //ブロック削除中フラグリセット
-            blockDeleteNow = false;
+                //ブロック削除中フラグリセット
+                blockDeleteNow = false;
+            }
         }
     }
 
@@ -895,11 +901,30 @@ public class BlockManager : MonoBehaviour
             blockObj.RemoveAt(delInd);
         }
 
-        //クリア判定
-        if (GAME_CLEAR)
-        {
-            StartCoroutine(ShootModeMan.GameClear());
-        }
+        //10個以上消した場合
+        if (objIndex.Length >= 10) StartCoroutine(EraseTenBlocks());
+
+        //ブロック全消し判定
+        if (blockObj.Count == 0) StartCoroutine(EraseAllBlocks());
+    }
+
+    //========================================================================
+    //ブロック10以上同時に削除
+    //========================================================================
+    IEnumerator EraseTenBlocks()
+    {
+        Debug.Log("10個消し");
+        yield return null;
+
+    }
+
+    //========================================================================
+    //ブロック全消し
+    //========================================================================
+    IEnumerator EraseAllBlocks()
+    {
+        Debug.Log("全消し");
+        yield return null;
     }
 
     //========================================================================
