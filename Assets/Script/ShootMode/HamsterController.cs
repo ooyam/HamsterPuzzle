@@ -12,7 +12,6 @@ namespace ShootMode
     {
         RectTransform tra;                 //RectTransform
         Image ima;                         //Image
-        RectTransform canvasTra;           //CanvasのRectTransform
         LineRenderer line;                 //LineRenderer
         Camera mainCamra;                  //MainCamera
 
@@ -34,8 +33,6 @@ namespace ShootMode
         float magnification;               //タップ位置修正倍率
         float differenceX;                 //タップ位置修正数X
         float differenceY;                 //タップ位置修正数Y
-        float canvasHigh;                  //Canvasの高さ
-        float canvasWidth;                 //Canvasの幅
         float hamsterPosX;                 //ハムスターX座標
         float posY = -530.0f;              //ハムスターY座標
         float fastTapPosY;                 //最初に触った位置
@@ -47,7 +44,7 @@ namespace ShootMode
         float lineStartPosY = 30.0f;       //投擲ラインのスタート位置Y
         Vector3 lineStartPos;              //投擲ラインのスタート位置
         string[] blockTag;                 //ブロックタグリスト
-        string NextBlockBoardTag = "NextBlockBoard"; //次投擲表示ボードタグ
+        string[] noThrowTag = new string[] { "NextBlockBoard", "SpecialHamster" }; //次投擲表示ボードタグ
 
         [System.NonSerialized]
         public bool setting = false;  //設定画面表示中？
@@ -56,15 +53,12 @@ namespace ShootMode
         {
             tra       = GetComponent<RectTransform>();
             ima       = GetComponent<Image>();
-            canvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
             line      = GetComponent<LineRenderer>();
             mainCamra = Camera.main;
 
-            canvasHigh     = canvasTra.sizeDelta.y;
-            canvasWidth    = canvasTra.sizeDelta.x;
-            differenceX    = canvasWidth / 2.0f;
-            differenceY    = canvasHigh  / 2.0f;
-            magnification  = canvasWidth / Screen.width;
+            differenceY    = CANVAS_HIGH / 2.0f;
+            differenceX    = CANVAS_WIDTH / 2.0f;
+            magnification  = CANVAS_WIDTH / Screen.width;
             hamsterPosX    = tra.anchoredPosition.x;
             blockBoxSize   = blockBoxTra.rect;
             topLimit  = blockBoxSize.height / 2.0f + blockBoxTra.anchoredPosition.y - posY;
@@ -84,14 +78,14 @@ namespace ShootMode
         {
             if (GAME_START && !GAME_OVER && !GAME_CLEAR)
             {
-                if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow && !setting)
+                if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow && !SPECIAL_HARVEST && !setting)
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
-                        //次投擲ボードタップ時は計算しない
+                        //次投擲ボード・スペシャルボタンタップ時は計算しない
                         Ray ray = mainCamra.ScreenPointToRay(Input.mousePosition);
                         RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
-                        if (!(hit2d && hit2d.transform.gameObject.tag == NextBlockBoardTag))
+                        if (!(hit2d && Array.IndexOf(noThrowTag, hit2d.transform.gameObject.tag) >= 0))
                         {
                             tapStart = true;
                         }

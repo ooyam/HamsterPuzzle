@@ -38,7 +38,7 @@ public class BlinkingOperation : MonoBehaviour
         if(endTime > 0)
         {
             yield return new WaitForSecondsRealtime(endTime);
-            changeEnd = true;
+            COLOR_CHANGE_INFINITE_END = true;
         }
     }
 }

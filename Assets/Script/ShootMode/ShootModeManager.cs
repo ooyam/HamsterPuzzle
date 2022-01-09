@@ -56,8 +56,11 @@ namespace ShootMode
             foreach (VegetableType vegeValue in vegetableType)
             { vegName[(int)vegeValue] = Enum.GetName(typeof(VegetableType), vegeValue); }
 
-            //ブロック生成時間設定
+            //定数設定
             BLOCK_GENERATE_TIME = blickGenerateTime;
+            RectTransform canvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
+            CANVAS_WIDTH = canvasTra.sizeDelta.x;
+            CANVAS_HIGH  = canvasTra.sizeDelta.y;
 
             //BGM開始
             int bgmIndex = 1;

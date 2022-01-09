@@ -16,7 +16,7 @@ namespace ShootMode
             float acceleRate   = 1.0f;
             Vector2 startPos   = new Vector2(0.0f, 1700.0f);
             Vector2 targetPos  = Vector2.zero;
-            float moveTime     = GetMoveTime(moveSpeed, acceleRate, startPos, targetPos);
+            float moveTime     = GetMoveTime(tra, moveSpeed, acceleRate, targetPos);
 
             //ägèkê›íË
             Vector3 scalingSpeed = new Vector3(0.0f, -0.03f, 0.0f);

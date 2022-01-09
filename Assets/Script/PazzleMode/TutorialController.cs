@@ -107,7 +107,7 @@ public class TutorialController : MonoBehaviour
     //========================================================================
     IEnumerator NextDescription(int descriptionNum)
     {
-        changeEnd = false;
+        COLOR_CHANGE_INFINITE_END = false;
         switch (descriptionNum)
         {
             case 1:

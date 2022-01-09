@@ -1,7 +1,37 @@
 fileFormatVersion: 2
 guid: 4d9f02b28d1cc664f9f50082026cdad1
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 2972748284015880094
+    second: Hamster_white_0
+  - first:
+      213: 5404114016450150741
+    second: Hamster_white_1
+  - first:
+      213: 548778546545346536
+    second: Hamster_white_2
+  - first:
+      213: 4477134497176883648
+    second: Hamster_white_3
+  - first:
+      213: 2953134514454915344
+    second: Hamster_white_4
+  - first:
+      213: -5257228140042958472
+    second: Hamster_white_5
+  - first:
+      213: -7720537071395195388
+    second: Hamster_white_6
+  - first:
+      213: -8126714057987807072
+    second: Hamster_white_7
+  - first:
+      213: 5429478031550492758
+    second: Hamster_white_8
+  - first:
+      213: -5214381833075137828
+    second: Hamster_white_9
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -113,11 +143,221 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Hamster_white_0
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 670
+        width: 260
+        height: 270
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e972b6360d2514920800000000000000
+      internalID: 2972748284015880094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hamster_white_1
+      rect:
+        serializedVersion: 2
+        x: 466
+        y: 670
+        width: 263
+        height: 270
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5518834d0154ffa40800000000000000
+      internalID: 5404114016450150741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hamster_white_2
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 680
+        width: 313
+        height: 240
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8e7c0373e27ad9700800000000000000
+      internalID: 548778546545346536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hamster_white_3
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 342
+        width: 259
+        height: 260
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0c110e3ba1af12e30800000000000000
+      internalID: 4477134497176883648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hamster_white_4
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 324
+        width: 241
+        height: 261
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 019e70cc134abf820800000000000000
+      internalID: 2953134514454915344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hamster_white_5
+      rect:
+        serializedVersion: 2
+        x: 667
+        y: 330
+        width: 260
+        height: 274
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8794d815cd29a07b0800000000000000
+      internalID: -5257228140042958472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hamster_white_6
+      rect:
+        serializedVersion: 2
+        x: 947
+        y: 307
+        width: 226
+        height: 325
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 406314050742bd490800000000000000
+      internalID: -7720537071395195388
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hamster_white_7
+      rect:
+        serializedVersion: 2
+        x: 117
+        y: 47
+        width: 323
+        height: 255
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0a8a6761f9c183f80800000000000000
+      internalID: -8126714057987807072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hamster_white_8
+      rect:
+        serializedVersion: 2
+        x: 529
+        y: 79
+        width: 258
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 650ba5ac081695b40800000000000000
+      internalID: 5429478031550492758
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Hamster_white_9
+      rect:
+        serializedVersion: 2
+        x: 841
+        y: 71
+        width: 262
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cd26e4c895bc2a7b0800000000000000
+      internalID: -5214381833075137828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: d77e01fb8ab0a974ab68cf23088952be
     internalID: 0
     vertices: []
     indices: 

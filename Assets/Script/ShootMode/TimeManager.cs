@@ -8,9 +8,6 @@ public class TimeManager : MonoBehaviour
 {
     [Header("BlockManager")]
     public BlockManager blockMan;
-    [Header("HamsterController")]
-    public HamsterController hamCon;
-    int stageNum = 0;   //ステージ番号
 
     //========================================================================
     //ゲーム開始遅延
@@ -33,24 +30,16 @@ public class TimeManager : MonoBehaviour
     //========================================================================
     IEnumerator LineBlockGenerateInterval()
     {
-        float generateTime = BLOCK_GENERATE_TIME;
-        switch (stageNum)
-        {
-            case 10:
-                generateTime = BLOCK_GENERATE_TIME;
-                break;
-            default:
-                break;
-        }
         while (!GAME_OVER && !GAME_CLEAR)
         {
             //待機
-            yield return new WaitForSeconds(generateTime);
+            yield return new WaitForSeconds(BLOCK_GENERATE_TIME);
 
-            //投擲・ブロック削除・投擲ブロック交換が終了するまで待機
-            yield return new WaitWhile(() => blockMan.throwNow == true);
-            yield return new WaitWhile(() => blockMan.blockDeleteNow == true);
-            yield return new WaitWhile(() => blockMan.blockChangeNow == true);
+            //一部の動作中は終了するまで待機
+            yield return new WaitWhile(() => SPECIAL_HARVEST == true);           //1行収穫中
+            yield return new WaitWhile(() => blockMan.throwNow == true);         //投擲
+            yield return new WaitWhile(() => blockMan.blockDeleteNow == true);   //ブロック削除
+            yield return new WaitWhile(() => blockMan.blockChangeNow == true);   //投擲ブロック切り替え
 
             //ゲーム終了？
             if (GAME_OVER || GAME_CLEAR) break;

@@ -1,39 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static MoveFunction.ObjectMove;
 
 public class CloudMove : MonoBehaviour
 {
-    private RectTransform tra;
-    private float moveSpeed = 0.01f;
-    private float maxScale = 1.1f;
-    private float minScale = 0.9f;
-    private float scale;
-    private bool expansion = true;
-
-    // Start is called before the first frame update
     void Start()
     {
-        tra = GetComponent<RectTransform>();
-        scale = Random.Range(minScale, maxScale);
-        tra.localScale = new Vector2(scale, scale);
-    }
+        RectTransform tra = GetComponent<RectTransform>();
+        float moveSpeed   = 0.01f;
+        float maxScale    = 1.1f;
+        float minScale    = 0.9f;
+        float scale       = Random.Range(minScale, maxScale);
+        tra.localScale    = new Vector2(scale, scale);
+        int scalingTimes  = -1;
 
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-        if (expansion)
-        {
-            scale += moveSpeed;
-            if (scale > maxScale)
-                expansion = false;
-        }
-        else
-        {
-            scale -= moveSpeed;
-            if (scale < minScale)
-                expansion = true;
-        }
-        tra.localScale = new Vector2(scale, scale);
+        StartCoroutine(ScaleChange(tra, Vector3.one * moveSpeed, maxScale, minScale, scalingTimes));
     }
 }

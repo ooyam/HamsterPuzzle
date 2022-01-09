@@ -40,13 +40,13 @@ public class BlockManager : MonoBehaviour
     [SerializeField]
     RectTransform nextBlockBoardTra;
 
-    [Header("カメラの取得")]
+    [Header("スペシャルハムスタースクリプト")]
     [SerializeField]
-    Camera cameraMain;        //カメラの取得
-    RectTransform canvasTra;  //CanvasのRectTransform
-    float canvasWidth;        //Canvas幅
-    float differenceX;        //座標修正数X
-    float differenceY;        //座標修正数Y(Canvas高さ)
+    SpecialHamster speHamScr;
+
+    [Header("エフェクトプレハブ")]
+    [SerializeField]
+    GameObject effectPre;
 
     int[] columnNum = new int[] { 9, 10 };     //1行の列数
     Vector2[][][] blockPos;                    //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
@@ -59,7 +59,8 @@ public class BlockManager : MonoBehaviour
     float[][] blockPosX     = new float[2][];  //ブロック生成位置X
     Vector2[] throwBlockPos = new Vector2[2];  //投擲ブロック生成座標
     Vector2 nextThrowBlockPos;                 //次の投擲ブロック生成座標
-    bool generateEnd;                          //生成終了？
+    [System.NonSerialized]
+    public bool blockGenerateNow;              //生成中？
     [System.NonSerialized]
     public bool throwNow;                      //投擲中？
     [System.NonSerialized]
@@ -73,10 +74,6 @@ public class BlockManager : MonoBehaviour
     IEnumerator Start()
     {
         hamsterScr  = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController>();
-        canvasTra   = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
-        canvasWidth = canvasTra.sizeDelta.x;
-        differenceX = canvasWidth / 2;
-        differenceY = canvasTra.sizeDelta.y;
         usingVegNum = useVegNum;
         throwBlockPos[0]  = new Vector2(70.0f, -10.0f);
         throwBlockPos[1]  = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
@@ -276,11 +273,12 @@ public class BlockManager : MonoBehaviour
         for (int lineIndex = 0; lineIndex < generatLineNum; lineIndex++)
         {
             //---------------------------------------------
-            //投擲・ブロック削除・投擲ブロック交換が終了するまで待機
+            //一部の動作中は終了するまで待機
             //---------------------------------------------
-            yield return new WaitWhile(() => throwNow == true);
-            yield return new WaitWhile(() => blockDeleteNow == true);
-            yield return new WaitWhile(() => blockChangeNow == true);
+            yield return new WaitWhile(() => SPECIAL_HARVEST == true);   //1行収穫中
+            yield return new WaitWhile(() => throwNow == true);          //投擲
+            yield return new WaitWhile(() => blockDeleteNow == true);    //ブロック削除
+            yield return new WaitWhile(() => blockChangeNow == true);    //投擲ブロック切り替え
 
             //生成パターン数設定
             int patternNum = (int)Mathf.Floor(columnNum[0] / 2);
@@ -313,6 +311,7 @@ public class BlockManager : MonoBehaviour
                     blockPosThirdIndex++;
                 }
             }
+            blockGenerateNow = true;
 
             //colliderをアクティブ(Ray接触対策)
             yield return null;
@@ -323,9 +322,8 @@ public class BlockManager : MonoBehaviour
             //---------------------------------------------
             //一列下げる
             //---------------------------------------------
-            generateEnd = false;
             StartCoroutine(LineDown());
-            yield return new WaitUntil(() => generateEnd == true);
+            yield return new WaitWhile(() => blockGenerateNow == true);
             yield return new WaitForSeconds(0.5f);  //0.5秒遅延
 
             //ブロック最大ライン数更新
@@ -390,7 +388,7 @@ public class BlockManager : MonoBehaviour
             }
             yield return new WaitForSeconds(oneFrameTime);
         }
-        generateEnd = true;
+        blockGenerateNow = false;
     }
 
     //========================================================================
@@ -482,7 +480,7 @@ public class BlockManager : MonoBehaviour
         float throwblockPosX = blockTra[throwBlockIndex].anchoredPosition.x;
         int refPatNum = (generatePattern == 0) ? 1 : 0;
         int arrangementColumnIndex = 0;
-        float provisionalPosX = canvasWidth;
+        float provisionalPosX = CANVAS_WIDTH;
         int index = 0;
         foreach (Vector2 refPos in blockPos[refPatNum][1])
         {
@@ -878,10 +876,9 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     float BlockFallStart(int objIndex, float fallSpeed, float acceleRate, float fallTarget)
     {
-        Vector2 nowPos    = blockTra[objIndex].anchoredPosition;
-        Vector2 targetPos = new Vector2(nowPos.x, fallTarget);
+        Vector2 targetPos = new Vector2(blockTra[objIndex].anchoredPosition.x, fallTarget);
         StartCoroutine(MoveMovement(blockTra[objIndex], fallSpeed, acceleRate, targetPos));
-        return GetMoveTime(fallSpeed, acceleRate, nowPos, targetPos);
+        return GetMoveTime(blockTra[objIndex], fallSpeed, acceleRate, targetPos);
     }
 
     //========================================================================
@@ -902,20 +899,49 @@ public class BlockManager : MonoBehaviour
         }
 
         //10個以上消した場合
-        if (objIndex.Length >= 10) StartCoroutine(EraseTenBlocks());
+        if (objIndex.Length >= 10) StartCoroutine(speHamScr.EraseTenBlocks());
 
         //ブロック全消し判定
         if (blockObj.Count == 0) StartCoroutine(EraseAllBlocks());
     }
 
     //========================================================================
-    //ブロック10以上同時に削除
+    //ブロック収穫(スペシャルハムスター)
     //========================================================================
-    IEnumerator EraseTenBlocks()
+    //obj; 収穫オブジェクト
+    //========================================================================
+    public void BlockHarvest(GameObject obj)
     {
-        Debug.Log("10個消し");
-        yield return null;
+        //収穫オブジェクトの番号取得
+        int conObjIndex = blockObj.IndexOf(obj);
+        if (conObjIndex >= 0)
+        {
+            //現在の投擲ブロック取得
+            GameObject nowThrowBlockObj     = blockObj[throwBlockIndex];
+            GameObject nowNextThrowBlockObj = blockObj[nextThrowBlockIndex];
 
+            //エフェクト生成
+            GameObject    effObj = Instantiate(effectPre);
+            RectTransform effTra = effObj.GetComponent<RectTransform>();
+            effTra.SetParent(blockBoxTra, false);
+            int[] effPos = blockPosIndex[conObjIndex];
+            effTra.anchoredPosition = blockPos[effPos[0]][effPos[1]][effPos[2]];
+
+            //ブロック削除
+            BlockDelete(new int[] { conObjIndex });
+
+            //クリア判定
+            if (GAME_CLEAR)
+            {
+                StartCoroutine(ShootModeMan.GameClear());
+            }
+            else
+            {
+                //投擲ブロック番号更新
+                throwBlockIndex     = blockObj.IndexOf(nowThrowBlockObj);
+                nextThrowBlockIndex = blockObj.IndexOf(nowNextThrowBlockObj);
+            }
+        }
     }
 
     //========================================================================
@@ -943,8 +969,9 @@ public class BlockManager : MonoBehaviour
             }
         }
         nowLineNum = maxLineNumber;
+        speHamScr.lowestLinePosY = blockPos[0][nowLineNum][0].y;
 
         //ゲームオーバー
-        if(BLOCK_MAX_LINE_NUM <= nowLineNum + 1) StartCoroutine(ShootModeMan.GameOver());
+        if (BLOCK_MAX_LINE_NUM <= nowLineNum + 1) StartCoroutine(ShootModeMan.GameOver());
     }
 }

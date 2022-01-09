@@ -31,6 +31,7 @@ TagManager:
   - BlockManager
   - UpperLimit
   - NextBlockBoard
+  - SpecialHamster
   layers:
   - Default
   - TransparentFX

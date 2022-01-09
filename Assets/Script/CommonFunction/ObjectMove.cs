@@ -8,6 +8,12 @@ namespace MoveFunction
     public class ObjectMove : MonoBehaviour
     {
         //========================================================================
+        //定数
+        //========================================================================
+        public static bool SCALING_INFINITE_END       = false;  //拡縮無限再生終了フラグ
+        public static bool COLOR_CHANGE_INFINITE_END  = false;  //2色点滅無限再生終了フラグ
+
+        //========================================================================
         //揺れる動作
         //========================================================================
         //tra;        動作オブジェクトのRectTransform
@@ -103,7 +109,7 @@ namespace MoveFunction
         //========================================================================
         //tra;        動作オブジェクトのRectTransform
         //moveSpeed;  動作速度
-        //acceleRate; 加速率
+        //acceleRate; 加速率(等速移動は1.0f指定)
         //targetPos;  目標座標
         //========================================================================
         public static IEnumerator MoveMovement(RectTransform tra, float moveSpeed, float acceleRate, Vector2 targetPos)
@@ -134,30 +140,43 @@ namespace MoveFunction
         //========================================================================
         //移動動作(MoveMovement)に要する時間計算
         //========================================================================
+        //tra;        動作オブジェクトのRectTransform
         //moveSpeed;  動作速度
-        //acceleRate; 加速率
-        //startPos;   開始座標
+        //acceleRate; 加速率(等速移動は1.0f指定)
         //targetPos;  目標座標
-        //return;     所要時間
         //========================================================================
-        public static float GetMoveTime(float moveSpeed, float acceleRate, Vector2 startPos, Vector2 targetPos)
+        public static float GetMoveTime(RectTransform tra, float moveSpeed, float acceleRate, Vector2 targetPos)
         {
-            float moveTime     = 0.0f;   //移動時間
-            float oneFrameTime = 0.02f;  //1フレームの時間
-            float offset       = 0.5f;   //停止場所のオフセット
-            float distanceX    = Mathf.Abs(targetPos.x - startPos.x) - offset;               //移動距離X
-            float distanceY    = Mathf.Abs(targetPos.y - startPos.y) - offset;               //移動距離Y
-            float moveDistance = Mathf.Sqrt(distanceX * distanceX + distanceY * distanceY);  //実移動距離
+            //クローン作製
+            RectTransform cloneTra = CloneCreate(tra);
 
-            //計算
+            //時間計算用
+            float oneFrameTime = 0.02f;
+            float moveTime     = 0.0f;
+
+            float offset   = 0.5f;                 //停止場所のオフセット
+            Vector2 nowPos = cloneTra.anchoredPosition; //現在の座標
+            bool sideways  = Mathf.Abs(targetPos.x - nowPos.x) >= Mathf.Abs(targetPos.y - nowPos.y); //X方向に動作？
             while (true)
             {
-                moveSpeed    *= acceleRate;
-                moveDistance -= moveSpeed;
-                moveTime     += oneFrameTime;
-                if (moveDistance <= 0) break;
+                moveTime  += oneFrameTime;
+                moveSpeed *= acceleRate;
+                cloneTra.anchoredPosition = Vector2.MoveTowards(cloneTra.anchoredPosition, targetPos, moveSpeed);
+                nowPos = cloneTra.anchoredPosition;
+
+                //---------------------------------------------
+                //移動終了
+                //---------------------------------------------
+                if ((sideways && targetPos.x - offset <= nowPos.x && nowPos.x <= targetPos.x + offset) ||
+                    (!sideways && targetPos.y - offset <= nowPos.y && nowPos.y <= targetPos.y + offset))
+                {
+                    cloneTra.anchoredPosition = targetPos;
+                    break;
+                }
             }
-            return moveTime;
+
+            Destroy(cloneTra.gameObject);  //クローン削除
+            return moveTime;               //時間を返す
         }
 
 
@@ -395,11 +414,10 @@ namespace MoveFunction
         //scalingSpeed; 拡縮速度
         //changeScale;  変更時の拡大率
         //endScale;     終了時の拡大率
-        //scalingTimes; 拡縮回数
+        //scalingTimes; 拡縮回数(配列1周で1カウント、-1指定で無限再生)
         //========================================================================
         public static IEnumerator ScaleChange(RectTransform tra, Vector3 scalingSpeed, float changeScale, float endScale, int scalingTimes)
         {
-
             Vector3 nowScale = tra.localScale;          //現在の拡大率
             float judgeAxis  = 0.0f;                    //判定軸
             bool scaleChange = true;                    //変更動作中？
@@ -423,8 +441,9 @@ namespace MoveFunction
             }
             bool scaleUp = changeScale > judgeAxis;
 
-
-            for (int loopTimes = 0; loopTimes < scalingTimes; loopTimes++)
+            bool infinite = scalingTimes < 0;
+            int loopTimes = 0;
+            while (infinite || loopTimes < scalingTimes)
             {
                 while (true)
                 {
@@ -458,6 +477,14 @@ namespace MoveFunction
                 //変数リセット
                 tra.localScale = Vector3.one * endScale;
                 scaleChange = true;
+
+                //無限再生終了判定
+                if (infinite && SCALING_INFINITE_END)
+                {
+                    SCALING_INFINITE_END = false;
+                    break;
+                }
+                loopTimes++;
             }
         }
 
@@ -469,7 +496,7 @@ namespace MoveFunction
         //scalingSpeed; 拡縮速度
         //changeScale;  変更時の拡大率
         //endScale;     終了時の拡大率
-        //scalingTimes; 拡縮回数
+        //scalingTimes; 拡縮回数(※0未満の場合は戻り値0.0f)
         //========================================================================
         public static float GetScaleChangeTime(RectTransform tra, Vector3 scalingSpeed, float changeScale, float endScale, int scalingTimes)
         {
@@ -539,18 +566,16 @@ namespace MoveFunction
         //ima;          変更対象Image
         //tex;          変更対象Text
         //changeSpeed;  変更速度
-        //colArray;     変更色の配列
+        //colArray;     変更色の配列(0:現在の色)
         //compArray;    比較番号指定配列(0:R 1:G 2:B 3:A)
         //chengeCount;  ループ回数(配列1周で1カウント、-1指定で無限再生)
         //========================================================================
-        //changeEnd;    点滅停止
-        //========================================================================
-        public static bool changeEnd = false;
         public static IEnumerator PaletteChange(Image ima, Text tex, float changeSpeed, Color[] colArray, int[] compArray, int chengeCount)
         {
             float oneFrameTime = 0.02f;            //1フレーム時間
             int loopTimes      = 0;                //繰り返し回数
             int colCount       = colArray.Length;  //変更色の数
+            bool infinite      = chengeCount < 0;  //無限ループ？
 
             int nowIndex  = 0;    //現在の色
             int nextIndex = 1;    //次の色
@@ -562,7 +587,7 @@ namespace MoveFunction
                 //-------------------------
                 //Image
                 //-------------------------
-                while (!changeEnd)
+                while (infinite || loopTimes < chengeCount)
                 {
                     ima.color = Color.Lerp(ima.color, colArray[nextIndex], changeSpeed);
                     float nowCompCol = ima.color[compArray[nowIndex]];
@@ -572,8 +597,14 @@ namespace MoveFunction
                         nextIndex = (nextIndex + 1 >= colCount) ? 0 : nextIndex + 1;
                         nextCompCol = colArray[nextIndex][compArray[nowIndex]];
                         loopTimes++;
+
+                        //無限ループ終了判定
+                        if (infinite && COLOR_CHANGE_INFINITE_END && nowIndex == 0)
+                        {
+                            COLOR_CHANGE_INFINITE_END = false;
+                            break;
+                        }
                     }
-                    if (chengeCount >= 0 && loopTimes >= chengeCount) break;
                     yield return new WaitForSecondsRealtime(oneFrameTime);
                 }
             }
@@ -582,7 +613,7 @@ namespace MoveFunction
                 //-------------------------
                 //Text
                 //-------------------------
-                while (!changeEnd)
+                while (infinite || loopTimes < chengeCount)
                 {
                     tex.color = Color.Lerp(tex.color, colArray[nextIndex], changeSpeed);
                     float nowCompCol = tex.color[compArray[nowIndex]];
@@ -592,12 +623,17 @@ namespace MoveFunction
                         nextIndex = (nextIndex + 1 >= colCount) ? 0 : nextIndex + 1;
                         nextCompCol = colArray[nextIndex][compArray[nowIndex]];
                         loopTimes++;
+
+                        //無限ループ終了判定
+                        if (infinite && COLOR_CHANGE_INFINITE_END && nowIndex == 0)
+                        {
+                            COLOR_CHANGE_INFINITE_END = false;
+                            break;
+                        }
                     }
-                    if (chengeCount >= 0 && loopTimes >= chengeCount) break;
                     yield return new WaitForSecondsRealtime(oneFrameTime);
                 }
             }
-            changeEnd = false;
         }
 
 
@@ -608,9 +644,9 @@ namespace MoveFunction
         //========================================================================
         public static RectTransform CloneCreate(RectTransform tra)
         {
-            GameObject clone = GameObject.Instantiate(tra.gameObject) as GameObject;
+            GameObject clone       = GameObject.Instantiate(tra.gameObject) as GameObject;
             RectTransform cloneTra = clone.GetComponent<RectTransform>();
-            Transform parentTra = tra.parent.gameObject.transform;
+            Transform parentTra    = tra.parent.gameObject.transform;
             cloneTra.SetParent(parentTra, false);
             cloneTra.localRotation = tra.localRotation;
             return cloneTra;
