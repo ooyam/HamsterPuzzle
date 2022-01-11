@@ -56,7 +56,7 @@ namespace ShootMode
             line      = GetComponent<LineRenderer>();
             mainCamra = Camera.main;
 
-            differenceY    = CANVAS_HIGH / 2.0f;
+            differenceY    = CANVAS_HEIGHT / 2.0f;
             differenceX    = CANVAS_WIDTH / 2.0f;
             magnification  = CANVAS_WIDTH / Screen.width;
             hamsterPosX    = tra.anchoredPosition.x;

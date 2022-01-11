@@ -59,8 +59,8 @@ namespace ShootMode
             //íËêîê›íË
             BLOCK_GENERATE_TIME = blickGenerateTime;
             RectTransform canvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
-            CANVAS_WIDTH = canvasTra.sizeDelta.x;
-            CANVAS_HIGH  = canvasTra.sizeDelta.y;
+            CANVAS_WIDTH  = canvasTra.sizeDelta.x;
+            CANVAS_HEIGHT = canvasTra.sizeDelta.y;
 
             //BGMäJén
             int bgmIndex = 1;

@@ -20,7 +20,7 @@ namespace ShootMode
         public static int   BLOCK_MAX_LINE_NUM  = 12;     //ブロック最大数
         public static float BLOCK_GENERATE_TIME = 20.0f;  //ブロック生成時間
         public static float CANVAS_WIDTH;                 //Canvas幅
-        public static float CANVAS_HIGH;                  //Canvas高さ
+        public static float CANVAS_HEIGHT;                //Canvas高さ
 
         //各フラグ
         public static bool GAME_START      = false;  //ゲーム開始？

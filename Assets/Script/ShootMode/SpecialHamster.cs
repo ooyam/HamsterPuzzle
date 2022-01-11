@@ -13,6 +13,10 @@ public class SpecialHamster : MonoBehaviour
     [SerializeField]
     RectTransform blockBoxTra;
 
+    [Header("全消しフィーバー開始プレハブ")]
+    [SerializeField]
+    GameObject feverStartPre;
+
     [Header("ハムスタースプライト")]
     [SerializeField]
     Sprite[] hamsterSprite;   //0:通常 1:上を向く 2:横向き
@@ -191,7 +195,6 @@ public class SpecialHamster : MonoBehaviour
             endTime  = mvoeTime;
 
             //移動開始
-            //StartCoroutine(ShakeMovement(tra, rotSpeed, maxRot, moveCount, stopTime, breakCount, endTime));
             StartCoroutine(MoveMovement(tra, moveSpeed, acceleRate, defaultPos));
             yield return new WaitForSeconds(mvoeTime);
 
@@ -216,6 +219,28 @@ public class SpecialHamster : MonoBehaviour
             float delayTime    = 0.0f;     //移動間の遅延時間
             StartCoroutine(SlideShakeMovement(tra, shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime));
         }
+    }
+
+    //========================================================================
+    //フィーバー開始(全消し)
+    //========================================================================
+    IEnumerator FeverStart()
+    {
+        //フィーバー開始オブジェクト生成
+        GameObject feverObj    = Instantiate(feverStartPre);
+        RectTransform feverTra = feverObj.GetComponent<RectTransform>();
+        feverTra.SetParent(blockBoxTra, false);
+        float tragetPosY = CANVAS_HEIGHT / 2.0f;
+        feverTra.anchoredPosition = new Vector2(0.0f, -tragetPosY);
+
+        //オブジェクト上昇設定
+        float moveSpeed   = 12.0f;
+        float acceleRate  = 1.0f;
+        Vector2 targetPos = new Vector2(0.0f, tragetPosY);
+        float mvoeTime    = GetMoveTime(feverTra, moveSpeed, acceleRate, targetPos);
+        StartCoroutine(MoveMovement(feverTra, moveSpeed, acceleRate, targetPos));
+        yield return new WaitForSeconds(mvoeTime);
+
     }
 
     //========================================================================
