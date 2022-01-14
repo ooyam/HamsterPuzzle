@@ -32,6 +32,7 @@ TagManager:
   - UpperLimit
   - NextBlockBoard
   - SpecialHamster
+  - Basket
   layers:
   - Default
   - TransparentFX

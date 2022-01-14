@@ -2016,8 +2016,8 @@ RectTransform:
   - {fileID: 566368831}
   - {fileID: 1144189542}
   - {fileID: 1659272814}
-  - {fileID: 456433135}
   - {fileID: 676138442}
+  - {fileID: 456433135}
   - {fileID: 615575450}
   m_Father: {fileID: 846656993}
   m_RootOrder: 1
@@ -2250,7 +2250,7 @@ RectTransform:
   m_Children:
   - {fileID: 1101590687}
   m_Father: {fileID: 387283806}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.85}
   m_AnchorMax: {x: 1, y: 1}
@@ -3160,7 +3160,7 @@ RectTransform:
   - {fileID: 663162768}
   - {fileID: 1272146150}
   m_Father: {fileID: 387283806}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0.17}
@@ -5609,7 +5609,7 @@ GameObject:
   - component: {fileID: 1231553351}
   m_Layer: 5
   m_Name: HamsterBox
-  m_TagString: Untagged
+  m_TagString: Hamster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9867,6 +9867,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backGroundTra: {fileID: 387283806}
+  feverPre: {fileID: 4791005486498556496, guid: a5df19e6e63cce64b85858bd19cebcf8,
+    type: 3}
   gameOverObjPre: {fileID: 1113682842864230541, guid: f78667f1ffd8b494ea829e0a887ade7e,
     type: 3}
   gameClearObjPre: {fileID: 8561134552041918123, guid: 62c23d683d54477469eaf7ddd1948357,

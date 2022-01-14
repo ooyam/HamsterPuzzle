@@ -27,6 +27,7 @@ namespace ShootMode
         public static bool GAME_OVER       = false;  //ゲームオーバー？
         public static bool GAME_CLEAR      = false;  //ゲームクリア？
         public static bool SPECIAL_HARVEST = false;  //スペシャルハムスター動作中？
+        public static bool FEVER_START     = false;  //フィーバー動作中？
 
         //フラグリセット
         public static void FlagReset()

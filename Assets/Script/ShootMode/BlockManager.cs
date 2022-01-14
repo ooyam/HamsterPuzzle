@@ -83,8 +83,8 @@ public class BlockManager : MonoBehaviour
         float blockRadius = blockDiameter / 2.0f;　//ブロック半径
         blockBoxHight     = blockBoxTra.rect.height;
         blockPosFixY      = blockBoxHight / 2.0f + blockRadius;
-        float[] posXFix = new float[] { (columnNum[0] - 1) * blockRadius, (columnNum[1] - 1) * blockRadius };
-        int patternNum = columnNum.Length;
+        float[] posXFix   = new float[] { (columnNum[0] - 1) * blockRadius, (columnNum[1] - 1) * blockRadius };
+        int patternNum    = columnNum.Length;
         blockPos = new Vector2[patternNum][][];
         for (int ind_1 = 0; ind_1 < patternNum; ind_1++)
         {
@@ -902,7 +902,8 @@ public class BlockManager : MonoBehaviour
         if (objIndex.Length >= 10) StartCoroutine(speHamScr.EraseTenBlocks());
 
         //ブロック全消し判定
-        if (blockObj.Count == 0) StartCoroutine(EraseAllBlocks());
+        if (blockObj.Count == 1) ShootModeMan.Fever();
+        ShootModeMan.Fever();//テスト
     }
 
     //========================================================================
@@ -945,12 +946,40 @@ public class BlockManager : MonoBehaviour
     }
 
     //========================================================================
-    //ブロック全消し
+    //ブロックランダム生成落下(フィーバー開始)
     //========================================================================
-    IEnumerator EraseAllBlocks()
+    public IEnumerator FeverStrat(FeverHamuster ferverHumScr)
     {
-        Debug.Log("全消し");
-        yield return null;
+        //フィーバー時間
+        float feverTime   = UnityEngine.Random.Range(10.0f, 15.0f);
+        float elapsedTime = 0.0f;
+
+        while (feverTime > elapsedTime)
+        {
+            //ブロックランダム生成
+            float maxRange             = CANVAS_WIDTH / 2.0f;
+            float fallStartPosX        = UnityEngine.Random.Range(-maxRange, maxRange);
+            Vector2 fallStartPos       = new Vector2(fallStartPosX, blockBoxHight);
+            Vector2 fallEndPos         = new Vector2(fallStartPosX, -CANVAS_HEIGHT / 2.0f);
+            GameObject blockObject     = Instantiate(blockPre[UnityEngine.Random.Range(0, usingVegNum)]);
+            RectTransform blockRectTra = blockObject.GetComponent<RectTransform>();
+            blockRectTra.SetParent(blockBoxTra, false);
+            blockRectTra.SetSiblingIndex(0);
+            blockRectTra.anchoredPosition = fallStartPos;
+
+            //落下設定
+            float fallSpeed    = -5.0f;    //移動速度
+            float acceleRate   = 1.1f;     //移動速度の加速率
+            StartCoroutine(MoveMovement(blockRectTra, fallSpeed, acceleRate, fallEndPos));
+
+            //ブロック生成スパン
+            float generateTime = UnityEngine.Random.Range(0.05f, 0.2f);
+            yield return new WaitForSeconds(generateTime);
+            elapsedTime += generateTime;
+        }
+
+        //ハムスター元の位置へ
+        StartCoroutine(ferverHumScr.ReturnFirstPosition());
     }
 
     //========================================================================

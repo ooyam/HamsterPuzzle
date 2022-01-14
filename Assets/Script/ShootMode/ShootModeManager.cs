@@ -13,6 +13,10 @@ namespace ShootMode
         [SerializeField]
         RectTransform backGroundTra;
 
+        [Header("全消しフィーバーハムスタープレハブ")]
+        [SerializeField]
+        GameObject feverPre;
+
         [Header("ゲームオーバープレハブ")]
         [SerializeField]
         GameObject gameOverObjPre;
@@ -67,6 +71,19 @@ namespace ShootMode
             if (stageNum >= 8 && stageNum <= 14) bgmIndex = 2;
             else if (stageNum >= 15) bgmIndex = 3;
             soundManScr.BGM_Start(bgmIndex);
+        }
+
+        //========================================================================
+        //フィーバー
+        //========================================================================
+        public void Fever()
+        {
+            FEVER_START = true;
+
+            //フィーバーオブジェクト生成
+            GameObject feverObj = Instantiate(feverPre);
+            feverObj.GetComponent<RectTransform>().SetParent(backGroundTra, false);
+            StartCoroutine(feverObj.GetComponent<FeverHamuster>().FeverStart());
         }
 
 

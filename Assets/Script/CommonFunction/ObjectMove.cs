@@ -114,6 +114,7 @@ namespace MoveFunction
         //========================================================================
         public static IEnumerator MoveMovement(RectTransform tra, float moveSpeed, float acceleRate, Vector2 targetPos)
         {
+            float minSpeed = 1.0f;                 //最低速度指定(無限ループ対策)
             float offset   = 0.5f;                 //停止場所のオフセット
             Vector2 nowPos = tra.anchoredPosition; //現在の座標
             bool sideways  = Mathf.Abs(targetPos.x - nowPos.x) >= Mathf.Abs(targetPos.y - nowPos.y); //X方向に動作？
@@ -121,6 +122,8 @@ namespace MoveFunction
             {
                 yield return new WaitForFixedUpdate();
                 moveSpeed *= acceleRate;
+                if (0.0f <= moveSpeed && moveSpeed < minSpeed) moveSpeed = minSpeed;
+                else if (-minSpeed < moveSpeed && moveSpeed <= 0.0f) moveSpeed = -minSpeed;
                 tra.anchoredPosition = Vector2.MoveTowards(tra.anchoredPosition, targetPos, moveSpeed);
                 nowPos = tra.anchoredPosition;
 
@@ -154,13 +157,16 @@ namespace MoveFunction
             float oneFrameTime = 0.02f;
             float moveTime     = 0.0f;
 
-            float offset   = 0.5f;                 //停止場所のオフセット
+            float minSpeed = 1.0f;                      //最低速度指定(無限ループ対策)
+            float offset   = 0.5f;                      //停止場所のオフセット
             Vector2 nowPos = cloneTra.anchoredPosition; //現在の座標
             bool sideways  = Mathf.Abs(targetPos.x - nowPos.x) >= Mathf.Abs(targetPos.y - nowPos.y); //X方向に動作？
             while (true)
             {
                 moveTime  += oneFrameTime;
                 moveSpeed *= acceleRate;
+                if (0.0f <= moveSpeed && moveSpeed < minSpeed) moveSpeed = minSpeed;
+                else if (-minSpeed < moveSpeed && moveSpeed <= 0.0f) moveSpeed = -minSpeed;
                 cloneTra.anchoredPosition = Vector2.MoveTowards(cloneTra.anchoredPosition, targetPos, moveSpeed);
                 nowPos = cloneTra.anchoredPosition;
 

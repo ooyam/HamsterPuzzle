@@ -13,10 +13,6 @@ public class SpecialHamster : MonoBehaviour
     [SerializeField]
     RectTransform blockBoxTra;
 
-    [Header("全消しフィーバー開始プレハブ")]
-    [SerializeField]
-    GameObject feverStartPre;
-
     [Header("ハムスタースプライト")]
     [SerializeField]
     Sprite[] hamsterSprite;   //0:通常 1:上を向く 2:横向き
@@ -61,56 +57,59 @@ public class SpecialHamster : MonoBehaviour
     //========================================================================
     public IEnumerator EraseTenBlocks()
     {
-        //拡縮設定
-        float scalingSpeed   = 0.005f;  //拡大率変更速度
-        float changeScale    = 1.05f;   //変更時の拡大率
-        float endScale       = 1.0f;    //終了時の拡大率
-
-        //点滅設定
-        float colouringSpeed = 0.1f;    //点滅速度
-        Color filterOn       = new Color(1.0f, 1.0f, 1.0f, 192.0f / 255.0f);   //フィルター白
-        Color filterOff      = new Color(1.0f, 1.0f, 1.0f, 0.0f);              //フィルター透明
-
-        //動作開始
-        specialAvailable = true;
-        float nowScale   = tra.localScale.x;
-        bool change      = true;
-        while (specialAvailable)
+        if (!specialAvailable)
         {
-            while (true)
+            //拡縮設定
+            float scalingSpeed = 0.005f;  //拡大率変更速度
+            float changeScale  = 1.05f;   //変更時の拡大率
+            float endScale     = 1.0f;    //終了時の拡大率
+
+            //点滅設定
+            float colouringSpeed = 0.1f;    //点滅速度
+            Color filterOn       = new Color(1.0f, 1.0f, 1.0f, 192.0f / 255.0f);   //フィルター白
+            Color filterOff      = new Color(1.0f, 1.0f, 1.0f, 0.0f);              //フィルター透明
+
+            //動作開始
+            specialAvailable = true;
+            float nowScale   = tra.localScale.x;
+            bool change      = true;
+            while (specialAvailable)
             {
-                yield return new WaitForFixedUpdate();
-                if (change)
+                while (true)
                 {
-                    //拡大
-                    if (nowScale >= changeScale) change = false;
-                    tra.localScale = Vector3.MoveTowards(tra.localScale, Vector3.one * changeScale, scalingSpeed);
+                    yield return new WaitForFixedUpdate();
+                    if (change)
+                    {
+                        //拡大
+                        if (nowScale >= changeScale) change = false;
+                        tra.localScale = Vector3.MoveTowards(tra.localScale, Vector3.one * changeScale, scalingSpeed);
 
-                    //フィルター白
-                    filterIma.color = Color.Lerp(filterIma.color, filterOn, colouringSpeed);
+                        //フィルター白
+                        filterIma.color = Color.Lerp(filterIma.color, filterOn, colouringSpeed);
+                    }
+                    else
+                    {
+                        //縮小
+                        if (nowScale <= endScale) break;
+                        tra.localScale = Vector3.MoveTowards(tra.localScale, Vector3.one * endScale, scalingSpeed);
+
+                        //フィルター透明
+                        filterIma.color = Color.Lerp(filterIma.color, filterOff, colouringSpeed);
+                    }
+
+                    //現在の拡大率更新
+                    nowScale = tra.localScale.x;
                 }
-                else
-                {
-                    //縮小
-                    if (nowScale <= endScale) break;
-                    tra.localScale = Vector3.MoveTowards(tra.localScale, Vector3.one * endScale, scalingSpeed);
 
-                    //フィルター透明
-                    filterIma.color = Color.Lerp(filterIma.color, filterOff, colouringSpeed);
-                }
-
-                //現在の拡大率更新
-                nowScale = tra.localScale.x;
+                //リセット
+                tra.localScale  = Vector3.one * endScale;
+                filterIma.color = filterOff;
+                change = true;
             }
 
-            //リセット
-            tra.localScale  = Vector3.one * endScale;
-            filterIma.color = filterOff;
-            change = true;
+            //収穫開始
+            specialHavestNow = true;
         }
-
-        //収穫開始
-        specialHavestNow = true;
     }
 
     //========================================================================
@@ -127,7 +126,7 @@ public class SpecialHamster : MonoBehaviour
             yield return new WaitWhile(() => blockMan.blockChangeNow == true);   //投擲ブロック切り替え
 
             //収穫開始
-            SPECIAL_HARVEST = true;
+            SPECIAL_HARVEST  = true;
             specialAvailable = false;
             yield return new WaitUntil(() => specialHavestNow == true);
 
@@ -222,35 +221,16 @@ public class SpecialHamster : MonoBehaviour
     }
 
     //========================================================================
-    //フィーバー開始(全消し)
-    //========================================================================
-    IEnumerator FeverStart()
-    {
-        //フィーバー開始オブジェクト生成
-        GameObject feverObj    = Instantiate(feverStartPre);
-        RectTransform feverTra = feverObj.GetComponent<RectTransform>();
-        feverTra.SetParent(blockBoxTra, false);
-        float tragetPosY = CANVAS_HEIGHT / 2.0f;
-        feverTra.anchoredPosition = new Vector2(0.0f, -tragetPosY);
-
-        //オブジェクト上昇設定
-        float moveSpeed   = 12.0f;
-        float acceleRate  = 1.0f;
-        Vector2 targetPos = new Vector2(0.0f, tragetPosY);
-        float mvoeTime    = GetMoveTime(feverTra, moveSpeed, acceleRate, targetPos);
-        StartCoroutine(MoveMovement(feverTra, moveSpeed, acceleRate, targetPos));
-        yield return new WaitForSeconds(mvoeTime);
-
-    }
-
-    //========================================================================
     //接触判定
     //========================================================================
     void OnTriggerEnter2D(Collider2D col)
     {
-        GameObject connectObj = col.gameObject;
-        string connectObjTag  = connectObj.tag;
-        int tagIndex = Array.IndexOf(blockTag, connectObjTag);
-        if (0 <= tagIndex) blockMan.BlockHarvest(connectObj);
+        if (SPECIAL_HARVEST)
+        {
+            GameObject connectObj = col.gameObject;
+            string connectObjTag = connectObj.tag;
+            int tagIndex = Array.IndexOf(blockTag, connectObjTag);
+            if (0 <= tagIndex) blockMan.BlockHarvest(connectObj);
+        }
     }
 }
