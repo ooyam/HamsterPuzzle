@@ -13,7 +13,10 @@ namespace ShootMode
         RectTransform tra;                 //RectTransform
         Image ima;                         //Image
         LineRenderer line;                 //LineRenderer
+        Renderer ren;                      //Renderer
         Camera mainCamra;                  //MainCamera
+        [System.NonSerialized]
+        public Color nowBlockColor;        //投擲ブロックの色
 
         [Header("Sprite")]
         public Sprite[] hamsterSprite;    //0:通常(右向き) 1:反転(左向き)
@@ -54,15 +57,16 @@ namespace ShootMode
             tra       = GetComponent<RectTransform>();
             ima       = GetComponent<Image>();
             line      = GetComponent<LineRenderer>();
+            ren       = GetComponent<Renderer>();
             mainCamra = Camera.main;
 
-            differenceY    = CANVAS_HEIGHT / 2.0f;
-            differenceX    = CANVAS_WIDTH / 2.0f;
-            magnification  = CANVAS_WIDTH / Screen.width;
-            hamsterPosX    = tra.anchoredPosition.x;
-            blockBoxSize   = blockBoxTra.rect;
-            topLimit  = blockBoxSize.height / 2.0f + blockBoxTra.anchoredPosition.y - posY;
-            sideLimit = new float[] { blockBoxSize.width / 2.0f - hamsterPosX, -blockBoxSize.width / 2.0f - hamsterPosX };
+            differenceY   = CANVAS_HEIGHT / 2.0f;
+            differenceX   = CANVAS_WIDTH  / 2.0f;
+            magnification = CANVAS_WIDTH  / Screen.width;
+            hamsterPosX   = tra.anchoredPosition.x;
+            blockBoxSize  = blockBoxTra.rect;
+            topLimit      = blockBoxSize.height / 2.0f + blockBoxTra.anchoredPosition.y - posY;
+            sideLimit     = new float[] { blockBoxSize.width / 2.0f - hamsterPosX, -blockBoxSize.width / 2.0f - hamsterPosX };
 
             //ブロックタグ取得
             System.Array vegetableType = Enum.GetValues(typeof(VegetableType));
@@ -76,9 +80,11 @@ namespace ShootMode
         //========================================================================
         void FixedUpdate()
         {
+            //ゲーム中？
             if (GAME_START && !GAME_OVER && !GAME_CLEAR)
             {
-                if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow && !SPECIAL_HARVEST && !setting)
+                //特定の動作中？
+                if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow && !SPECIAL_HARVEST && !FEVER_START && !setting)
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
@@ -88,6 +94,7 @@ namespace ShootMode
                         if (!(hit2d && Array.IndexOf(noThrowTag, hit2d.transform.gameObject.tag) >= 0))
                         {
                             tapStart = true;
+                            ren.material.color = new Color(nowBlockColor.r, nowBlockColor.g, nowBlockColor.b, 1.0f);
                         }
                     }
                     if (tapStart)
@@ -281,10 +288,12 @@ namespace ShootMode
         //========================================================================
         void DrawLine(Vector3[] linePos)
         {
-            line.positionCount = linePos.Length;
+            int posCpunt       = linePos.Length;
+            line.positionCount = posCpunt;
             line.startWidth    = 20.0f;
             line.endWidth      = 20.0f;
             line.SetPositions(linePos);
+            ren.material.mainTextureScale = new Vector2(10.0f * posCpunt, 1.0f);
         }
     }
 }

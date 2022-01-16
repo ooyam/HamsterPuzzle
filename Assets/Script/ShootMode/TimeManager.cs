@@ -30,22 +30,32 @@ public class TimeManager : MonoBehaviour
     //========================================================================
     IEnumerator LineBlockGenerateInterval()
     {
+        float elapsedTime  = 0.0f;
+        float oneFrameTime = 0.02f;
+
         while (!GAME_OVER && !GAME_CLEAR)
         {
-            //待機
-            yield return new WaitForSeconds(BLOCK_GENERATE_TIME);
+            yield return new WaitForFixedUpdate();
 
-            //一部の動作中は終了するまで待機
-            yield return new WaitWhile(() => SPECIAL_HARVEST == true);           //1行収穫中
-            yield return new WaitWhile(() => blockMan.throwNow == true);         //投擲
-            yield return new WaitWhile(() => blockMan.blockDeleteNow == true);   //ブロック削除
-            yield return new WaitWhile(() => blockMan.blockChangeNow == true);   //投擲ブロック切り替え
+            //一部の動作中はカウントストップ(1行収穫中・フィーバー・ブロック削除)
+            if (!SPECIAL_HARVEST && !FEVER_START && !blockMan.blockDeleteNow)
+                elapsedTime += oneFrameTime;
 
-            //ゲーム終了？
-            if (GAME_OVER || GAME_CLEAR) break;
+            //一部の動作中は終了するまで待機(投擲・投擲ブロック切り替え)
+            if (!blockMan.throwNow && !blockMan.blockChangeNow)
+            {
+                if (BLOCK_GENERATE_TIME <= elapsedTime)
+                {
+                    //ゲーム終了？
+                    if (GAME_OVER || GAME_CLEAR) break;
 
-            //1行生成
-            StartCoroutine(blockMan.LineBlockGenerate(1));
+                    //1行生成
+                    StartCoroutine(blockMan.LineBlockGenerate(1));
+
+                    //経過時間リセット
+                    elapsedTime = 0.0f;
+                }
+            }
         }
     }
 }

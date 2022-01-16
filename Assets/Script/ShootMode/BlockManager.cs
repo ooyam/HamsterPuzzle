@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using ShootMode;
+using GFramework;
 using static ShootMode.ShootModeDefine;
 using static ShootMode.ShootModeManager;
 using static MoveFunction.ObjectMove;
@@ -15,11 +16,16 @@ public class BlockManager : MonoBehaviour
     GameObject[] blockPre;
     List<GameObject> blockObj    = new List<GameObject>();       //生成ブロックobject
     List<RectTransform> blockTra = new List<RectTransform>();    //生成ブロックRectTransform
+    List<Rigidbody2D> blockRig   = new List<Rigidbody2D>();      //生成ブロックRigidbody2D
     List<int[]> blockPosIndex    = new List<int[]>();            //生成ブロック座標番号
     List<int> nowDeleteIndex     = new List<int>();              //削除中ブロックのオブジェクト番号リスト
+    [System.NonSerialized]
+    public int fallCompleteCount;                                //落下完了ブロック数
     int throwBlockIndex;                                         //投擲ブロックのリスト番号
     int nextThrowBlockIndex;                                     //次の投擲ブロックのリスト番号
     CircleCollider2D[] blockCollider = new CircleCollider2D[2];  //Collider 0:次投擲ブロック 1:投擲ブロック
+    Color[] blockColor;                                          //ブロックの色
+    string[] blockTag;                                           //ブロックのタグリスト
 
     [Header("シュートモードマネージャー")]
     [SerializeField]
@@ -79,6 +85,16 @@ public class BlockManager : MonoBehaviour
         throwBlockPos[1]  = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
         nextThrowBlockPos = new Vector2(0.0f, -30.0f);
 
+        //ブロックの色取得
+        int blockPreCount = blockPre.Length;
+        blockColor = new Color[blockPreCount];
+        blockTag   = new string[blockPreCount];
+        for (int blockPreInd = 0; blockPreInd < blockPreCount; blockPreInd++)
+        {
+            blockColor[blockPreInd] = blockPre[blockPreInd].transform.GetChild(0).GetComponent<GFramework.SimpleRoundedImage>().color;
+            blockTag[blockPreInd]   = blockPre[blockPreInd].tag;
+        }
+
         //ブロック配置座標指定
         float blockRadius = blockDiameter / 2.0f;　//ブロック半径
         blockBoxHight     = blockBoxTra.rect.height;
@@ -94,8 +110,8 @@ public class BlockManager : MonoBehaviour
                 blockPos[ind_1][ind_2] = new Vector2[columnNum[ind_1]];
                 for (int ind_3 = 0; ind_3 < columnNum[ind_1]; ind_3++)
                 {
-                    float posX = blockDiameter * ind_3 - posXFix[ind_1];                      //X座標計算
-                    float posY = -blockPosY * ind_2 - blockDiameter / 2.0f + blockPosFixY;    //Y座標計算
+                    float posX = blockDiameter * ind_3 - posXFix[ind_1];             //X座標計算
+                    float posY = -blockPosY * ind_2 - blockRadius + blockPosFixY;    //Y座標計算
                     blockPos[ind_1][ind_2][ind_3] = new Vector2(posX, posY);
                 }
             }
@@ -130,6 +146,7 @@ public class BlockManager : MonoBehaviour
         }
         blockObj.Add(blockObject);
         blockTra.Add(blockRectTra);
+        blockRig.Add(blockObject.GetComponent<Rigidbody2D>());
         blockPosIndex.Add(new int[0]);
         return blockTra.Count - 1;
     }
@@ -185,6 +202,8 @@ public class BlockManager : MonoBehaviour
         blockTra[throwBlockIndex].SetSiblingIndex(0);
         blockTra[throwBlockIndex].anchoredPosition = (hamsterScr.spriteDefault) ? throwBlockPos[0] : throwBlockPos[1];
         blockCollider[1] = blockObj[throwBlockIndex].GetComponent<CircleCollider2D>();
+        int prehubInd = Array.IndexOf(blockTag, blockObj[throwBlockIndex].tag);
+        hamsterScr.nowBlockColor = blockColor[prehubInd];
     }
 
     //========================================================================
@@ -192,7 +211,7 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     public void NextThrowBlockTap()
     {
-        if (GAME_START && !GAME_OVER && !throwNow && !blockDeleteNow && !blockChangeNow)
+        if (GAME_START && !FEVER_START && !GAME_OVER && !throwNow && !blockDeleteNow && !blockChangeNow)
             StartCoroutine(ThrowBlockChange());
     }
 
@@ -276,6 +295,7 @@ public class BlockManager : MonoBehaviour
             //一部の動作中は終了するまで待機
             //---------------------------------------------
             yield return new WaitWhile(() => SPECIAL_HARVEST == true);   //1行収穫中
+            yield return new WaitWhile(() => FEVER_START == true);       //フィーバー中
             yield return new WaitWhile(() => throwNow == true);          //投擲
             yield return new WaitWhile(() => blockDeleteNow == true);    //ブロック削除
             yield return new WaitWhile(() => blockChangeNow == true);    //投擲ブロック切り替え
@@ -767,11 +787,6 @@ public class BlockManager : MonoBehaviour
         float delayTime     = 0.0f;     //移動間の遅延時間
         float shakeWaitTime = GetSlideShakeTime(blockTra[0], shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime);  //揺れ待機時間
 
-        //落下設定
-        float fallSpeed     = 5.0f;     //移動速度
-        float acceleRate    = 1.1f;     //移動速度の加速率
-        float moveWaitTime  = 0.0f;     //落下待機時間
-
         //時間差設定
         int nowBlockCount   = blockObj.Count;          //現在のブロックの総数
         int delObjCount     = deleteObjIndex.Length;   //削除ブロック数
@@ -811,8 +826,9 @@ public class BlockManager : MonoBehaviour
                 {
                     if (!fallStart[index] && elapsedTime > fallWait[index])
                     {
+                        blockRig[deleteObjIndex[index]].bodyType = RigidbodyType2D.Dynamic;
+                        blockRig[deleteObjIndex[index]].gravityScale = 1.5f;
                         fallStart[index] = true;
-                        moveWaitTime = BlockFallStart(deleteObjIndex[index], fallSpeed, acceleRate, -blockPosFixY);
                     }
                 }
 
@@ -827,15 +843,14 @@ public class BlockManager : MonoBehaviour
         }
 
         //自由落下ブロック判定
-        yield return new WaitForSeconds(moveWaitTime / 4);
+        yield return new WaitForSeconds(0.2f);
         if (connect) blockDelete = !FreeFallBlockJudgment();
 
         //接触削除時､自由落下ブロックが追加で発生した場合は実施しない
         if (blockDelete)
         {
-            //ブロック削除
-            yield return new WaitForSeconds(moveWaitTime * 3 / 4); //落下待機
-            yield return new WaitForSeconds(0.5f);                 //落下後0.5秒待機
+            //ブロック削除待機
+            yield return new WaitUntil(() => (nowDeleteIndex.Count <= fallCompleteCount) == true);
 
             //次投擲ブロックの保持
             GameObject nextThrowBlockObj = blockObj[nextThrowBlockIndex];
@@ -862,23 +877,10 @@ public class BlockManager : MonoBehaviour
                 //ブロック削除中フラグリセット
                 blockDeleteNow = false;
             }
-        }
-    }
 
-    //========================================================================
-    //ブロック落下
-    //========================================================================
-    //objIndex;     落下ブロック番号
-    //fallSpeed;    落下速度
-    //acceleRate;   速度の加速率
-    //fallTarget;   落下座標
-    //return;       移動所要時間
-    //========================================================================
-    float BlockFallStart(int objIndex, float fallSpeed, float acceleRate, float fallTarget)
-    {
-        Vector2 targetPos = new Vector2(blockTra[objIndex].anchoredPosition.x, fallTarget);
-        StartCoroutine(MoveMovement(blockTra[objIndex], fallSpeed, acceleRate, targetPos));
-        return GetMoveTime(blockTra[objIndex], fallSpeed, acceleRate, targetPos);
+            //落下完了カウントリセット
+            fallCompleteCount = 0;
+        }
     }
 
     //========================================================================
@@ -894,6 +896,7 @@ public class BlockManager : MonoBehaviour
         {
             blockPosIndex.RemoveAt(delInd);
             blockTra.RemoveAt(delInd);
+            blockRig.RemoveAt(delInd);
             Destroy(blockObj[delInd]);
             blockObj.RemoveAt(delInd);
         }
@@ -902,8 +905,8 @@ public class BlockManager : MonoBehaviour
         if (objIndex.Length >= 10) StartCoroutine(speHamScr.EraseTenBlocks());
 
         //ブロック全消し判定
-        if (blockObj.Count == 1) ShootModeMan.Fever();
-        ShootModeMan.Fever();//テスト
+        int nowblockCount = blockObj.Count;
+        if (nowblockCount == 1 || (nowblockCount == 2 && SPECIAL_HARVEST)) ShootModeMan.Fever();
     }
 
     //========================================================================
@@ -951,26 +954,27 @@ public class BlockManager : MonoBehaviour
     public IEnumerator FeverStrat(FeverHamuster ferverHumScr)
     {
         //フィーバー時間
-        float feverTime   = UnityEngine.Random.Range(10.0f, 15.0f);
+        float feverTime   = UnityEngine.Random.Range(5.0f, 10.0f);
         float elapsedTime = 0.0f;
+        int generateCount = 0;
 
         while (feverTime > elapsedTime)
         {
             //ブロックランダム生成
             float maxRange             = CANVAS_WIDTH / 2.0f;
-            float fallStartPosX        = UnityEngine.Random.Range(-maxRange, maxRange);
-            Vector2 fallStartPos       = new Vector2(fallStartPosX, blockBoxHight);
-            Vector2 fallEndPos         = new Vector2(fallStartPosX, -CANVAS_HEIGHT / 2.0f);
+            Vector2 fallStartPos       = new Vector2(UnityEngine.Random.Range(-maxRange, maxRange), blockPosFixY);
             GameObject blockObject     = Instantiate(blockPre[UnityEngine.Random.Range(0, usingVegNum)]);
             RectTransform blockRectTra = blockObject.GetComponent<RectTransform>();
+            Rigidbody2D blockRigi      = blockObject.GetComponent<Rigidbody2D>();
+            CircleCollider2D blockColl = blockObject.GetComponent<CircleCollider2D>();
             blockRectTra.SetParent(blockBoxTra, false);
             blockRectTra.SetSiblingIndex(0);
             blockRectTra.anchoredPosition = fallStartPos;
-
-            //落下設定
-            float fallSpeed    = -5.0f;    //移動速度
-            float acceleRate   = 1.1f;     //移動速度の加速率
-            StartCoroutine(MoveMovement(blockRectTra, fallSpeed, acceleRate, fallEndPos));
+            blockRigi.bodyType     = RigidbodyType2D.Dynamic;
+            blockRigi.gravityScale = 0.5f;
+            blockColl.enabled      = true;
+            blockColl.isTrigger    = false;
+            generateCount++;
 
             //ブロック生成スパン
             float generateTime = UnityEngine.Random.Range(0.05f, 0.2f);
@@ -978,8 +982,20 @@ public class BlockManager : MonoBehaviour
             elapsedTime += generateTime;
         }
 
-        //ハムスター元の位置へ
-        StartCoroutine(ferverHumScr.ReturnFirstPosition());
+        //ブロック削除待機
+        yield return new WaitUntil(() => (generateCount <= fallCompleteCount) == true);
+        yield return new WaitForSeconds(1.0f);
+        fallCompleteCount = 0;
+
+        //クリア判定
+        if (GAME_CLEAR) StartCoroutine(ShootModeMan.GameClear());
+        else
+        {
+            //ブロック3行生成
+            StartCoroutine(LineBlockGenerate(3));
+            //ハムスター元の位置へ
+            StartCoroutine(ferverHumScr.ReturnFirstPosition());
+        }
     }
 
     //========================================================================

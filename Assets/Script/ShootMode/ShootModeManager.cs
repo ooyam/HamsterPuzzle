@@ -78,12 +78,15 @@ namespace ShootMode
         //========================================================================
         public void Fever()
         {
-            FEVER_START = true;
+            if (!FEVER_START)
+            {
+                FEVER_START = true;
 
-            //フィーバーオブジェクト生成
-            GameObject feverObj = Instantiate(feverPre);
-            feverObj.GetComponent<RectTransform>().SetParent(backGroundTra, false);
-            StartCoroutine(feverObj.GetComponent<FeverHamuster>().FeverStart());
+                //フィーバーオブジェクト生成
+                GameObject feverObj = Instantiate(feverPre);
+                feverObj.GetComponent<RectTransform>().SetParent(backGroundTra, false);
+                StartCoroutine(feverObj.GetComponent<FeverHamuster>().FeverStart());
+            }
         }
 
 

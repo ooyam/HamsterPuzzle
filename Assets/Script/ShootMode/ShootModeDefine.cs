@@ -36,6 +36,7 @@ namespace ShootMode
             GAME_OVER       = false;
             GAME_CLEAR      = false;
             SPECIAL_HARVEST = false;
+            FEVER_START     = false;
         }
     }
 }

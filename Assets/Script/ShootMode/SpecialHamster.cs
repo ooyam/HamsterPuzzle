@@ -22,6 +22,7 @@ public class SpecialHamster : MonoBehaviour
     BoxCollider2D coll;      //スペシャルハムスターBoxCollider2D
     RectTransform tra;       //スペシャルハムスターRectTransform
     RectTransform parentTra; //スペシャルハムスターの親オブジェクトのRectTransform
+    Vector2 defaultPos;      //初期座標
 
     [System.NonSerialized]
     public float lowestLinePosY;  //現在の最低ブロック行のY座標
@@ -41,6 +42,7 @@ public class SpecialHamster : MonoBehaviour
         filterIma = tra.GetChild(0).GetComponent<Image>();
         parentTra = tra.parent.GetComponent<RectTransform>();
         GetComponent<Button>().onClick.AddListener(() => StartCoroutine(OneLineHarvest()));
+        defaultPos = tra.anchoredPosition;
 
         //ブロックタグ取得
         System.Array vegetableType = Enum.GetValues(typeof(VegetableType));
@@ -48,8 +50,6 @@ public class SpecialHamster : MonoBehaviour
         foreach (VegetableType value in vegetableType)
         { blockTag[(int)value] = Enum.GetName(typeof(VegetableType), value); }
         blockMan = GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>();
-
-        StartCoroutine(EraseTenBlocks());//テスト
     }
 
     //========================================================================
@@ -117,7 +117,7 @@ public class SpecialHamster : MonoBehaviour
     //========================================================================
     IEnumerator OneLineHarvest()
     {
-        if (specialAvailable)
+        if (specialAvailable && !FEVER_START)
         {
             //一部の動作中は終了するまで待機
             yield return new WaitWhile(() => blockMan.throwNow == true);         //投擲
@@ -131,7 +131,6 @@ public class SpecialHamster : MonoBehaviour
             yield return new WaitUntil(() => specialHavestNow == true);
 
             //現座標・Collider・scale取得
-            Vector2 defaultPos      = tra.anchoredPosition;
             Vector2 defaultCollSize = coll.size;
             Vector2 defaultCollOff  = coll.offset;
             Vector3 defaultScale    = tra.localScale;
@@ -212,11 +211,12 @@ public class SpecialHamster : MonoBehaviour
         {
             //収穫NG動作(左右揺れ)
             float shakeSpeed   = 20.0f;    //移動速度
-            float shakeOffsetX = 20.0f;    //移動座標X
+            float shakeOffsetX = 10.0f;    //移動座標X
             float shakeOffsetY = 0.0f;     //移動座標Y
             int   shakeTimes   = 4;        //揺れ回数
             float delayTime    = 0.0f;     //移動間の遅延時間
             StartCoroutine(SlideShakeMovement(tra, shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime));
+            tra.anchoredPosition = defaultPos;
         }
     }
 
