@@ -51,8 +51,7 @@ public class BlockManager : MonoBehaviour
     SpecialHamster speHamScr;
 
     [Header("エフェクトプレハブ")]
-    [SerializeField]
-    GameObject effectPre;
+    public GameObject effectPre;
 
     int[] columnNum = new int[] { 9, 10 };     //1行の列数
     Vector2[][][] blockPos;                    //ブロック配置座標 0:パターン番号 1:行番号 2:列番号
@@ -63,7 +62,7 @@ public class BlockManager : MonoBehaviour
     [System.NonSerialized]
     public float blockPosY  = 103.8f;          //ブロック生成位置Y
     float[][] blockPosX     = new float[2][];  //ブロック生成位置X
-    Vector2[] throwBlockPos = new Vector2[2];  //投擲ブロック生成座標
+    Vector2[] throwBlockPos = new Vector2[4];  //投擲ブロック生成座標
     Vector2 nextThrowBlockPos;                 //次の投擲ブロック生成座標
     [System.NonSerialized]
     public bool blockGenerateNow;              //生成中？
@@ -83,6 +82,8 @@ public class BlockManager : MonoBehaviour
         usingVegNum = useVegNum;
         throwBlockPos[0]  = new Vector2(70.0f, -10.0f);
         throwBlockPos[1]  = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
+        throwBlockPos[2]  = new Vector2(70.0f, -50.0f);
+        throwBlockPos[3]  = new Vector2(-throwBlockPos[2].x, throwBlockPos[2].y);
         nextThrowBlockPos = new Vector2(0.0f, -30.0f);
 
         //ブロックの色取得
@@ -200,7 +201,7 @@ public class BlockManager : MonoBehaviour
         throwBlockIndex = nextThrowBlockIndex;
         blockTra[throwBlockIndex].SetParent(hamsterBoxTra, false);
         blockTra[throwBlockIndex].SetSiblingIndex(0);
-        blockTra[throwBlockIndex].anchoredPosition = (hamsterScr.spriteDefault) ? throwBlockPos[0] : throwBlockPos[1];
+        blockTra[throwBlockIndex].anchoredPosition = (hamsterScr.spriteNum % 2 == 0) ? throwBlockPos[0] : throwBlockPos[1];
         blockCollider[1] = blockObj[throwBlockIndex].GetComponent<CircleCollider2D>();
         int prehubInd = Array.IndexOf(blockTag, blockObj[throwBlockIndex].tag);
         hamsterScr.nowBlockColor = blockColor[prehubInd];
@@ -295,7 +296,6 @@ public class BlockManager : MonoBehaviour
             //一部の動作中は終了するまで待機
             //---------------------------------------------
             yield return new WaitWhile(() => SPECIAL_HARVEST == true);   //1行収穫中
-            yield return new WaitWhile(() => FEVER_START == true);       //フィーバー中
             yield return new WaitWhile(() => throwNow == true);          //投擲
             yield return new WaitWhile(() => blockDeleteNow == true);    //ブロック削除
             yield return new WaitWhile(() => blockChangeNow == true);    //投擲ブロック切り替え
@@ -788,7 +788,6 @@ public class BlockManager : MonoBehaviour
         float shakeWaitTime = GetSlideShakeTime(blockTra[0], shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime);  //揺れ待機時間
 
         //時間差設定
-        int nowBlockCount   = blockObj.Count;          //現在のブロックの総数
         int delObjCount     = deleteObjIndex.Length;   //削除ブロック数
         float[] indexArray  = new float[delObjCount];  //インデックス番号
         float[] DirectWait  = new float[delObjCount];  //演出開始時間
@@ -803,8 +802,8 @@ public class BlockManager : MonoBehaviour
             directingEnd[index] = false;
             fallStart[index]    = false;
 
-            //子オブジェクトインデックス番号変更
-            blockTra[deleteObjIndex[index]].SetSiblingIndex(nowBlockCount);
+            //子オブジェクトインデックス番号最後尾に変更
+            blockTra[deleteObjIndex[index]].SetSiblingIndex(blockBoxTra.childCount - 1);
         }
 
         int loopTimes     = 0;  //処理回数
@@ -901,12 +900,16 @@ public class BlockManager : MonoBehaviour
             blockObj.RemoveAt(delInd);
         }
 
-        //10個以上消した場合
-        if (objIndex.Length >= 10) StartCoroutine(speHamScr.EraseTenBlocks());
+        //クリアでない場合
+        if (!GAME_CLEAR)
+        {
+            //10個以上消した場合
+            if (objIndex.Length >= 10) StartCoroutine(speHamScr.EraseTenBlocks());
 
-        //ブロック全消し判定
-        int nowblockCount = blockObj.Count;
-        if (nowblockCount == 1 || (nowblockCount == 2 && SPECIAL_HARVEST)) ShootModeMan.Fever();
+            //ブロック全消し判定
+            int nowblockCount = blockObj.Count;
+            if (nowblockCount == 1 || (nowblockCount == 2 && SPECIAL_HARVEST)) ShootModeMan.Fever();
+        }
     }
 
     //========================================================================
@@ -961,7 +964,7 @@ public class BlockManager : MonoBehaviour
         while (feverTime > elapsedTime)
         {
             //ブロックランダム生成
-            float maxRange             = CANVAS_WIDTH / 2.0f;
+            float maxRange             = PLAY_SCREEN_WIDTH / 2.0f;
             Vector2 fallStartPos       = new Vector2(UnityEngine.Random.Range(-maxRange, maxRange), blockPosFixY);
             GameObject blockObject     = Instantiate(blockPre[UnityEngine.Random.Range(0, usingVegNum)]);
             RectTransform blockRectTra = blockObject.GetComponent<RectTransform>();

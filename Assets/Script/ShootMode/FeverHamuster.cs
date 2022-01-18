@@ -147,7 +147,7 @@ namespace ShootMode
         //========================================================================
         IEnumerator HamsterMove()
         {
-            float maxX = CANVAS_WIDTH / 2.0f;
+            float maxX = PLAY_SCREEN_WIDTH / 2.0f;
             while (hamsterMove)
             {
                 yield return new WaitForFixedUpdate();

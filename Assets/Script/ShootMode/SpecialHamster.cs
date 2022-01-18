@@ -117,8 +117,14 @@ public class SpecialHamster : MonoBehaviour
     //========================================================================
     IEnumerator OneLineHarvest()
     {
-        if (specialAvailable && !FEVER_START)
+        if (specialAvailable && !FEVER_START && !blockMan.throwNow && !blockMan.blockDeleteNow && !SETTING_DISPLAY)
         {
+            //キラキラエフェクト
+            GameObject effObj = Instantiate(blockMan.effectPre);
+            RectTransform effTra = effObj.GetComponent<RectTransform>();
+            effTra.SetParent(tra, false);
+            effTra.anchoredPosition = Vector2.zero;
+
             //一部の動作中は終了するまで待機
             yield return new WaitWhile(() => blockMan.throwNow == true);         //投擲
             yield return new WaitWhile(() => blockMan.blockGenerateNow == true); //ブロック生成
@@ -149,7 +155,7 @@ public class SpecialHamster : MonoBehaviour
             //右端(画面外)に移動設定
             float moveSpeed   = 12.0f;
             float acceleRate  = 1.0f;
-            float rightPosX   = CANVAS_WIDTH / 2.0f + 100.0f;
+            float rightPosX   = PLAY_SCREEN_WIDTH / 2.0f + 100.0f;
             Vector2 targetPos = new Vector2(rightPosX, defaultPos.y);
             float mvoeTime    = GetMoveTime(tra, moveSpeed, acceleRate, targetPos);
 
@@ -210,13 +216,13 @@ public class SpecialHamster : MonoBehaviour
         else
         {
             //収穫NG動作(左右揺れ)
-            float shakeSpeed   = 20.0f;    //移動速度
-            float shakeOffsetX = 10.0f;    //移動座標X
-            float shakeOffsetY = 0.0f;     //移動座標Y
-            int   shakeTimes   = 4;        //揺れ回数
-            float delayTime    = 0.0f;     //移動間の遅延時間
-            StartCoroutine(SlideShakeMovement(tra, shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime));
             tra.anchoredPosition = defaultPos;
+            float shakeSpeed     = 20.0f;    //移動速度
+            float shakeOffsetX   = 10.0f;    //移動座標X
+            float shakeOffsetY   = 0.0f;     //移動座標Y
+            int   shakeTimes     = 4;        //揺れ回数
+            float delayTime      = 0.0f;     //移動間の遅延時間
+            StartCoroutine(SlideShakeMovement(tra, shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime));
         }
     }
 

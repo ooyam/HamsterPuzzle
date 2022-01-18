@@ -61,10 +61,13 @@ namespace ShootMode
             { vegName[(int)vegeValue] = Enum.GetName(typeof(VegetableType), vegeValue); }
 
             //íËêîê›íË
-            BLOCK_GENERATE_TIME = blickGenerateTime;
-            RectTransform canvasTra = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
-            CANVAS_WIDTH  = canvasTra.sizeDelta.x;
-            CANVAS_HEIGHT = canvasTra.sizeDelta.y;
+            BLOCK_GENERATE_TIME         = blickGenerateTime;
+            RectTransform canvasTra     = GameObject.FindWithTag("CanvasMain").GetComponent<RectTransform>();
+            RectTransform playScreenTra = canvasTra.GetChild(1).GetComponent<RectTransform>();
+            CANVAS_WIDTH       = canvasTra.sizeDelta.x;
+            CANVAS_HEIGHT      = canvasTra.sizeDelta.y;
+            PLAY_SCREEN_WIDTH  = playScreenTra.sizeDelta.x;
+            PLAY_SCREEN_HEIGHT = playScreenTra.sizeDelta.y;
 
             //BGMäJén
             int bgmIndex = 1;

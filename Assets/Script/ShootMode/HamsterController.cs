@@ -19,9 +19,9 @@ namespace ShootMode
         public Color nowBlockColor;        //投擲ブロックの色
 
         [Header("Sprite")]
-        public Sprite[] hamsterSprite;    //0:通常(右向き) 1:反転(左向き)
+        public Sprite[] hamsterSprite;    //0:通常(右向き) 1:反転(左向き) 2:投擲準備完了(右向き) 3:投擲準備完了(右向き)
         [System.NonSerialized]
-        public bool spriteDefault = true; //0番使用中？
+        public int spriteNum = 0;         //使用中sprite番号
 
         [Header("BlockBox")]
         [SerializeField]
@@ -32,7 +32,6 @@ namespace ShootMode
         [SerializeField]
         BlockManager blockMan;
 
-        bool tapStart = false;             //タップ開始
         float magnification;               //タップ位置修正倍率
         float differenceX;                 //タップ位置修正数X
         float differenceY;                 //タップ位置修正数Y
@@ -47,10 +46,6 @@ namespace ShootMode
         float lineStartPosY = 30.0f;       //投擲ラインのスタート位置Y
         Vector3 lineStartPos;              //投擲ラインのスタート位置
         string[] blockTag;                 //ブロックタグリスト
-        string[] noThrowTag = new string[] { "NextBlockBoard", "SpecialHamster" }; //次投擲表示ボードタグ
-
-        [System.NonSerialized]
-        public bool setting = false;  //設定画面表示中？
 
         void Start()
         {
@@ -76,63 +71,84 @@ namespace ShootMode
         }
 
         //========================================================================
-        //タップ操作
+        //ハムスタータップ
         //========================================================================
-        void FixedUpdate()
+        public void HumsterButtonDown()
         {
             //ゲーム中？
             if (GAME_START && !GAME_OVER && !GAME_CLEAR)
             {
                 //特定の動作中？
-                if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow && !SPECIAL_HARVEST && !FEVER_START && !setting)
+                if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow && !SPECIAL_HARVEST && !FEVER_START && !SETTING_DISPLAY)
                 {
-                    if (Input.GetMouseButtonDown(0))
+                    //sprite変更
+                    spriteNum = (spriteNum == 0) ? 2 : 3;
+                    ima.sprite = hamsterSprite[spriteNum];
+
+                    //ブロックの位置変更
+                    tra.SetSiblingIndex(0);
+                    blockMan.ThrowBlockPosChange(spriteNum);
+
+
+                    //線の色変更
+                    ren.material.color = new Color(nowBlockColor.r, nowBlockColor.g, nowBlockColor.b, 1.0f);
+
+                    //投擲準備
+                    StartCoroutine(PreparingThrowBlock());
+                }
+            }
+        }
+
+        //========================================================================
+        //ブロック投擲準備
+        //========================================================================
+        IEnumerator PreparingThrowBlock()
+        {
+            while (true)
+            {
+                yield return new WaitForFixedUpdate();
+
+                //タップ座標取得
+                Vector3 mousePos = Input.mousePosition;
+                mousePos = new Vector3(mousePos.x * magnification - differenceX, (mousePos.y * magnification - differenceY) - posY, 0.0f);
+                if (mousePos.y < throwStartTapPos)
+                {
+                    //軌道線を引く
+                    displayLine = true;
+                    Vector3[] linePos = LineCalculation(mousePos);
+                    DrawLine(linePos);
+
+                    //ブロックを投げる
+                    if (Input.GetMouseButtonUp(0))
                     {
-                        //次投擲ボード・スペシャルボタンタップ時は計算しない
-                        Ray ray = mainCamra.ScreenPointToRay(Input.mousePosition);
-                        RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
-                        if (!(hit2d && Array.IndexOf(noThrowTag, hit2d.transform.gameObject.tag) >= 0))
-                        {
-                            tapStart = true;
-                            ren.material.color = new Color(nowBlockColor.r, nowBlockColor.g, nowBlockColor.b, 1.0f);
-                        }
+                        line.positionCount = 0;
+                        StartCoroutine(blockMan.BlockThrow(linePos));
+                        break;
                     }
-                    if (tapStart)
+                }
+                else
+                {
+                    //軌道線を消す
+                    if (displayLine)
                     {
-                        //タップ座標取得
-                        Vector3 mousePos = Input.mousePosition;
-                        mousePos = new Vector3(mousePos.x * magnification - differenceX, (mousePos.y * magnification - differenceY) - posY, 0.0f);
-                        if (mousePos.y < throwStartTapPos)
-                        {
-                            //軌道線を引く
-                            displayLine = true;
-                            Vector3[] linePos = LineCalculation(mousePos);
-                            DrawLine(linePos);
+                        line.positionCount = 0;
+                        displayLine = false;
+                    }
 
-                            //ブロックを投げる
-                            if (Input.GetMouseButtonUp(0))
-                            {
-                                tapStart = false;
-                                line.positionCount = 0;
-                                StartCoroutine(blockMan.BlockThrow(linePos));
-                            }
-                        }
-                        else
-                        {
-                            //軌道線を消す
-                            if (displayLine)
-                            {
-                                line.positionCount = 0;
-                                displayLine = false;
-                            }
-
-                            //投擲をやめる
-                            if (Input.GetMouseButtonUp(0))
-                                tapStart = false;
-                        }
+                    //投擲をやめる
+                    if (Input.GetMouseButtonUp(0))
+                    {
+                        //子オブジェクト番号変更(ブロックの前にでる)
+                        tra.SetSiblingIndex(1);
+                        blockMan.ThrowBlockPosChange((spriteNum == 2) ? 0 : 1);
+                        break;
                     }
                 }
             }
+
+            //spriteを戻す
+            spriteNum = (spriteNum == 2) ? 0 : 1;
+            ima.sprite = hamsterSprite[spriteNum];
         }
 
         //========================================================================
@@ -160,17 +176,17 @@ namespace ShootMode
             //---------------------------------------------
             //ハムスターの向き指定
             //---------------------------------------------
-            if (rightThrow && !spriteDefault)
+            if (rightThrow && spriteNum == 3)
             {
-                ima.sprite = hamsterSprite[0];
-                blockMan.ThrowBlockPosChange(0);
-                spriteDefault = true;
+                spriteNum = 2;
+                ima.sprite = hamsterSprite[spriteNum];
+                blockMan.ThrowBlockPosChange(spriteNum);
             }
-            else if(!rightThrow && spriteDefault)
+            else if(!rightThrow && (spriteNum == 2))
             {
-                ima.sprite = hamsterSprite[1];
-                blockMan.ThrowBlockPosChange(1);
-                spriteDefault = false;
+                spriteNum = 3;
+                ima.sprite = hamsterSprite[spriteNum];
+                blockMan.ThrowBlockPosChange(spriteNum);
             }
 
             if (linePosY < topLimit)
@@ -288,12 +304,18 @@ namespace ShootMode
         //========================================================================
         void DrawLine(Vector3[] linePos)
         {
-            int posCpunt       = linePos.Length;
+            //線の長さ算出√(x' - x)**2 + (y' - y)**2
+            int posCpunt = linePos.Length;
+            float lineLength = 0.0f;
+            for (int i = 0; i < posCpunt - 1; i++)
+            { lineLength += Mathf.Sqrt(Mathf.Pow((linePos[i + 1].x - linePos[i].x), 2.0f) + Mathf.Pow((linePos[i + 1].y - linePos[i].y), 2.0f)); }
+            ren.material.mainTextureScale = new Vector2(lineLength * 0.01f, 1.0f);
+
+            //線出力
             line.positionCount = posCpunt;
-            line.startWidth    = 20.0f;
-            line.endWidth      = 20.0f;
+            line.startWidth    = 15.0f;
+            line.endWidth      = 15.0f;
             line.SetPositions(linePos);
-            ren.material.mainTextureScale = new Vector2(10.0f * posCpunt, 1.0f);
         }
     }
 }

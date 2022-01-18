@@ -37,9 +37,12 @@ public class TimeManager : MonoBehaviour
         {
             yield return new WaitForFixedUpdate();
 
-            //一部の動作中はカウントストップ(1行収穫中・フィーバー・ブロック削除)
-            if (!SPECIAL_HARVEST && !FEVER_START && !blockMan.blockDeleteNow)
+            //一部の動作中はカウントストップ(1行収穫中・ブロック削除)
+            if (!SPECIAL_HARVEST && !blockMan.blockDeleteNow)
                 elapsedTime += oneFrameTime;
+
+            //フィーバー状態ではカウントリセット
+            if (FEVER_START) elapsedTime = 0.0f;
 
             //一部の動作中は終了するまで待機(投擲・投擲ブロック切り替え)
             if (!blockMan.throwNow && !blockMan.blockChangeNow)

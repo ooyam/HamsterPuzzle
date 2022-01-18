@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using SoundFunction;
 using UnityEngine.SceneManagement;
+using static ShootMode.ShootModeDefine;
 
 namespace ShootMode
 {
@@ -133,7 +134,7 @@ namespace ShootMode
             {
                 SoundMan.YesTapSE();
                 Time.timeScale = 0.0f;
-                hamsterCon.setting = true;
+                SETTING_DISPLAY = true;
                 settingScreen.SetActive(true);
                 settingActive = true;
             }
@@ -250,7 +251,7 @@ namespace ShootMode
         {
             SoundMan.NoTapSE();
             Time.timeScale = 1.0f;
-            hamsterCon.setting = false;
+            SETTING_DISPLAY = false;
             settingScreen.SetActive(false);
             settingActive = false;
         }
