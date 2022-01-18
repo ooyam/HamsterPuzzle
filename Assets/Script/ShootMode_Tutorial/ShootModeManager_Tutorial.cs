@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using SoundFunction;
+using ShootMode;
 using static ShootMode.ShootModeDefine;
 
-namespace ShootMode
+namespace ShootMode_Tutorial
 {
-    public class ShootModeManager : MonoBehaviour
+    public class ShootModeManager_Tutorial : MonoBehaviour
     {
         [Header("背景オブジェクトTra")]
         [SerializeField]
@@ -49,6 +50,9 @@ namespace ShootMode
             //各フラグリセット
             FlagReset();
 
+            //ゲーム開始
+            GAME_START = true;
+
             //SoundoManager取得
             soundManObj = GameObject.FindWithTag("SoundManager");
             soundManScr = soundManObj.GetComponent<SoundManager>();
@@ -87,7 +91,7 @@ namespace ShootMode
                 //フィーバーオブジェクト生成
                 GameObject feverObj = Instantiate(feverPre);
                 feverObj.GetComponent<RectTransform>().SetParent(backGroundTra, false);
-                StartCoroutine(feverObj.GetComponent<FeverHamuster>().FeverStart());
+                StartCoroutine(feverObj.GetComponent<FeverHamuster_Tutorial>().FeverStart());
             }
         }
 
@@ -105,7 +109,7 @@ namespace ShootMode
                 gameOverObjDis = true;
                 GameObject gameOverObj = Instantiate(gameOverObjPre);
                 gameOverObj.GetComponent<RectTransform>().SetParent(backGroundTra, false);
-                StartCoroutine(gameOverObj.GetComponent<GameOverObj>().DirectGameOver(this, soundManScr));
+                StartCoroutine(gameOverObj.GetComponent<GameOverObj_Tutorial>().DirectGameOver(this, soundManScr));
                 yield return new WaitWhile(() => gameOverObjDis == true);
 
                 //リザルト画面表示
@@ -125,7 +129,7 @@ namespace ShootMode
                 gameClearObjDis = true;
                 GameObject gameOverObj = Instantiate(gameClearObjPre);
                 gameOverObj.GetComponent<RectTransform>().SetParent(backGroundTra, false);
-                StartCoroutine(gameOverObj.GetComponent<GameClearObj>().DirectGameClear(this, soundManScr));
+                StartCoroutine(gameOverObj.GetComponent<GameClearObj_Tutorial>().DirectGameClear(this, soundManScr));
                 yield return new WaitWhile(() => gameClearObjDis == true);
 
                 //クリアステージ番号書き込み

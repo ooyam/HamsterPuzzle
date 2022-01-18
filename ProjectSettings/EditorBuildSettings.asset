@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ShootMode.unity
     guid: 2003d997e1b6a2e4ab21bc0e3310d476
+  - enabled: 1
+    path: Assets/Scenes/ShootMode_Tutorial.unity
+    guid: 2e97268756429eb42b37bdb2013dd8b5
   m_configObjects: {}

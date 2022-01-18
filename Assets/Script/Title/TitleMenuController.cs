@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using SoundFunction;
 using System;
 using ShootMode;
+using ShootMode_Tutorial;
 using static ShootMode.ShootModeDefine;
 
 public class TitleMenuController : MonoBehaviour
@@ -296,7 +297,7 @@ public class TitleMenuController : MonoBehaviour
         //シュートモード
         //========================================================================
         VegetableType[][] shootTargetVeg = new VegetableType[stageNum[shootModeNum] + 1][];
-        shootTargetVeg[0]  = new VegetableType[] { VegetableType.Broccoli };
+        shootTargetVeg[0]  = new VegetableType[] { VegetableType.Paprika, VegetableType.Cabbage, VegetableType.Broccoli };
         shootTargetVeg[1]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Carrot };
         shootTargetVeg[2]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Paprika, VegetableType.Pumpkin };
         shootTargetVeg[3]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Pumpkin, VegetableType.Carrot, VegetableType.Paprika };
@@ -319,7 +320,7 @@ public class TitleMenuController : MonoBehaviour
         shootTargetVeg[20] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Corn };
 
         int[][] shootTargetVegNum = new int[stageNum[shootModeNum] + 1][];
-        shootTargetVegNum[0]  = new int[] { 1 };
+        shootTargetVegNum[0]  = new int[] { 5, 20, 50 };
         shootTargetVegNum[1]  = new int[] { 2, 7 };
         shootTargetVegNum[2]  = new int[] { 3, 8, 9 };
         shootTargetVegNum[3]  = new int[] { 4, 10, 21, 32 };
@@ -611,27 +612,48 @@ public class TitleMenuController : MonoBehaviour
     void OnClickShootStatge(VegetableType[] targetVeg, int targetVegNum, int[] targetNum, float blickGenerateTime, int stageNum)
     {
         soundMan.YesTapSE();
-        SceneNavigator.Instance.Change("ShootMode", 0.5f);
 
-        ShootModeManager.tartgetVeg = new VegetableType[targetVegNum];
-        ShootModeManager.targetNum  = new int[targetVegNum];
-        for (int i = 0; i < targetVegNum; i++)
+        if (stageNum == 0)
         {
-            ShootModeManager.tartgetVeg[i] = (VegetableType)(int)targetVeg[i];
-            ShootModeManager.targetNum[i]  = targetNum[i];
+            //チュートリアル
+            SceneNavigator.Instance.Change("ShootMode_Tutorial", 0.5f);
+
+            ShootModeManager_Tutorial.tartgetVeg = new VegetableType[targetVegNum];
+            ShootModeManager_Tutorial.targetNum  = new int[targetVegNum];
+            for (int i = 0; i < targetVegNum; i++)
+            {
+                ShootModeManager_Tutorial.tartgetVeg[i] = (VegetableType)(int)targetVeg[i];
+                ShootModeManager_Tutorial.targetNum[i]  = targetNum[i];
+            }
+            ShootModeManager_Tutorial.targetVegNum      = targetVegNum;
+            ShootModeManager_Tutorial.blickGenerateTime = blickGenerateTime;
+            ShootModeManager_Tutorial.stageNum          = stageNum;
+            ShootModeManager_Tutorial.useVegNum         = 3;
         }
-        ShootModeManager.targetVegNum      = targetVegNum;
-        ShootModeManager.blickGenerateTime = blickGenerateTime;
-        ShootModeManager.stageNum          = stageNum;
-        ShootModeManager.tutorial          = (stageNum == 0) ? true : false;
-        int useVegNum = 3;
-        //if (stageNum > 4)  useVegNum = 4;
-        //if (stageNum > 9)  useVegNum = 5;
-        //if (stageNum > 14) useVegNum = 6;
-        if (stageNum > 0)  useVegNum = 4;
-        if (stageNum > 1)  useVegNum = 5;
-        if (stageNum > 2) useVegNum = 6;
-        ShootModeManager.useVegNum = useVegNum;
+        else
+        {
+            //チュートリアル以外
+            SceneNavigator.Instance.Change("ShootMode", 0.5f);
+
+            ShootModeManager.tartgetVeg = new VegetableType[targetVegNum];
+            ShootModeManager.targetNum  = new int[targetVegNum];
+            for (int i = 0; i < targetVegNum; i++)
+            {
+                ShootModeManager.tartgetVeg[i] = (VegetableType)(int)targetVeg[i];
+                ShootModeManager.targetNum[i]  = targetNum[i];
+            }
+            ShootModeManager.targetVegNum      = targetVegNum;
+            ShootModeManager.blickGenerateTime = blickGenerateTime;
+            ShootModeManager.stageNum          = stageNum;
+            int useVegNum = 3;
+            //if (stageNum > 4)  useVegNum = 4;
+            //if (stageNum > 9)  useVegNum = 5;
+            //if (stageNum > 14) useVegNum = 6;
+            if (stageNum > 0)  useVegNum = 4;
+            if (stageNum > 1)  useVegNum = 5;
+            if (stageNum > 2) useVegNum  = 6;
+            ShootModeManager.useVegNum     = useVegNum;
+        }
     }
 
     //========================================================================

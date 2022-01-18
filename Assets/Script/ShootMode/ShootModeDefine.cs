@@ -25,22 +25,24 @@ namespace ShootMode
         public static float PLAY_SCREEN_HEIGHT;           //プレイ画面高さ(1920)
 
         //各フラグ
-        public static bool GAME_START      = false;  //ゲーム開始？
-        public static bool GAME_OVER       = false;  //ゲームオーバー？
-        public static bool GAME_CLEAR      = false;  //ゲームクリア？
-        public static bool SETTING_DISPLAY = false;  //セッティング画面表示中？
-        public static bool SPECIAL_HARVEST = false;  //スペシャルハムスター動作中？
-        public static bool FEVER_START     = false;  //フィーバー動作中？
+        public static bool GAME_START           = false;  //ゲーム開始？
+        public static bool GAME_OVER            = false;  //ゲームオーバー？
+        public static bool GAME_CLEAR           = false;  //ゲームクリア？
+        public static bool SETTING_DISPLAY      = false;  //セッティング画面表示中？
+        public static bool SPECIAL_HARVEST      = false;  //スペシャルハムスター動作中？
+        public static bool FEVER_START          = false;  //フィーバー動作中？
+        public static bool TUTORIAL_EXPLANATION = false;  //チュートリアル説明中？
 
         //フラグリセット
         public static void FlagReset()
         {
-            GAME_START      = false;
-            GAME_OVER       = false;
-            GAME_CLEAR      = false;
-            SETTING_DISPLAY = false;
-            SPECIAL_HARVEST = false;
-            FEVER_START     = false;
+            GAME_START           = false;
+            GAME_OVER            = false;
+            GAME_CLEAR           = false;
+            SETTING_DISPLAY      = false;
+            SPECIAL_HARVEST      = false;
+            FEVER_START          = false;
+            TUTORIAL_EXPLANATION = false;
         }
     }
 }

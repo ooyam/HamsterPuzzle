@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
-using ShootMode;
+using ShootMode_Tutorial;
 using GFramework;
 using static ShootMode.ShootModeDefine;
-using static ShootMode.ShootModeManager;
+using static ShootMode_Tutorial.ShootModeManager_Tutorial;
 using static MoveFunction.ObjectMove;
 
-public class BlockManager : MonoBehaviour
+public class BlockManager_Tutorial : MonoBehaviour
 {
     [Header("ブロックの取得")]
     [SerializeField]
@@ -29,7 +29,7 @@ public class BlockManager : MonoBehaviour
 
     [Header("シュートモードマネージャー")]
     [SerializeField]
-    ShootModeManager ShootModeMan;
+    ShootModeManager_Tutorial ShootModeMan;
 
     [Header("ブロックボックス")]
     [SerializeField]
@@ -40,7 +40,7 @@ public class BlockManager : MonoBehaviour
     [Header("ハムスターボックス")]
     [SerializeField]
     Transform hamsterBoxTra;
-    HamsterController hamsterScr;  //HamsterController
+    HamsterController_Tutorial hamsterScr;  //HamsterController
 
     [Header("次投擲ブロック表示ボード")]
     [SerializeField]
@@ -48,7 +48,7 @@ public class BlockManager : MonoBehaviour
 
     [Header("スペシャルハムスタースクリプト")]
     [SerializeField]
-    SpecialHamster speHamScr;
+    SpecialHamster_Tutorial speHamScr;
 
     [Header("エフェクトプレハブ")]
     public GameObject effectPre;
@@ -76,9 +76,12 @@ public class BlockManager : MonoBehaviour
     public float blockDiameter = 120.0f;       //ブロック直径
     float[] blockRotDirecting  = new float[] { 90.0f, 270.0f };  //演出用ブロック角度
 
+    int[] throwBlockOrder = new int[] {2, 1, 1, 0}; //投擲ブロック
+    int nextThrowBlockOrderIndex = 0;               //次投擲ブロック生成index
+
     IEnumerator Start()
     {
-        hamsterScr  = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController>();
+        hamsterScr  = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController_Tutorial>();
         usingVegNum = useVegNum;
         throwBlockPos[0]  = new Vector2(70.0f, -10.0f);
         throwBlockPos[1]  = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
@@ -97,7 +100,7 @@ public class BlockManager : MonoBehaviour
         }
 
         //ブロック配置座標指定
-        float blockRadius = blockDiameter / 2.0f;　//ブロック半径
+        float blockRadius = blockDiameter / 2.0f; //ブロック半径
         blockBoxHight     = blockBoxTra.rect.height;
         blockPosFixY      = blockBoxHight / 2.0f + blockRadius;
         float[] posXFix   = new float[] { (columnNum[0] - 1) * blockRadius, (columnNum[1] - 1) * blockRadius };
@@ -118,9 +121,8 @@ public class BlockManager : MonoBehaviour
             }
         }
 
-        //ブロックを3列生成
-        int firstGenerateLinesNum = 3;
-        StartCoroutine(LineBlockGenerate(firstGenerateLinesNum));
+        //ブロックを4列生成
+        StartCoroutine(LineBlockGenerate(4, true));
 
         //投擲用ブロック生成
         NextThrowBlockGenerate();
@@ -185,12 +187,13 @@ public class BlockManager : MonoBehaviour
     void NextThrowBlockGenerate()
     {
         //生成
-        int blockGeneIndex = UnityEngine.Random.Range(0, usingVegNum);
-        nextThrowBlockIndex = BlockGenerate(blockGeneIndex, true);
+        int blockInd = (nextThrowBlockOrderIndex < throwBlockOrder.Length) ? throwBlockOrder[nextThrowBlockOrderIndex] : UnityEngine.Random.Range(0, usingVegNum);
+        nextThrowBlockIndex = BlockGenerate(blockInd, true);
         blockTra[nextThrowBlockIndex].SetParent(nextBlockBoardTra, false);
         blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
-        blockObj[nextThrowBlockIndex].AddComponent<BlockController>();
+        blockObj[nextThrowBlockIndex].AddComponent<BlockController_Tutorial>();
         blockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
+        nextThrowBlockOrderIndex++;
     }
 
     //========================================================================
@@ -285,7 +288,7 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     //generatLineNum; ライン生成数
     //========================================================================
-    public IEnumerator LineBlockGenerate(int generatLineNum)
+    public IEnumerator LineBlockGenerate(int generatLineNum, bool firstGenerate)
     {
         //---------------------------------------------
         //指定行数ループ
@@ -301,35 +304,39 @@ public class BlockManager : MonoBehaviour
             yield return new WaitWhile(() => blockChangeNow == true);    //投擲ブロック切り替え
 
             //生成パターン数設定
-            int patternNum = (int)Mathf.Floor(columnNum[0] / 2);
-            int[] geneInd = new int[patternNum];
+            int patternNum = (lineIndex % 2 == 0) ? columnNum[0] : columnNum[1] - 2;
+            int[] geneInd  = new int[patternNum];
 
-            //---------------------------------------------
-            //同じブロック2つを1組として生成
-            //---------------------------------------------
-            for (int genePattIndex = 0; genePattIndex < patternNum; genePattIndex++)
+            //初回生成の場合
+            if (firstGenerate)
             {
-                int blockGeneIndex = UnityEngine.Random.Range(0, usingVegNum);
-                geneInd[genePattIndex] = blockGeneIndex;
+                switch (lineIndex)
+                {
+                    case 0: geneInd = new int[] {0, 0, 0, 2, 2, 2, 0, 0, 0}; break; //1行目
+                    case 1: geneInd = new int[] {1, 1, 1, 1, 1, 1, 1, 1};    break; //2行目
+                    case 2:                                                         //3行目
+                        for (int i = 0; i < patternNum; i++)
+                        { geneInd[i] = (UnityEngine.Random.Range(0, 2) == 0) ? 0 : 2; }
+                        break;
+                    case 3: geneInd = new int[] {0, 0, 0, 0, 0, 0, 0, 0};    break; //4行目
+                }
             }
 
             //---------------------------------------------
-            //ブロック生成
+            //ブロック生成(チュートリアルの場合は完全ランダム)
             //---------------------------------------------
             int blockPosThirdIndex = (generatePattern == 0) ? 0 : 1;
-            int outputThreeInd = (generatePattern == 0) ? UnityEngine.Random.Range(0, patternNum) : -1;  //ループ何回目に3つ1組にするか
             List<int> generateObjInd = new List<int>();
-            for (int patternIndex = 0; patternIndex < patternNum; patternIndex++)
+            int objIndex = 0; //生成ブロック番号
+            for (int i = 0; i < patternNum; i++)
             {
-                int generatezNum = (outputThreeInd == patternIndex) ? 3 : 2;
-                for (int i = 0; i < generatezNum; i++)
-                {
-                    int objIndex = BlockGenerate(geneInd[patternIndex], false);                             //ブロック生成
-                    blockTra[objIndex].anchoredPosition = blockPos[generatePattern][0][blockPosThirdIndex]; //ブロック座標指定
-                    blockPosIndex[objIndex] = new int[] { generatePattern, 0, blockPosThirdIndex };         //ブロックの座標の保存
-                    generateObjInd.Add(objIndex);
-                    blockPosThirdIndex++;
-                }
+                if (firstGenerate) objIndex = BlockGenerate(geneInd[i], false);                         //ブロック指定生成(初期生成時)
+                else objIndex = BlockGenerate(UnityEngine.Random.Range(0, usingVegNum), false);         //ブロックランダム生成
+
+                blockTra[objIndex].anchoredPosition = blockPos[generatePattern][0][blockPosThirdIndex]; //ブロック座標指定
+                blockPosIndex[objIndex] = new int[] { generatePattern, 0, blockPosThirdIndex };         //ブロックの座標の保存
+                generateObjInd.Add(objIndex);
+                blockPosThirdIndex++;
             }
             blockGenerateNow = true;
 
@@ -954,7 +961,7 @@ public class BlockManager : MonoBehaviour
     //========================================================================
     //ブロックランダム生成落下(フィーバー開始)
     //========================================================================
-    public IEnumerator FeverStrat(FeverHamuster ferverHumScr)
+    public IEnumerator FeverStrat(FeverHamuster_Tutorial ferverHumScr)
     {
         //フィーバー時間
         float feverTime   = UnityEngine.Random.Range(5.0f, 10.0f);
@@ -995,7 +1002,7 @@ public class BlockManager : MonoBehaviour
         else
         {
             //ブロック3行生成
-            StartCoroutine(LineBlockGenerate(3));
+            StartCoroutine(LineBlockGenerate(3, false));
             //ハムスター元の位置へ
             StartCoroutine(ferverHumScr.ReturnFirstPosition());
         }
