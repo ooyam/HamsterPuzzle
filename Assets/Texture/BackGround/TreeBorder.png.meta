@@ -262,10 +262,10 @@ TextureImporter:
       name: TreeBorder_5
       rect:
         serializedVersion: 2
-        x: 980
-        y: 138
-        width: 168
-        height: 119
+        x: 981
+        y: 139
+        width: 167
+        height: 117
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}

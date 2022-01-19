@@ -320,7 +320,7 @@ public class TitleMenuController : MonoBehaviour
         shootTargetVeg[20] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Corn };
 
         int[][] shootTargetVegNum = new int[stageNum[shootModeNum] + 1][];
-        shootTargetVegNum[0]  = new int[] { 5, 20, 50 };
+        shootTargetVegNum[0]  = new int[] { 4, 50, 14 };
         shootTargetVegNum[1]  = new int[] { 2, 7 };
         shootTargetVegNum[2]  = new int[] { 3, 8, 9 };
         shootTargetVegNum[3]  = new int[] { 4, 10, 21, 32 };
