@@ -17,6 +17,9 @@ TextureImporter:
   - first:
       213: -287548490976540708
     second: dotted_line_4
+  - first:
+      213: 245056057134269015
+    second: dotted_line_5
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -180,7 +183,7 @@ TextureImporter:
         width: 1089
         height: 75
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -201,7 +204,7 @@ TextureImporter:
         width: 1097
         height: 84
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -222,7 +225,7 @@ TextureImporter:
         width: 1109
         height: 72
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -230,6 +233,27 @@ TextureImporter:
       bones: []
       spriteID: cd7c4a3cb2c620cf0800000000000000
       internalID: -287548490976540708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: dotted_line_5
+      rect:
+        serializedVersion: 2
+        x: 2292
+        y: 1660
+        width: 1086
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 752cb838f2d966300800000000000000
+      internalID: 245056057134269015
       vertices: []
       indices: 
       edges: []

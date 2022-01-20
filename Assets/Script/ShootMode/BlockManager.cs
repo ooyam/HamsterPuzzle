@@ -376,7 +376,7 @@ public class BlockManager : MonoBehaviour
             if (!bound)
             {
                 //---------------------------------------------
-                //跳ね返り後上昇
+                //下降
                 //---------------------------------------------
                 for (int objIndex = 0; objIndex < objCount; objIndex++)
                 {
@@ -392,7 +392,7 @@ public class BlockManager : MonoBehaviour
             else
             {
                 //---------------------------------------------
-                //下降
+                //跳ね返り後上昇
                 //---------------------------------------------
                 for (int objIndex = 0; objIndex < objCount; objIndex++)
                 {
@@ -407,6 +407,13 @@ public class BlockManager : MonoBehaviour
                 if (loopEnd) break;
             }
             yield return new WaitForSeconds(oneFrameTime);
+        }
+
+        //定位置に戻す
+        for (int objIndex = 0; objIndex < objCount; objIndex++)
+        {
+            if (throwBlockIndex != objIndex && nextThrowBlockIndex != objIndex && nowDeleteIndex.IndexOf(objIndex) < 0)
+                blockTra[objIndex].anchoredPosition = blockPos[blockPosIndex[objIndex][0]][blockPosIndex[objIndex][1]][blockPosIndex[objIndex][2]];
         }
         blockGenerateNow = false;
     }
