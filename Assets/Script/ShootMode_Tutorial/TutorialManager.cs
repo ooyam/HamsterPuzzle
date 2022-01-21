@@ -3,60 +3,55 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using SoundFunction;
-using GFramework; //SimpleRoundedImageを使用する
 using static MoveFunction.ObjectMove;
 
 namespace ShootMode_Tutorial
 {
     public class TutorialManager : MonoBehaviour
     {
-        [Header("フィルター取得")]
-        public GameObject[] filter;
-        [Header("フィルター前格納ボックス")]
-        public GameObject frontBoxObj;
-        [System.NonSerialized]
-        public Transform frontBoxTra;
+        [Header("エフェクト")]
+        [SerializeField]
+        GameObject pointEffPre;
+
+        [Header("フィルターボックス")]
+        [SerializeField]
+        Transform filterBoxTra;
+
         [Header("テキストボックス")]
-        public GameObject[] textBox;
-        GameObject textObj;
-        Transform textTra;
-        Text textText;
-        Image textIma;
-        SimpleRoundedImage hintIma;
-        [Header("テキスト格納ボックス")]
-        public Transform textBoxTra;
-        [Header("ステータスボード")]
-        public Transform statusBoardTra;
-        [Header("手取得")]
-        public GameObject hand;
+        [SerializeField]
+        Transform textBoxTra;
+
+        [Header("エフェクトボックス")]
+        [SerializeField]
+        Transform effBoxTra;
+
+        [Header("手")]
+        [SerializeField]
         RectTransform handTra;
+        GameObject handObj;
         Image handIma;
-        [Header("カロリーゲージ")]
-        public Transform calGaugeTra;
-        [Header("ターン表示")]
-        public Transform turnTra;
-        [Header("ターゲット表示")]
-        public Transform targetTra;
-        [Header("収穫リスト")]
-        public Transform harvestTra;
 
-        HamsterPanelController HamsterCon;   //ハムスターパネルスクリプト
-        PanelManager PanelMan;               //PanelManger
-        SoundManager SoundMan;               //SoundManager
-        [System.NonSerialized]
-        public int tupNum = 0;               //タップ回数
-        bool waiting = false;        //待機中？
-        bool description = false;    //説明中？
-        float displayTime = 2.0f;    //説明の最低表示時間
-        [System.NonSerialized]
-        public bool ColDescription = false;  //体力説明完了？
-        bool imageFade = false;      //イメージをフェードする？
-        bool textIndexTen = false;   //テキスト番号10？
-        float textTenColor = 180.0f / 255.0f;  //テキスト番号10の色のG値
+        HamsterController_Tutorial hamsterCon;   //HamsterController_Tutorial
+        BlockManager_Tutorial blockMan;          //BlockManager_Tutorial
+        SoundManager SoundMan;                   //SoundManager
 
-        bool textDestroy = false;    //テキスト消去中？
-        bool textDisplay = false;    //テキスト表示途中？
-        float[] textColAlpha = new float[] { 1.0f, 0.0f };   //テキストのアルファ値
+        GameObject[] filterObj;       //フィルターObj
+        Image fullFilterIma;          //全面フィルターgImae
+        Image[][] fadeFilter;         //フェードImage
+        int displayFilterIndex;       //表示中のImage番号
+        GameObject[] textObj;         //テキストObj
+        Image[] fadeTextFilter;       //フェードText用フィルター
+        int displayTextIndex;         //表示中のText番号
+
+        [System.NonSerialized]
+        public int descriptionNum = 0;  //説明番号
+        float minDispalyTime   = 3.0f;  //説明最低表示時間
+        float alphaChangeSpeed = 0.2f;  //フェード速度
+        float destroyWaitTime  = 0.3f;  //フェードアウト待機時間
+        Color[] handColor   = new Color[] { Color.white, new Color(1, 1, 1, 0) };               //白 → 透明
+        Color[] textColor   = new Color[] { Color.white, new Color(1, 1, 1, 0) };               //白 → 透明
+        Color[] filterColor = new Color[] { new Color(0, 0, 0, 160.0f / 255.0f), Color.clear }; //黒半透明 → 透明
+        int[] alphaFadeComp = new int[] { 3, 3 };  //比較番号指定配列(0:R 1:G 2:B 3:A)
 
         //手の位置 0･1:オラフ移動 2:体力ゲージ 3:ターン 4:目標
         Vector2[] handStartPos =
@@ -75,402 +70,415 @@ namespace ShootMode_Tutorial
             new Vector2(475.0f, 530.0f),
             new Vector2(350.0f, 770.0f)
             };
-        Color[] handColor = new Color[] { new Color(1, 1, 1, 1), new Color(1, 1, 1, 0) };
 
         void Start()
         {
-            Time.timeScale = 1.0f;
-            PanelMan = GameObject.FindWithTag("PanelManager").GetComponent<PanelManager>();
-            SoundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
-            frontBoxTra = frontBoxObj.transform;
-            handTra = hand.GetComponent<RectTransform>();
-            handIma = hand.GetComponent<Image>();
-            TextDisplay(0);
-            frontBoxObj.SetActive(true);
-            StartCoroutine(DescriptionStart());
+            //Time.timeScale = 1.0f;
+            hamsterCon = GameObject.FindWithTag("Hamster").GetComponent<HamsterController_Tutorial>();
+            blockMan   = GameObject.FindWithTag("BlockManager").GetComponent<BlockManager_Tutorial>();
+            SoundMan   = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
+            handObj    = handTra.gameObject;
+            handIma    = handObj.GetComponent<Image>();
+
+            //フィルター取得
+            int filterCount = filterBoxTra.childCount;
+            filterObj       = new GameObject[filterCount];
+            fadeFilter      = new Image[filterCount][];
+            for (int filterInd = 0; filterInd < filterCount; filterInd++)
+            {
+                filterObj[filterInd]   = filterBoxTra.GetChild(filterInd).gameObject;
+                Transform filterObjTra = filterObj[filterInd].transform;
+                int filterCount_1      = filterObjTra.childCount;
+                fadeFilter[filterInd]  = new Image[filterCount_1];
+                for (int filterInd_1 = 0; filterInd_1 < filterCount_1; filterInd_1++)
+                { fadeFilter[filterInd][filterInd_1] = filterObjTra.GetChild(filterInd_1).GetComponent<Image>(); }
+            }
+            fullFilterIma = filterBoxTra.GetChild(filterCount - 1).gameObject.GetComponent<Image>();
+
+            //テキストText取得
+            int textCount  = textBoxTra.childCount;
+            textObj        = new GameObject[textCount];
+            fadeTextFilter = new Image[textCount];
+            for (int textInd = 0; textInd < textCount; textInd++)
+            {
+                textObj[textInd] = textBoxTra.GetChild(textInd).gameObject;
+                fadeTextFilter[textInd] = textObj[textInd].transform.Find("TextFilter").GetComponent<Image>();
+            }
+
+            StartCoroutine(Description());
         }
 
-        void Update()
+        //========================================================================
+        //タップを待つ
+        //========================================================================
+        IEnumerator WaitTap()
         {
-            if (Input.GetMouseButtonDown(0))
+            while (true)
             {
-                if (!description && !waiting && !textDestroy)
+                yield return new WaitForFixedUpdate();
+                if (Input.GetMouseButtonDown(0))
                 {
-                    tupNum++;
-                    StartCoroutine(NextDescription(tupNum));
+                    descriptionNum++;
+                    StartCoroutine(Description());
+                    break;
                 }
             }
         }
 
         //========================================================================
-        //次の説明
+        //説明
         //========================================================================
-        //descriptionNum;   説明番号
-        //========================================================================
-        IEnumerator NextDescription(int descriptionNum)
+        IEnumerator Description()
         {
-            COLOR_CHANGE_INFINITE_END = false;
             switch (descriptionNum)
             {
+                case 0:
+                    //シュートモードへようこそ～
+                    SoundMan.YesTapSE();
+                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    TextShow(0);                                      //テキスト[0]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
                 case 1:
+                    //画面の上の方に野菜ブロックが見えるかな～
                     SoundMan.YesTapSE();
-                    frontBoxObj.SetActive(false);
-                    FilterDisplay(0);
-                    StartCoroutine(TextDestroy(true));
-                    yield return new WaitWhile(() => textDestroy == true);
-                    StartCoroutine(DescriptionStart());
-                    hand.SetActive(true);
-                    StartCoroutine(HandMove(0));
-                    HamsterCon.description = true;
-                    TextDisplay(1);
-                    yield return new WaitWhile(() => textDisplay == true);
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    FilterShow(0, true);                              //フィルター[0]表示
+                    TextShow(1);                                      //テキスト[1]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
+
                 case 2:
-                case 6:
+                    //まずはオラフくんをタップして～
                     SoundMan.YesTapSE();
-                    HamsterCon.description = false;
-                    hand.SetActive(false);
-                    description = true;
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    StartCoroutine(FilterHide());                     //フィルター非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    TextShow(2);                                      //テキスト[2]表示
+                    FilterShow(1, true);                              //フィルター[1]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
+
                 case 3:
-                    SoundMan.YesTapSE();
-                    TimeScaleChange(1.0f);
-                    FilterDestroy(1);
-                    StartCoroutine(TextDestroy(false));
-                    yield return new WaitWhile(() => textDestroy == true);
-                    StartCoroutine(DescriptionStart());
-                    description = true;
+                    //パプリカ投擲待機
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
+
                 case 4:
+                    //パプリカがつながったね～
                     SoundMan.YesTapSE();
-                    calGaugeTra.SetParent(statusBoardTra, true);
-                    turnTra.SetParent(frontBoxTra, true);
-                    StartCoroutine(HandMove(3));
-                    handTra.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-                    StartCoroutine(DescriptionStart());
-                    StartCoroutine(TextDestroy(false));
-                    yield return new WaitWhile(() => textDestroy == true);
-                    FilterDestroy(1);
-                    TextDisplay(4);
-                    yield return new WaitWhile(() => textDisplay == true);
+                    StartCoroutine(FilterHide());                     //フィルター非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    FilterShow(2, true);                              //フィルター[2]表示
+                    TextShow(3);                                      //テキスト[3]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
+
                 case 5:
+                    //収穫待機
                     SoundMan.YesTapSE();
-                    turnTra.SetParent(statusBoardTra, true);
-                    hand.SetActive(true);
-                    StartCoroutine(HandMove(1));
-                    HamsterCon.MovingLimit(false);
-                    HamsterCon.description = true;
-                    frontBoxObj.SetActive(false);
-                    StartCoroutine(TextDestroy(false));
-                    yield return new WaitWhile(() => textDestroy == true);
-                    StartCoroutine(DescriptionStart());
-                    FilterDisplay(2);
-                    TextDisplay(5);
-                    yield return new WaitWhile(() => textDisplay == true);
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    StartCoroutine(FilterHide());                     //フィルター非表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
+
+                case 6:
+                    //収穫した野菜は～
+                    SoundMan.YesTapSE();
+                    FilterShow(3, true);                              //フィルター[3]表示
+                    TextShow(4);                                      //テキスト[4]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
                 case 7:
+                    //収穫した野菜は～
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextDestroy(false));
-                    yield return new WaitWhile(() => textDestroy == true);
-                    StartCoroutine(DescriptionStart());
-                    TextDisplay(7);
-                    yield return new WaitWhile(() => textDisplay == true);
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    TextShow(5);                                      //テキスト[5]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
+
                 case 8:
+                    //次に、その他の収穫方法を～
                     SoundMan.YesTapSE();
-                    TimeScaleChange(1.0f);
-                    FilterDestroy(3);
-                    StartCoroutine(TextDestroy(false));
-                    yield return new WaitWhile(() => textDestroy == true);
-                    StartCoroutine(DescriptionStart());
-                    description = true;
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    StartCoroutine(FilterHide());                     //フィルター非表示
+                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    TextShow(6);                                      //テキスト[6]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
+
                 case 9:
+                    //キャベツ投擲待機
                     SoundMan.YesTapSE();
-                    targetTra.SetParent(statusBoardTra, true);
-                    harvestTra.SetParent(statusBoardTra, true);
-                    hand.SetActive(false);
-                    StartCoroutine(DescriptionStart());
-                    StartCoroutine(TextDestroy(false));
-                    yield return new WaitWhile(() => textDestroy == true);
-                    TextDisplay(9);
-                    yield return new WaitWhile(() => textDisplay == true);
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    FilterShow(4, true);                              //フィルター[4]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
+
                 case 10:
+                    //キャベツを収穫した時～
                     SoundMan.YesTapSE();
-                    StartCoroutine(DescriptionStart());
-                    StartCoroutine(TextDestroy(false));
-                    yield return new WaitWhile(() => textDestroy == true);
-                    TextDisplay(10);
-                    yield return new WaitWhile(() => textDisplay == true);
+                    StartCoroutine(FilterHide());                     //フィルター非表示
+                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    TextShow(7);                                      //テキスト[7]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
+
                 case 11:
+                    //画面右下のオラフくんが～
                     SoundMan.YesTapSE();
-                    StartCoroutine(DescriptionStart());
-                    StartCoroutine(TextDestroy(false));
-                    yield return new WaitWhile(() => textDestroy == true);
-                    TextDisplay(11);
-                    yield return new WaitWhile(() => textDisplay == true);
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    FilterShow(5, true);                              //フィルター[5]表示
+                    TextShow(8);                                      //テキスト[8]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
+
                 case 12:
+                    //スペシャルオラフ待機
                     SoundMan.YesTapSE();
-                    HamsterCon.tutorial = false;
-                    HamsterCon.MovingLimit(false);
-                    PanelMan.tutorial = false;
-                    this.gameObject.SetActive(false);
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    StartCoroutine(FilterHide());                     //フィルター非表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 13:
+                    //スペシャルオラフくんは～
+                    SoundMan.YesTapSE();
+                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    TextShow(9);                                      //テキスト[9]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 14:
+                    //おっと、次に持っているブロックは～
+                    SoundMan.YesTapSE();
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    FilterShow(6, true);                              //フィルター[6]表示
+                    TextShow(10);                                     //テキスト[10]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 15:
+                    //手持ちのブロックが入れ替わったね～
+                    SoundMan.YesTapSE();
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    TextShow(11);                                     //テキスト[11]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 16:
+                    //次にフィーバータイムについて～
+                    SoundMan.YesTapSE();
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    StartCoroutine(FilterHide());                     //フィルター非表示
+                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    TextShow(12);                                     //テキスト[12]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 17:
+                    //ブロッコリー投擲待機
+                    SoundMan.YesTapSE();
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 18:
+                    //ブロックをすべて収穫出来たね～
+                    SoundMan.YesTapSE();
+                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    TextShow(13);                                     //テキスト[13]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 19:
+                    //フィーバー開始演出待機
+                    SoundMan.YesTapSE();
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 20:
+                    //フィーバータイムは～
+                    SoundMan.YesTapSE();
+                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    TextShow(14);                                     //テキスト[14]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 21:
+                    //地面に落ちたブロックは収穫はできないよ～
+                    SoundMan.YesTapSE();
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    TextShow(15);                                     //テキスト[15]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 22:
+                    //フィーバー待機
+                    SoundMan.YesTapSE();
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 23:
+                    //うまくキャッチできたかな～
+                    SoundMan.YesTapSE();
+                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    TextShow(16);                                     //テキスト[16]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 24:
+                    //このラインより下にブロックが来たら～
+                    SoundMan.YesTapSE();
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    FilterShow(7, true);                              //フィルター[7]表示
+                    TextShow(17);                                     //テキスト[17]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
+                    break;
+
+                case 25:
+                    //操作方法は分かったかな～
+                    SoundMan.YesTapSE();
+                    StartCoroutine(TextHide());                       //テキスト非表示
+                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    StartCoroutine(FilterHide());                     //フィルター非表示
+                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    TextShow(18);                                     //テキスト[18]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    StartCoroutine(WaitTap());                        //タップ待機
                     break;
             }
-
-        }
-
-        //========================================================================
-        //手フェード
-        //========================================================================
-        //posIndex;   指定座標番号
-        //========================================================================
-        IEnumerator HandMove(int posIndex)
-        {
-            int nowTapNum = tupNum;
-            float oneFrameTime = 0.02f;
-            bool firstMoveEnd = false;
-            float moveSpeed = 0.0f;
-            float handColAlpha = 1.0f;
-            handIma.color = new Color(1, 1, 1, handColAlpha);
-            bool fade = (posIndex <= 1) ? true : false;
-            float moveSpeedFix = (fade) ? 1.5f : 1.0f;
-            float handPos = 0.0f;
-            float comparisonPos = 0.0f;
-            Vector2 targetPos = handEndPos[posIndex];
-            handTra.anchoredPosition = handStartPos[posIndex];
-
-            while (nowTapNum == tupNum)
-            {
-                if (!firstMoveEnd || !fade)
-                {
-                    moveSpeed += oneFrameTime / moveSpeedFix;
-                    handTra.anchoredPosition = Vector2.Lerp(handTra.anchoredPosition, targetPos, moveSpeed);
-                    switch (posIndex)
-                    {
-                        case 1:
-                        case 4:
-                            handPos = handTra.anchoredPosition.x;
-                            comparisonPos = targetPos.x;
-                            break;
-                        default:
-                            handPos = handTra.anchoredPosition.y;
-                            comparisonPos = targetPos.y;
-                            break;
-                    }
-
-                    if (!firstMoveEnd && handPos - 1 <= comparisonPos)
-                    {
-                        firstMoveEnd = true;
-                        moveSpeed = 0.0f;
-                        if (!fade) targetPos = handStartPos[posIndex];
-                    }
-                    else if (firstMoveEnd && handPos + 1 >= comparisonPos)
-                    {
-                        firstMoveEnd = false;
-                        moveSpeed = 0.0f;
-                        targetPos = handEndPos[posIndex];
-                    }
-                }
-                else
-                {
-                    handColAlpha -= oneFrameTime * 2.5f;
-                    handIma.color = new Color(1, 1, 1, handColAlpha);
-                    if (handColAlpha <= 0.0f)
-                    {
-                        firstMoveEnd = false;
-                        handColAlpha = 1.0f;
-                        handIma.color = new Color(1, 1, 1, handColAlpha);
-                        handTra.anchoredPosition = handStartPos[posIndex];
-                    }
-                }
-                yield return new WaitForSecondsRealtime(oneFrameTime);
-            }
-            handIma.color = new Color(1, 1, 1, 1);
         }
 
         //========================================================================
         //テキスト表示
         //========================================================================
-        //textIndex;   テキスト番号
+        //textIndex;  生成するテキスト番号
         //========================================================================
-        public void TextDisplay(int textIndex)
+        void TextShow(int textIndex)
         {
-            textColAlpha[1] = 0.0f;
-            textObj = Instantiate(textBox[textIndex]);
-            textTra = textObj.transform;
-            textText = textTra.GetChild(0).gameObject.GetComponent<Text>();
-            textText.color = new Color(0, 0, 0, 0);
-            if (textIndex == 8 || textIndex == 10 || textIndex == 11)
-            {
-                imageFade = true;
-                if (textIndex == 10)
-                {
-                    textIndexTen = true;
-                    hintIma = textTra.GetChild(2).gameObject.GetComponent<SimpleRoundedImage>();
-                    hintIma.color = new Color(1, textTenColor, 0, 0);
-                }
-                textIma = textTra.GetChild(1).gameObject.GetComponent<Image>();
-                textIma.color = new Color(1, 1, 1, 0);
-            }
-            textTra.SetParent(textBoxTra, false);
-            textDisplay = true;
-            StartCoroutine(TextFade());
+            //テキスト生成
+            textObj[textIndex].SetActive(true);
+            displayTextIndex = textIndex;
+
+            //テキストフェード(対象Image, 対象Text, 変更速度, 変更色の配列(0:現在の色), 比較番号(0:R 1:G 2:B 3:A), 動作回数)
+            StartCoroutine(PaletteChange(fadeTextFilter[displayTextIndex], null, alphaChangeSpeed, textColor, alphaFadeComp, 1));
         }
 
         //========================================================================
-        //テキスト消去
+        //テキスト非表示
         //========================================================================
-        //firstDes;   初関数起動？
-        //========================================================================
-        public IEnumerator TextDestroy(bool firstDes)
+        IEnumerator TextHide()
         {
-            if (firstDes) HamsterCon = GameObject.FindWithTag("Hamster").GetComponent<HamsterPanelController>();
-            textColAlpha[0] = 1.0f;
-            textDestroy = true;
-            StartCoroutine(TextFade());
-            yield return new WaitWhile(() => textDestroy == true);
-            if (textObj != null) Destroy(textObj);
+            StartCoroutine(PaletteChange(fadeTextFilter[displayTextIndex], null, alphaChangeSpeed, new Color[] { textColor[1], textColor[0] }, alphaFadeComp, 1));
+            yield return new WaitForSeconds(destroyWaitTime);
+            textObj[displayTextIndex].SetActive(false);
         }
 
         //========================================================================
-        //テキストフェード
+        //フィルター生成
         //========================================================================
-        IEnumerator TextFade()
+        //filterIndex;  生成するフィルター番号
+        //fade;         フェードあり？
+        //========================================================================
+        void FilterShow(int filterIndex, bool fade)
         {
-            float oneFrameTime = 0.02f;
-            while (true)
+            //テキスト生成
+            filterObj[filterIndex].SetActive(true);
+            displayFilterIndex = filterIndex;
+
+            foreach (Image filter in fadeFilter[filterIndex])
             {
-                if (textDestroy)
-                {
-                    textColAlpha[0] -= oneFrameTime * 2.5f;
-                    if (textObj != null)
-                    {
-                        textText.color = new Color(0, 0, 0, textColAlpha[0]);
-                        if (imageFade) textIma.color = new Color(1, 1, 1, textColAlpha[0]);
-                        if (textIndexTen) hintIma.color = new Color(1, textTenColor, 0, textColAlpha[0]);
-                    }
-                    if (textColAlpha[0] <= 0.0f)
-                    {
-                        textDestroy = false;
-                        break;
-                    }
-                }
-                if (textDisplay)
-                {
-                    textColAlpha[1] += oneFrameTime * 2.5f;
-                    if (textObj != null)
-                    {
-                        textText.color = new Color(0, 0, 0, textColAlpha[1]);
-                        if (imageFade) textIma.color = new Color(1, 1, 1, textColAlpha[1]);
-                        if (textIndexTen) hintIma.color = new Color(1, textTenColor, 0, textColAlpha[1]);
-                    }
-                    if (textColAlpha[1] >= 1.0f)
-                    {
-                        textDestroy = false;
-                        if (imageFade) imageFade = false;
-                        if (textIndexTen) textIndexTen = false;
-                        break;
-                    }
-                }
-                yield return new WaitForSecondsRealtime(oneFrameTime);
+                if (fade) StartCoroutine(PaletteChange(filter, null, alphaChangeSpeed, new Color[] { filterColor[1], filterColor[0] }, alphaFadeComp, 1));
+                else filter.color = filterColor[0];
             }
         }
 
         //========================================================================
-        //フィルター表示
+        //フィルター非表示
         //========================================================================
-        //filterIndex;   フィルター番号
-        //========================================================================
-        public void FilterDisplay(int filterIndex)
+        IEnumerator FilterHide()
         {
-            filter[filterIndex].SetActive(true);
-        }
-
-        //========================================================================
-        //フィルター消去
-        //========================================================================
-        //filterIndex;   フィルター番号
-        //========================================================================
-        public void FilterDestroy(int filterIndex)
-        {
-            filter[filterIndex].SetActive(false);
-        }
-
-        //========================================================================
-        //説明開始
-        //========================================================================
-        public IEnumerator DescriptionStart()
-        {
-            waiting = true;
-            yield return new WaitForSecondsRealtime(displayTime);
-            waiting = false;
-        }
-
-        //========================================================================
-        //時間変更
-        //========================================================================
-        //timeScale;   時間の指定
-        //========================================================================
-        void TimeScaleChange(float timeScale)
-        {
-            Time.timeScale = timeScale;
-        }
-
-        //========================================================================
-        //収穫完了    
-        //========================================================================
-        public IEnumerator HarvestComplete()
-        {
-            if (!ColDescription)
+            foreach (Image filter in fadeFilter[displayFilterIndex])
             {
-                description = false;
-                frontBoxObj.SetActive(true);
-                hand.SetActive(true);
-                handTra.rotation = Quaternion.Euler(180.0f, 0.0f, 0.0f);
-                StartCoroutine(HandMove(2));
-                StartCoroutine(DescriptionStart());
-                calGaugeTra.SetParent(frontBoxTra, true);
-                ColDescription = true;
-                TextDisplay(3);
-                yield return new WaitWhile(() => textDisplay == true);
+                StartCoroutine(PaletteChange(filter, null, 0.02f, filterColor, alphaFadeComp, 1));
+            }
+            yield return new WaitForSeconds(destroyWaitTime);
+            filterObj[displayFilterIndex].SetActive(false);
+        }
+
+        //========================================================================
+        //全面フィルターのフェード
+        //========================================================================
+        //fade;     フェードあり？
+        //display;  表示？
+        //========================================================================
+        void FullFilterSwitch(bool fade, bool display)
+        {
+            if (fade)
+            {
+                //テキストフェード(対象Image, 対象Text, 変更速度, 変更色の配列(0:現在の色), 比較番号(0:R 1:G 2:B 3:A), 動作回数)
+                Color[] ColArray = (display) ? new Color[] { filterColor[1], filterColor[0] } : filterColor;
+                StartCoroutine(PaletteChange(fullFilterIma, null, alphaChangeSpeed, ColArray, alphaFadeComp, 1));
             }
             else
             {
-                description = false;
-                frontBoxObj.SetActive(true);
-                targetTra.SetParent(frontBoxTra, true);
-                harvestTra.SetParent(frontBoxTra, true);
-                hand.SetActive(true);
-                handTra.rotation = Quaternion.Euler(180.0f, 0.0f, 90.0f);
-                StartCoroutine(HandMove(4));
-                StartCoroutine(DescriptionStart());
-                TextDisplay(8);
-                yield return new WaitWhile(() => textDisplay == true);
+                fullFilterIma.color = (display) ? filterColor[0] : filterColor[1];
             }
-        }
-
-        //========================================================================
-        //ハムスター移動完了
-        //========================================================================
-        //textIndex;   テキスト番号
-        //filterIndex; フィルター番号
-        //========================================================================
-        public IEnumerator HamsterMovingComplete(int textIndex, int filterIndex)
-        {
-            description = false;
-            StartCoroutine(TextDestroy(false));
-            yield return new WaitWhile(() => textDestroy == true);
-            StartCoroutine(DescriptionStart());
-            TimeScaleChange(0.0f);
-            FilterDestroy(filterIndex - 1);
-            FilterDisplay(filterIndex);
-            TextDisplay(textIndex);
-            yield return new WaitWhile(() => textDisplay == true);
         }
     }
 }

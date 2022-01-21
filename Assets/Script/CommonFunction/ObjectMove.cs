@@ -593,6 +593,7 @@ namespace MoveFunction
                 //-------------------------
                 //Image
                 //-------------------------
+                ima.color = colArray[nowIndex];
                 while (infinite || loopTimes < chengeCount)
                 {
                     ima.color = Color.Lerp(ima.color, colArray[nextIndex], changeSpeed);
@@ -613,12 +614,14 @@ namespace MoveFunction
                     }
                     yield return new WaitForSecondsRealtime(oneFrameTime);
                 }
+                ima.color = colArray[nowIndex];
             }
             else
             {
                 //-------------------------
                 //Text
                 //-------------------------
+                tex.color = colArray[nowIndex];
                 while (infinite || loopTimes < chengeCount)
                 {
                     tex.color = Color.Lerp(tex.color, colArray[nextIndex], changeSpeed);
@@ -639,6 +642,7 @@ namespace MoveFunction
                     }
                     yield return new WaitForSecondsRealtime(oneFrameTime);
                 }
+                tex.color = colArray[nowIndex];
             }
         }
 
