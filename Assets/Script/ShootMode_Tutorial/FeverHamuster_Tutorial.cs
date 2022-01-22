@@ -31,6 +31,7 @@ namespace ShootMode_Tutorial
         BlockManager_Tutorial blockMan;   //BlockManager
         ScoreManager_Tutorial scoreMan;   //ScoreManager
         GameObject mainHamObj;            //メインハムスターオブジェクト
+        TutorialManager tutorialMan;      //チュートリアルマネージャー
         Camera mainCamera;                //メインカメラ
         bool hamsterMove;                 //移動開始フラグ
 
@@ -57,9 +58,10 @@ namespace ShootMode_Tutorial
             blockTag = new string[vegetableType.Length];
             foreach (VegetableType value in vegetableType)
             { blockTag[(int)value] = Enum.GetName(typeof(VegetableType), value); }
-            blockMan   = GameObject.FindWithTag("BlockManager").GetComponent<BlockManager_Tutorial>();
-            scoreMan   = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager_Tutorial>();
-            mainHamObj = GameObject.FindWithTag("Hamster");
+            blockMan    = GameObject.FindWithTag("BlockManager").GetComponent<BlockManager_Tutorial>();
+            scoreMan    = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager_Tutorial>();
+            mainHamObj  = GameObject.FindWithTag("Hamster");
+            tutorialMan = GameObject.Find("Tutorial").GetComponent<TutorialManager>();
 
             //フィーバー開始オブジェクト画面中央まで移動
             float moveSpeed   = 15.0f;
@@ -114,6 +116,9 @@ namespace ShootMode_Tutorial
             yield return new WaitForSeconds(mvoeTime);
             Destroy(startObjTra.gameObject);
 
+            //次の説明へ
+            tutorialMan.NextDescriptionStart();
+
             //ハムスター移動可能
             hamsterMove = true;
             StartCoroutine(HamsterMove());
@@ -140,6 +145,9 @@ namespace ShootMode_Tutorial
             //メインハムスター表示
             mainHamObj.SetActive(true);
             FEVER_START = false;
+
+            //次の説明へ
+            tutorialMan.NextDescriptionStart();
             Destroy(this.gameObject);
         }
 

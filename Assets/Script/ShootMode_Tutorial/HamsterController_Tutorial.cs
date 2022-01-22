@@ -33,6 +33,10 @@ namespace ShootMode_Tutorial
         [SerializeField]
         BlockManager_Tutorial blockMan;
 
+        [Header("チュートリアルマネージャー")]
+        [SerializeField]
+        TutorialManager tutorialMan;
+
         float magnification;               //タップ位置修正倍率
         float differenceX;                 //タップ位置修正数X
         float differenceY;                 //タップ位置修正数Y
@@ -82,20 +86,26 @@ namespace ShootMode_Tutorial
                 //特定の動作中？
                 if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow && !SPECIAL_HARVEST && !FEVER_START && !SETTING_DISPLAY)
                 {
-                    //sprite変更
-                    spriteNum = (spriteNum == 0) ? 2 : 3;
-                    ima.sprite = hamsterSprite[spriteNum];
+                    if (tutorialMan.throwWait)
+                    {
+                        //投擲指示手非表示
+                        tutorialMan.HandHide();
 
-                    //ブロックの位置変更
-                    tra.SetSiblingIndex(0);
-                    blockMan.ThrowBlockPosChange(spriteNum);
+                        //sprite変更
+                        spriteNum  = (spriteNum == 0) ? 2 : 3;
+                        ima.sprite = hamsterSprite[spriteNum];
+
+                        //ブロックの位置変更
+                        tra.SetSiblingIndex(0);
+                        blockMan.ThrowBlockPosChange(spriteNum);
 
 
-                    //線の色変更
-                    ren.material.color = new Color(nowBlockColor.r, nowBlockColor.g, nowBlockColor.b, 1.0f);
+                        //線の色変更
+                        ren.material.color = new Color(nowBlockColor.r, nowBlockColor.g, nowBlockColor.b, 1.0f);
 
-                    //投擲準備
-                    StartCoroutine(PreparingThrowBlock());
+                        //投擲準備
+                        StartCoroutine(PreparingThrowBlock());
+                    }
                 }
             }
         }

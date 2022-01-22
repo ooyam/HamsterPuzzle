@@ -2101,6 +2101,7 @@ RectTransform:
   - {fileID: 566368831}
   - {fileID: 1464986801}
   - {fileID: 1144189542}
+  - {fileID: 843420930}
   - {fileID: 676138442}
   - {fileID: 456433135}
   - {fileID: 1231553351}
@@ -2466,7 +2467,7 @@ RectTransform:
   m_Children:
   - {fileID: 1101590687}
   m_Father: {fileID: 387283806}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.85}
   m_AnchorMax: {x: 1, y: 1}
@@ -3445,7 +3446,7 @@ RectTransform:
   - {fileID: 776368127}
   - {fileID: 1347318196}
   m_Father: {fileID: 387283806}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -3675,7 +3676,7 @@ RectTransform:
   - {fileID: 663162768}
   - {fileID: 1272146150}
   m_Father: {fileID: 387283806}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0.17}
@@ -4611,6 +4612,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 822785277}
   m_CullTransparentMesh: 0
+--- !u!1 &843420929
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 843420930}
+  - component: {fileID: 843420932}
+  - component: {fileID: 843420931}
+  m_Layer: 5
+  m_Name: BlockCloud
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &843420930
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 843420929}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 387283806}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.7875}
+  m_AnchorMax: {x: 1, y: 0.85}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &843420931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 843420929}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 70980529aa918194fb134e22e964f380, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &843420932
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 843420929}
+  m_CullTransparentMesh: 1
 --- !u!1 &844137464
 GameObject:
   m_ObjectHideFlags: 0
@@ -7092,6 +7168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d6e673c807942d43942a6d8eaa7be45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tutorialMan: {fileID: 615575451}
   blockPre:
   - {fileID: 2902307584617426267, guid: 1bf118380ece3f146a26845a47160bbf, type: 3}
   - {fileID: 8479165431140639888, guid: e025afe11d815a14dbb33771c3332ca3, type: 3}
@@ -7256,7 +7333,7 @@ RectTransform:
   m_Children:
   - {fileID: 1743309514}
   m_Father: {fileID: 387283806}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -7895,6 +7972,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c492b5cf8d379ff45ba6bffe6324aaa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tutorialMan: {fileID: 615575451}
   blockBoxTra: {fileID: 1144189542}
   hamsterSprite:
   - {fileID: 5332207091629344120, guid: deff4e0c27f4cc44b95981d3d3015810, type: 3}
@@ -8611,10 +8689,10 @@ RectTransform:
   m_Father: {fileID: 615575450}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.37, y: 0.474}
-  m_AnchorMax: {x: 0.509, y: 0.552}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -400, y: -650}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1347318197
 MonoBehaviour:
@@ -10528,6 +10606,7 @@ MonoBehaviour:
   - {fileID: 5332207091629344120, guid: deff4e0c27f4cc44b95981d3d3015810, type: 3}
   blockBoxTra: {fileID: 1144189542}
   blockMan: {fileID: 1171080476}
+  tutorialMan: {fileID: 615575451}
 --- !u!120 &1743309518
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -11787,7 +11866,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:

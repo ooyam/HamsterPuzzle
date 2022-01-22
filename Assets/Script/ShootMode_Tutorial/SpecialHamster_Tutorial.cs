@@ -10,6 +10,10 @@ using static MoveFunction.ObjectMove;
 
 public class SpecialHamster_Tutorial : MonoBehaviour
 {
+    [Header("チュートリアルマネージャー")]
+    [SerializeField]
+    TutorialManager tutorialMan;
+
     [Header("ブロックボックス")]
     [SerializeField]
     RectTransform blockBoxTra;
@@ -120,6 +124,10 @@ public class SpecialHamster_Tutorial : MonoBehaviour
     {
         if (specialAvailable && !FEVER_START && !blockMan.throwNow && !blockMan.blockDeleteNow && !SETTING_DISPLAY)
         {
+            //タップ催促手非表示、次の説明へ
+            tutorialMan.HandHide();
+            tutorialMan.NextDescriptionStart();
+
             //キラキラエフェクト
             GameObject effObj = Instantiate(blockMan.effectPre);
             RectTransform effTra = effObj.GetComponent<RectTransform>();
@@ -213,6 +221,9 @@ public class SpecialHamster_Tutorial : MonoBehaviour
             //終了判定
             SPECIAL_HARVEST  = false;
             specialHavestNow = false;
+
+            //次の説明へ
+            tutorialMan.NextDescriptionStart();
         }
         else
         {

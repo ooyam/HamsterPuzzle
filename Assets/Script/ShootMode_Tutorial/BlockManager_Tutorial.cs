@@ -11,6 +11,10 @@ using static MoveFunction.ObjectMove;
 
 public class BlockManager_Tutorial : MonoBehaviour
 {
+    [Header("チュートリアルマネージャー")]
+    [SerializeField]
+    TutorialManager tutorialMan;
+
     [Header("ブロックの取得")]
     [SerializeField]
     GameObject[] blockPre;
@@ -224,32 +228,39 @@ public class BlockManager_Tutorial : MonoBehaviour
     //========================================================================
     IEnumerator ThrowBlockChange()
     {
-        blockChangeNow = true;
+        if (tutorialMan.throwBlockChangeWait)
+        {
 
-        //交換演出
-        int[] blockIndexArray = new int[] { throwBlockIndex, nextThrowBlockIndex };
-        float waitTime = ThrowBlockChangeDirecting(blockIndexArray, new Vector3(0.0f, blockRotDirecting[0], 0.0f));
-        yield return new WaitForSeconds(waitTime);
+            blockChangeNow = true;
 
-        //次投擲ブロックを持つ
-        int nowThorwBlockIndex = throwBlockIndex;
-        HaveThrowBlock();
+            //交換演出
+            int[] blockIndexArray = new int[] { throwBlockIndex, nextThrowBlockIndex };
+            float waitTime = ThrowBlockChangeDirecting(blockIndexArray, new Vector3(0.0f, blockRotDirecting[0], 0.0f));
+            yield return new WaitForSeconds(waitTime);
 
-        //投擲ブロックを次投擲ブロックに置換
-        nextThrowBlockIndex = nowThorwBlockIndex;
-        blockTra[nextThrowBlockIndex].SetParent(nextBlockBoardTra, false);
-        blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
-        blockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
+            //次投擲ブロックを持つ
+            int nowThorwBlockIndex = throwBlockIndex;
+            HaveThrowBlock();
 
-        //各ブロックをの角度を270に設定
-        blockTra[throwBlockIndex].localRotation     = Quaternion.Euler(0.0f, blockRotDirecting[1], 0.0f);
-        blockTra[nextThrowBlockIndex].localRotation = Quaternion.Euler(0.0f, blockRotDirecting[1], 0.0f);
+            //投擲ブロックを次投擲ブロックに置換
+            nextThrowBlockIndex = nowThorwBlockIndex;
+            blockTra[nextThrowBlockIndex].SetParent(nextBlockBoardTra, false);
+            blockTra[nextThrowBlockIndex].anchoredPosition = nextThrowBlockPos;
+            blockCollider[0] = blockObj[nextThrowBlockIndex].GetComponent<CircleCollider2D>();
 
-        //交換演出
-        waitTime = ThrowBlockChangeDirecting(blockIndexArray, Vector3.zero);
-        yield return new WaitForSeconds(waitTime);
+            //各ブロックをの角度を270に設定
+            blockTra[throwBlockIndex].localRotation = Quaternion.Euler(0.0f, blockRotDirecting[1], 0.0f);
+            blockTra[nextThrowBlockIndex].localRotation = Quaternion.Euler(0.0f, blockRotDirecting[1], 0.0f);
 
-        blockChangeNow = false;
+            //交換演出
+            waitTime = ThrowBlockChangeDirecting(blockIndexArray, Vector3.zero);
+            yield return new WaitForSeconds(waitTime);
+
+            blockChangeNow = false;
+
+            //次の説明へ
+            tutorialMan.NextDescriptionStart();
+        }
     }
 
     //========================================================================
@@ -497,6 +508,20 @@ public class BlockManager_Tutorial : MonoBehaviour
         //投擲ブロック停止座標指定
         blockTra[throwBlockIndex].anchoredPosition = blockPos[arrangementPos[0]][arrangementPos[1]][arrangementPos[2]];
         blockPosIndex[throwBlockIndex] = arrangementPos;
+
+        //接触がPaprikaだった場合
+        if (obj.tag == "Paprika")
+        {
+            //次の説明へ
+            tutorialMan.NextDescriptionStart();
+            Time.timeScale = 0;
+        }
+        //接触がCabbageだった場合
+        else if (obj.tag == "Cabbage")
+        {
+            //フィルターフェードアウト
+            StartCoroutine(tutorialMan.FilterHide());
+        }
 
         //ブロック削除
         AdjacentSameTagBlockJudgment(throwBlockIndex);
@@ -870,6 +895,9 @@ public class BlockManager_Tutorial : MonoBehaviour
 
             //削除
             BlockDelete(nowDeleteIndex.ToArray());
+
+            //次の説明へ
+            tutorialMan.NextDescriptionStart();
 
             //クリア判定
             if (GAME_CLEAR)

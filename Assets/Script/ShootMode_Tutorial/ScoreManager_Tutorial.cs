@@ -177,5 +177,21 @@ namespace ShootMode_Tutorial
                 }
             }
         }
+
+
+        //========================================================================
+        //ã≠êßÉNÉäÉA
+        //========================================================================
+        public void ForcedClear()
+        {
+            GAME_CLEAR = true;
+            for (int index = 0; index < tarVegNum; index++)
+            {
+                targetNumIma[targetIndex[index]][0].sprite = targetNumSpr[11];
+                targetNumIma[targetIndex[index]][1].sprite = targetNumSpr[10];
+                targetNumTra[targetIndex[index]].anchoredPosition = new Vector2(0.0f, 0.0f);
+            }
+            StartCoroutine(GameObject.Find("ShootModeManager").GetComponent<ShootModeManager_Tutorial>().GameClear());
+        }
     }
 }
