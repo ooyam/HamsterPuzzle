@@ -4,7 +4,6 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using ShootMode_Tutorial;
-using GFramework;
 using static ShootMode.ShootModeDefine;
 using static ShootMode_Tutorial.ShootModeManager_Tutorial;
 using static MoveFunction.ObjectMove;
@@ -38,8 +37,10 @@ public class BlockManager_Tutorial : MonoBehaviour
     [Header("ブロックボックス")]
     [SerializeField]
     RectTransform blockBoxTra;
-    float blockBoxHight;  //ブロックボックス高さ
-    float blockPosFixY;   //ブロックボックス高さ / 2 - ブロック半径
+    float blockBoxHight;         //ブロックボックス高さ
+    float blockPosFixY;          //ブロックボックス高さ / 2 - ブロック半径
+    RectTransform blockCloudTra; //ブロック生成雲RectTransform
+    Vector2 blockCloudPos;       //ブロック生成雲定位置
 
     [Header("ハムスターボックス")]
     [SerializeField]
@@ -85,8 +86,10 @@ public class BlockManager_Tutorial : MonoBehaviour
 
     IEnumerator Start()
     {
-        hamsterScr  = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController_Tutorial>();
-        usingVegNum = useVegNum;
+        blockCloudTra = blockBoxTra.GetChild(blockBoxTra.childCount - 1).GetComponent<RectTransform>();
+        blockCloudPos = blockCloudTra.anchoredPosition;
+        hamsterScr    = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController_Tutorial>();
+        usingVegNum   = useVegNum;
         throwBlockPos[0]  = new Vector2(70.0f, -10.0f);
         throwBlockPos[1]  = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
         throwBlockPos[2]  = new Vector2(70.0f, -50.0f);
@@ -99,7 +102,7 @@ public class BlockManager_Tutorial : MonoBehaviour
         blockTag   = new string[blockPreCount];
         for (int blockPreInd = 0; blockPreInd < blockPreCount; blockPreInd++)
         {
-            blockColor[blockPreInd] = blockPre[blockPreInd].transform.GetChild(0).GetComponent<GFramework.SimpleRoundedImage>().color;
+            blockColor[blockPreInd] = blockPre[blockPreInd].transform.GetChild(0).GetComponent<Image>().color;
             blockTag[blockPreInd]   = blockPre[blockPreInd].tag;
         }
 
@@ -406,6 +409,10 @@ public class BlockManager_Tutorial : MonoBehaviour
                         if (objIndex == objCount - 1 && blockTra[objIndex].anchoredPosition.y < targetPosY + 5.0f) bound = true;
                     }
                 }
+
+                //雲下降
+                Vector2 cloudTargetPos = new Vector2(blockCloudPos.x, blockCloudPos.y - boundHigh);
+                blockCloudTra.anchoredPosition = Vector2.Lerp(blockCloudTra.anchoredPosition, cloudTargetPos, speed);
             }
             else
             {
@@ -422,6 +429,11 @@ public class BlockManager_Tutorial : MonoBehaviour
                         if (objIndex == objCount - 1 && blockTra[objIndex].anchoredPosition.y > targetPos.y) loopEnd = true;
                     }
                 }
+
+                //雲上昇
+                blockCloudTra.anchoredPosition = Vector2.Lerp(blockCloudTra.anchoredPosition, blockCloudPos, speed);
+
+                //処理終了
                 if (loopEnd) break;
             }
             yield return new WaitForSeconds(oneFrameTime);
@@ -433,6 +445,7 @@ public class BlockManager_Tutorial : MonoBehaviour
             if (throwBlockIndex != objIndex && nextThrowBlockIndex != objIndex && nowDeleteIndex.IndexOf(objIndex) < 0)
                 blockTra[objIndex].anchoredPosition = blockPos[blockPosIndex[objIndex][0]][blockPosIndex[objIndex][1]][blockPosIndex[objIndex][2]];
         }
+        blockCloudTra.anchoredPosition = blockCloudPos;
         blockGenerateNow = false;
     }
 
@@ -464,70 +477,95 @@ public class BlockManager_Tutorial : MonoBehaviour
     }
 
     //========================================================================
+    //ブロック接続失敗
+    //========================================================================
+    IEnumerator BlockConnectMiss()
+    {
+        throwNow = false;
+        yield return new WaitForSeconds(0.3f);
+        ThrowBlockPosChange(hamsterScr.spriteNum % 2);
+        blockTra[throwBlockIndex].SetSiblingIndex(0);
+        yield return null;
+        blockObj[throwBlockIndex].AddComponent<BlockController_Tutorial>();
+        blockCollider[1].enabled = false;
+    }
+
+    //========================================================================
     //ブロック接続
     //========================================================================
     //obj; 接続するブロック
     //========================================================================
     public void BlockConnect(GameObject obj)
     {
-        //ブロックボックスの子オブジェクトに変更
-        blockTra[throwBlockIndex].SetParent(blockBoxTra, true);
-
-        int conObjIndex       = blockObj.IndexOf(obj);                         //接続ブロックの番号取得
-        int[] conObjPosIndex  = blockPosIndex[conObjIndex];                    //接続ブロックの座標番号
-        Vector3 conObjPos     = blockTra[conObjIndex].anchoredPosition;        //接続ブロックの座標
-        Vector3 throwBlockPos = blockTra[throwBlockIndex].anchoredPosition;    //投擲ブロックの座標
-
-        float posJudge   = blockDiameter / 3.0f;                               //配置判定座標
-        bool placedOn    = throwBlockPos.y >= conObjPos.y + posJudge;          //上に配置
-        bool placedUnder = throwBlockPos.y <= conObjPos.y - posJudge;          //下に配置
-        bool placedRight = throwBlockPos.x >= conObjPos.x;                     //右側に接触？
-        bool conBlockPatternTen = conObjPosIndex[0] == 1;                      //接続ブロックが10列パターン？
-
-        int[] arrangementPos = new int[3]; //投擲ブロック配置座標 0:パターン番号 1:行番号 2:列番号
-
-        //パターン指定
-        if (placedUnder || placedOn) arrangementPos[0] = (conBlockPatternTen) ? 0 : 1;
-        else arrangementPos[0] = conObjPosIndex[0];
-
-        //行指定
-        if (placedUnder)   arrangementPos[1] = conObjPosIndex[1] + 1;  //下の行にセット
-        else if (placedOn) arrangementPos[1] = conObjPosIndex[1] - 1;  //上の行にセット
-        else               arrangementPos[1] = conObjPosIndex[1];      //同じ行にセット
-
-        //列指定
-        if (placedUnder || placedOn)
+        //投擲成功判定
+        if ((tutorialMan.descriptionNum == 3 && obj.tag != "Paprika") ||
+            (tutorialMan.descriptionNum == 9 && obj.tag != "Cabbage"))
         {
-            //10列パターン
-            if (conBlockPatternTen) arrangementPos[2] = (placedRight) ? conObjPosIndex[2] : conObjPosIndex[2] - 1;
-            //9列パターン
-            else arrangementPos[2] = (placedRight) ? conObjPosIndex[2] + 1 : conObjPosIndex[2];
+            //投擲失敗
+            StartCoroutine(BlockConnectMiss());
+            StartCoroutine(tutorialMan.RedoThrow());
         }
-        else arrangementPos[2] = (placedRight) ? conObjPosIndex[2] + 1 : conObjPosIndex[2] - 1; //同列配置
-
-        //投擲ブロック停止座標指定
-        blockTra[throwBlockIndex].anchoredPosition = blockPos[arrangementPos[0]][arrangementPos[1]][arrangementPos[2]];
-        blockPosIndex[throwBlockIndex] = arrangementPos;
-
-        //接触がPaprikaだった場合
-        if (obj.tag == "Paprika")
+        else
         {
-            //次の説明へ
-            tutorialMan.NextDescriptionStart();
-            Time.timeScale = 0;
-        }
-        //接触がCabbageだった場合
-        else if (obj.tag == "Cabbage")
-        {
-            //フィルターフェードアウト
-            StartCoroutine(tutorialMan.FilterHide());
-        }
+            //ブロックボックスの子オブジェクトに変更
+            blockTra[throwBlockIndex].SetParent(blockBoxTra, true);
 
-        //ブロック削除
-        AdjacentSameTagBlockJudgment(throwBlockIndex);
+            int conObjIndex       = blockObj.IndexOf(obj);                         //接続ブロックの番号取得
+            int[] conObjPosIndex  = blockPosIndex[conObjIndex];                    //接続ブロックの座標番号
+            Vector3 conObjPos     = blockTra[conObjIndex].anchoredPosition;        //接続ブロックの座標
+            Vector3 throwBlockPos = blockTra[throwBlockIndex].anchoredPosition;    //投擲ブロックの座標
 
-        //投擲終了
-        throwNow = false;
+            float posJudge   = blockDiameter / 3.0f;                               //配置判定座標
+            bool placedOn    = throwBlockPos.y >= conObjPos.y + posJudge;          //上に配置
+            bool placedUnder = throwBlockPos.y <= conObjPos.y - posJudge;          //下に配置
+            bool placedRight = throwBlockPos.x >= conObjPos.x;                     //右側に接触？
+            bool conBlockPatternTen = conObjPosIndex[0] == 1;                      //接続ブロックが10列パターン？
+
+            int[] arrangementPos = new int[3]; //投擲ブロック配置座標 0:パターン番号 1:行番号 2:列番号
+
+            //パターン指定
+            if (placedUnder || placedOn) arrangementPos[0] = (conBlockPatternTen) ? 0 : 1;
+            else arrangementPos[0] = conObjPosIndex[0];
+
+            //行指定
+            if (placedUnder)   arrangementPos[1] = conObjPosIndex[1] + 1;  //下の行にセット
+            else if (placedOn) arrangementPos[1] = conObjPosIndex[1] - 1;  //上の行にセット
+            else               arrangementPos[1] = conObjPosIndex[1];      //同じ行にセット
+
+            //列指定
+            if (placedUnder || placedOn)
+            {
+                //10列パターン
+                if (conBlockPatternTen) arrangementPos[2] = (placedRight) ? conObjPosIndex[2] : conObjPosIndex[2] - 1;
+                //9列パターン
+                else arrangementPos[2] = (placedRight) ? conObjPosIndex[2] + 1 : conObjPosIndex[2];
+            }
+            else arrangementPos[2] = (placedRight) ? conObjPosIndex[2] + 1 : conObjPosIndex[2] - 1; //同列配置
+
+            //投擲ブロック停止座標指定
+            blockTra[throwBlockIndex].anchoredPosition = blockPos[arrangementPos[0]][arrangementPos[1]][arrangementPos[2]];
+            blockPosIndex[throwBlockIndex] = arrangementPos;
+
+            //接触がPaprikaだった場合
+            if (obj.tag == "Paprika")
+            {
+                //次の説明へ
+                tutorialMan.NextDescriptionStart();
+                Time.timeScale = 0;
+            }
+            //接触がCabbageだった場合
+            else if (obj.tag == "Cabbage")
+            {
+                //フィルターフェードアウト
+                StartCoroutine(tutorialMan.FilterHide());
+            }
+
+            //ブロック削除
+            AdjacentSameTagBlockJudgment(throwBlockIndex);
+
+            //投擲終了
+            throwNow = false;
+        }
     }
 
     //========================================================================
@@ -841,8 +879,8 @@ public class BlockManager_Tutorial : MonoBehaviour
             directingEnd[index] = false;
             fallStart[index]    = false;
 
-            //子オブジェクトインデックス番号最後尾に変更
-            blockTra[deleteObjIndex[index]].SetSiblingIndex(blockBoxTra.childCount - 1);
+            //子オブジェクトインデックス番号最後尾に変更(雲を除く)
+            blockTra[deleteObjIndex[index]].SetSiblingIndex(blockBoxTra.childCount - 2);
         }
 
         int loopTimes     = 0;  //処理回数

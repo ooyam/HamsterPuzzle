@@ -29,7 +29,7 @@ namespace ShootMode
         string[] blockTag;       //ブロックタグリスト
         BlockManager blockMan;   //BlockManager
         ScoreManager scoreMan;   //ScoreManager
-        GameObject mainHamObj;   //メインハムスターオブジェクト
+        GameObject mainHamObj;   //メインハムスターBoxオブジェクト
         Camera mainCamera;       //メインカメラ
         bool hamsterMove;        //移動開始フラグ
 
@@ -58,7 +58,7 @@ namespace ShootMode
             { blockTag[(int)value] = Enum.GetName(typeof(VegetableType), value); }
             blockMan   = GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>();
             scoreMan   = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager>();
-            mainHamObj = GameObject.FindWithTag("Hamster");
+            mainHamObj = GameObject.FindWithTag("HamsterBox");
 
             //フィーバー開始オブジェクト画面中央まで移動
             float moveSpeed   = 15.0f;

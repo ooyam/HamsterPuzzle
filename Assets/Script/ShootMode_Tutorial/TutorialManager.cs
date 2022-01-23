@@ -33,6 +33,10 @@ namespace ShootMode_Tutorial
         bool handShow;     //手表示フラグ
         bool handNowMove;  //手動作中フラグ
 
+        [Header("ゲームオーバーライン")]
+        [SerializeField]
+        Image gameOverLineIma;
+
         HamsterController_Tutorial hamsterCon;   //HamsterController_Tutorial
         BlockManager_Tutorial blockMan;          //BlockManager_Tutorial
         SoundManager SoundMan;                   //SoundManager
@@ -45,18 +49,23 @@ namespace ShootMode_Tutorial
         Image[] fadeTextFilter;       //フェードText用フィルター
         int displayTextIndex;         //表示中のText番号
 
-        int descriptionNum    = 0;     //説明番号
-        float minDispalyTime  = 3.0f;  //説明最低表示時間
-        float imaFadeSpeed    = 0.2f;  //フェード速度
-        float destroyWaitTime = 0.3f;  //フェードアウト待機時間
-        int[] alphaFadeComp = new int[] { 3, 3 };  //比較番号指定配列(0:R 1:G 2:B 3:A)
+        [System.NonSerialized]
+        public int descriptionNum = 0;     //説明番号
+        float minDispalyTime      = 1.5f;  //説明最低表示時間
+        float imaFadeSpeed        = 0.2f;  //フェード速度
+        float destroyWaitTime     = 0.3f;  //フェードアウト待機時間
 
-        Color[] appearance  = new Color[] { new Color(1, 1, 1, 0), Color.white };               //透明 → 白
-        Color[] transparent = new Color[] { Color.white, new Color(1, 1, 1, 0) };               //白 → 透明
-        Color[] filterColor = new Color[] { new Color(0, 0, 0, 160.0f / 255.0f), Color.clear }; //黒半透明 → 透明
+        int[] alphaFadeComp = new int[] { 3, 3, 3 };                                                          //比較番号指定配列(0:R 1:G 2:B 3:A)
+        Color[] appearance  = new Color[] { new Color(1, 1, 1, 0), Color.white };                             //透明 → 白
+        Color[] transparent = new Color[] { Color.white, new Color(1, 1, 1, 0) };                             //白 → 透明
+        Color[] filterColor = new Color[] { new Color(0, 0, 0, 160.0f / 255.0f), Color.clear };               //黒半透明 → 透明
+        Color[] blackout    = new Color[] { Color.clear, Color.black, new Color(0, 0, 0, 160.0f / 255.0f) };  //透明 → 黒 → 黒半透明
+        Color[] lineColor   = new Color[] { Color.white, new Color(1, 1, 1, 50.0f / 255.0f) };                //白 → 半透明
 
         [System.NonSerialized]
-        public bool throwWait; //投擲待機フラグ
+        public bool throwWait;            //投擲待機フラグ
+        [System.NonSerialized]
+        public bool specialHamsterWait;   //スペシャルオラフ待機フラグ
         [System.NonSerialized]
         public bool throwBlockChangeWait; //nextブロックタップ待機フラグ
 
@@ -123,6 +132,25 @@ namespace ShootMode_Tutorial
         }
 
         //========================================================================
+        //投擲やり直し
+        //========================================================================
+        public IEnumerator RedoThrow()
+        {
+            throwWait = false;             //投擲可能フラグfalse
+            descriptionNum--;              //説明番号戻し
+            StartCoroutine(FilterHide());  //フィルター非表示
+            StartCoroutine(PaletteChange(fullFilterIma, null, imaFadeSpeed, blackout, alphaFadeComp, 2));  //暗転
+            yield return new WaitForSeconds(destroyWaitTime);  //暗転待機
+
+            //パプリカ投擲時
+            if (descriptionNum == 2) TextShow(19);            //テキスト[19]表示
+            else TextShow(20);                                //テキスト[20]表示
+            yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+            throwWait = true;                                 //投擲可能フラグtrue
+            StartCoroutine(WaitTap());                        //タップ待機
+        }
+
+        //========================================================================
         //説明
         //========================================================================
         IEnumerator Description()
@@ -151,18 +179,21 @@ namespace ShootMode_Tutorial
                 case 2:  //まずはオラフくんをタップして～
                     SoundMan.YesTapSE();
                     StartCoroutine(TextHide());                       //テキスト非表示
-                    StartCoroutine(FilterHide());                     //フィルター非表示
                     yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    StartCoroutine(HandMove(0));                      //手表示[0]
+                    StartCoroutine(FilterHide());                     //フィルター非表示
+                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
                     TextShow(2);                                      //テキスト[2]表示
-                    FilterShow(1, true);                              //フィルター[1]表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 3:  //パプリカ投擲待機
+                    SoundMan.YesTapSE();
                     StartCoroutine(TextHide());                       //テキスト非表示
                     yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    FilterShow(1, true);                              //フィルター[1]表示
+                    StartCoroutine(HandMove(0));                      //手表示[0]
                     throwWait = true;                                 //投擲可能フラグtrue
                     break;
 
@@ -247,10 +278,13 @@ namespace ShootMode_Tutorial
                     FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
                     FilterShow(5, true);                              //フィルター[5]表示
                     TextShow(8);                                      //テキスト[8]表示
+                    yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
+                    specialHamsterWait = true;                        //スペシャルオラフ待機フラグtrue
                     break;
 
                 case 12:  //スペシャルオラフ待機
                     SoundMan.YesTapSE();
+                    specialHamsterWait = false;                       //スペシャルオラフ待機フラグfalse
                     StartCoroutine(TextHide());                       //テキスト非表示
                     yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
                     StartCoroutine(FilterHide());                     //フィルター非表示
@@ -370,12 +404,14 @@ namespace ShootMode_Tutorial
                     FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
                     FilterShow(7, true);                              //フィルター[7]表示
                     TextShow(17);                                     //テキスト[17]表示
+                    gameOverLineIma.color = lineColor[0];             //ゲームオーバーラインはっきり
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 25:  //操作方法は分かったかな～
                     SoundMan.YesTapSE();
+                    gameOverLineIma.color = lineColor[1];             //ゲームオーバーライン戻す
                     HandHide();                                       //手非表示
                     StartCoroutine(TextHide());                       //テキスト非表示
                     yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
@@ -573,7 +609,6 @@ namespace ShootMode_Tutorial
             handShow    = true;
             while (handShow)
             {
-                yield return new WaitForSeconds(interval);                                                  //インターバル
                 handTra.anchoredPosition = handPos[0];                                                      //手座標指定
                 StartCoroutine(PaletteChange(handIma, null, imaFadeSpeed, appearance, alphaFadeComp, 1));   //出現
                 StartCoroutine(ScaleChange(handTra, handScalingSpeed[1], handSize[0], handSize[0], 1));     //縮小
@@ -585,6 +620,7 @@ namespace ShootMode_Tutorial
                 StartCoroutine(PaletteChange(handIma, null, imaFadeSpeed, transparent, alphaFadeComp, 1));  //透過
                 StartCoroutine(ScaleChange(handTra, handScalingSpeed[0], handSize[1], handSize[1], 1));     //拡大
                 yield return new WaitForSeconds(scaleTime);                                                 //拡大待機
+                yield return new WaitForSeconds(interval);                                                  //インターバル
             }
 
             //動作終了

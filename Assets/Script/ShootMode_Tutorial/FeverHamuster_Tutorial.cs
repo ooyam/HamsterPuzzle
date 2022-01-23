@@ -30,7 +30,7 @@ namespace ShootMode_Tutorial
         string[] blockTag;                //ブロックタグリスト
         BlockManager_Tutorial blockMan;   //BlockManager
         ScoreManager_Tutorial scoreMan;   //ScoreManager
-        GameObject mainHamObj;            //メインハムスターオブジェクト
+        GameObject mainHamObj;            //メインハムスターBoxオブジェクト
         TutorialManager tutorialMan;      //チュートリアルマネージャー
         Camera mainCamera;                //メインカメラ
         bool hamsterMove;                 //移動開始フラグ
@@ -60,7 +60,7 @@ namespace ShootMode_Tutorial
             { blockTag[(int)value] = Enum.GetName(typeof(VegetableType), value); }
             blockMan    = GameObject.FindWithTag("BlockManager").GetComponent<BlockManager_Tutorial>();
             scoreMan    = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager_Tutorial>();
-            mainHamObj  = GameObject.FindWithTag("Hamster");
+            mainHamObj  = GameObject.FindWithTag("HamsterBox");
             tutorialMan = GameObject.Find("Tutorial").GetComponent<TutorialManager>();
 
             //フィーバー開始オブジェクト画面中央まで移動
@@ -157,9 +157,16 @@ namespace ShootMode_Tutorial
         IEnumerator HamsterMove()
         {
             float maxX = PLAY_SCREEN_WIDTH / 2.0f;
+            bool firstTap = true;
             while (hamsterMove)
             {
                 yield return new WaitForFixedUpdate();
+                if (firstTap && Input.GetMouseButtonDown(0))
+                {
+                    //手非表示
+                    tutorialMan.HandHide();
+                    firstTap = false;
+                }
                 if (Input.GetMouseButton(0))
                 {
                     Vector3 mousePos = Input.mousePosition;

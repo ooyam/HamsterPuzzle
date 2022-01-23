@@ -30,8 +30,14 @@ public class BlinkingOperation : MonoBehaviour
     [Header("’âŽ~ŽžŠÔ(-1‚ÅŽžŠÔ’âŽ~–³‚µ)")]
     public float endTime;
 
-    // Start is called before the first frame update
-    IEnumerator Start()
+    void OnEnable()
+    {
+        if (tex == null) ima.color = colArray[0];
+        else tex.color = colArray[0];
+        StartCoroutine(BlinkingStart());
+    }
+
+    IEnumerator BlinkingStart()
     {
         yield return new WaitForSecondsRealtime(waitTime);
         StartCoroutine(PaletteChange(ima, tex, changeSpeed, colArray, compArray, chengeCount));

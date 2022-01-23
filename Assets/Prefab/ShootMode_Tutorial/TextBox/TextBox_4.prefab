@@ -427,7 +427,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "<color=red>\u30D1\u30D7\u30EA\u30AB\u30D6\u30ED\u30C3\u30AF</color>\u304C\n\u7E4B\u304C\u3063\u305F\u306D!!\r\n\u3053\u308C\u3067\u3001<color=red>\u30D1\u30D7\u30EA\u30AB</color>\u3092\n5\u3064\u53CE\u7A6B\u3060!!"
+  m_Text: "<color=red>\u30D1\u30D7\u30EA\u30AB\u30D6\u30ED\u30C3\u30AF</color>\u304C\n\u7E4B\u304C\u3063\u305F\u306D!!\r\n\u3053\u308C\u3067\u3001<color=red>\u30D1\u30D7\u30EA\u30AB</color>\u3092\n4\u3064\u53CE\u7A6B\u3060!!"
 --- !u!1 &6330391231608441562
 GameObject:
   m_ObjectHideFlags: 0

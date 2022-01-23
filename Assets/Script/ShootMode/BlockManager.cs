@@ -4,7 +4,6 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using ShootMode;
-using GFramework;
 using static ShootMode.ShootModeDefine;
 using static ShootMode.ShootModeManager;
 using static MoveFunction.ObjectMove;
@@ -34,8 +33,10 @@ public class BlockManager : MonoBehaviour
     [Header("ブロックボックス")]
     [SerializeField]
     RectTransform blockBoxTra;
-    float blockBoxHight;  //ブロックボックス高さ
-    float blockPosFixY;   //ブロックボックス高さ / 2 - ブロック半径
+    float blockBoxHight;         //ブロックボックス高さ
+    float blockPosFixY;          //ブロックボックス高さ / 2 - ブロック半径
+    RectTransform blockCloudTra; //ブロック生成雲RectTransform
+    Vector2 blockCloudPos;       //ブロック生成雲定位置
 
     [Header("ハムスターボックス")]
     [SerializeField]
@@ -78,8 +79,10 @@ public class BlockManager : MonoBehaviour
 
     IEnumerator Start()
     {
-        hamsterScr  = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController>();
-        usingVegNum = useVegNum;
+        blockCloudTra = blockBoxTra.GetChild(blockBoxTra.childCount - 1).GetComponent<RectTransform>();
+        blockCloudPos = blockCloudTra.anchoredPosition;
+        hamsterScr    = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController>();
+        usingVegNum   = useVegNum;
         throwBlockPos[0]  = new Vector2(70.0f, -10.0f);
         throwBlockPos[1]  = new Vector2(-throwBlockPos[0].x, throwBlockPos[0].y);
         throwBlockPos[2]  = new Vector2(70.0f, -50.0f);
@@ -92,7 +95,7 @@ public class BlockManager : MonoBehaviour
         blockTag   = new string[blockPreCount];
         for (int blockPreInd = 0; blockPreInd < blockPreCount; blockPreInd++)
         {
-            blockColor[blockPreInd] = blockPre[blockPreInd].transform.GetChild(0).GetComponent<GFramework.SimpleRoundedImage>().color;
+            blockColor[blockPreInd] = blockPre[blockPreInd].transform.GetChild(0).GetComponent<Image>().color;
             blockTag[blockPreInd]   = blockPre[blockPreInd].tag;
         }
 
@@ -388,6 +391,10 @@ public class BlockManager : MonoBehaviour
                         if (objIndex == objCount - 1 && blockTra[objIndex].anchoredPosition.y < targetPosY + 5.0f) bound = true;
                     }
                 }
+
+                //雲下降
+                Vector2 cloudTargetPos = new Vector2(blockCloudPos.x, blockCloudPos.y - boundHigh);
+                blockCloudTra.anchoredPosition = Vector2.Lerp(blockCloudTra.anchoredPosition, cloudTargetPos, speed);
             }
             else
             {
@@ -404,6 +411,11 @@ public class BlockManager : MonoBehaviour
                         if (objIndex == objCount - 1 && blockTra[objIndex].anchoredPosition.y > targetPos.y) loopEnd = true;
                     }
                 }
+
+                //雲上昇
+                blockCloudTra.anchoredPosition = Vector2.Lerp(blockCloudTra.anchoredPosition, blockCloudPos, speed);
+
+                //処理終了
                 if (loopEnd) break;
             }
             yield return new WaitForSeconds(oneFrameTime);
@@ -415,6 +427,7 @@ public class BlockManager : MonoBehaviour
             if (throwBlockIndex != objIndex && nextThrowBlockIndex != objIndex && nowDeleteIndex.IndexOf(objIndex) < 0)
                 blockTra[objIndex].anchoredPosition = blockPos[blockPosIndex[objIndex][0]][blockPosIndex[objIndex][1]][blockPosIndex[objIndex][2]];
         }
+        blockCloudTra.anchoredPosition = blockCloudPos;
         blockGenerateNow = false;
     }
 
@@ -810,7 +823,7 @@ public class BlockManager : MonoBehaviour
             fallStart[index]    = false;
 
             //子オブジェクトインデックス番号最後尾に変更
-            blockTra[deleteObjIndex[index]].SetSiblingIndex(blockBoxTra.childCount - 1);
+            blockTra[deleteObjIndex[index]].SetSiblingIndex(blockBoxTra.childCount - 2);
         }
 
         int loopTimes     = 0;  //処理回数

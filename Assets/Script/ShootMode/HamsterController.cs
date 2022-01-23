@@ -89,9 +89,8 @@ namespace ShootMode
                     tra.SetSiblingIndex(0);
                     blockMan.ThrowBlockPosChange(spriteNum);
 
-
                     //ü‚ÌF•ÏX
-                    ren.material.color = new Color(nowBlockColor.r, nowBlockColor.g, nowBlockColor.b, 1.0f);
+                    ren.material.color = nowBlockColor;
 
                     //“Š±€”õ
                     StartCoroutine(PreparingThrowBlock());

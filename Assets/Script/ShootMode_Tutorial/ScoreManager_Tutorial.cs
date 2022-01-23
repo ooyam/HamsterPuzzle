@@ -171,9 +171,11 @@ namespace ShootMode_Tutorial
                     targetNumIma[vegIndex][1].sprite = targetNumSpr[10];
                     targetNumTra[vegIndex].anchoredPosition = new Vector2(0.0f, 0.0f);
 
+                    /*
                     //ƒNƒŠƒA”»’è
                     if (!GAME_CLEAR && Array.IndexOf(clearJudge, false) < 0)
                         GAME_CLEAR = true;
+                    */
                 }
             }
         }

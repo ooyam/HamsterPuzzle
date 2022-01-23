@@ -33,6 +33,7 @@ TagManager:
   - NextBlockBoard
   - SpecialHamster
   - Basket
+  - HamsterBox
   layers:
   - Default
   - TransparentFX
