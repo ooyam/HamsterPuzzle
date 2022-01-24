@@ -30,6 +30,7 @@ public class SpecialHamster : MonoBehaviour
     bool specialAvailable;        //スペシャル使用可能状態？
     [System.NonSerialized]
     public bool specialHavestNow; //収穫中？
+    bool noTaps;                  //タップ禁止フラグ
 
     string[] blockTag;        //ブロックタグリスト
     BlockManager blockMan;    //BlockManager
@@ -117,112 +118,119 @@ public class SpecialHamster : MonoBehaviour
     //========================================================================
     IEnumerator OneLineHarvest()
     {
-        if (specialAvailable && !FEVER_START && !blockMan.throwNow && !blockMan.blockDeleteNow && !SETTING_DISPLAY)
+        if (!noTaps)
         {
-            //キラキラエフェクト
-            GameObject effObj = Instantiate(blockMan.effectPre);
-            RectTransform effTra = effObj.GetComponent<RectTransform>();
-            effTra.SetParent(tra, false);
-            effTra.anchoredPosition = Vector2.zero;
+            if (specialAvailable && !FEVER_START && !SETTING_DISPLAY)
+            {
+                //タップ禁止
+                noTaps = true;
 
-            //一部の動作中は終了するまで待機
-            yield return new WaitWhile(() => blockMan.throwNow == true);         //投擲
-            yield return new WaitWhile(() => blockMan.blockGenerateNow == true); //ブロック生成
-            yield return new WaitWhile(() => blockMan.blockDeleteNow == true);   //ブロック削除
-            yield return new WaitWhile(() => blockMan.blockChangeNow == true);   //投擲ブロック切り替え
+                //キラキラエフェクト
+                GameObject effObj = Instantiate(blockMan.effectPre);
+                RectTransform effTra = effObj.GetComponent<RectTransform>();
+                effTra.SetParent(tra, false);
+                effTra.anchoredPosition = Vector2.zero;
 
-            //収穫開始
-            SPECIAL_HARVEST  = true;
-            specialAvailable = false;
-            yield return new WaitUntil(() => specialHavestNow == true);
+                //一部の動作中は終了するまで待機
+                yield return new WaitWhile(() => blockMan.throwNow == true);         //投擲
+                yield return new WaitWhile(() => blockMan.blockGenerateNow == true); //ブロック生成
+                yield return new WaitWhile(() => blockMan.blockDeleteNow == true);   //ブロック削除
+                yield return new WaitWhile(() => blockMan.blockChangeNow == true);   //投擲ブロック切り替え
 
-            //現座標・Collider・scale取得
-            Vector2 defaultCollSize = coll.size;
-            Vector2 defaultCollOff  = coll.offset;
-            Vector3 defaultScale    = tra.localScale;
+                //収穫開始
+                SPECIAL_HARVEST  = true;
+                specialAvailable = false;
+                yield return new WaitUntil(() => specialHavestNow == true);
 
-            //各動作遅延時間
-            float delayTime = 0.5f;
+                //現座標・Collider・scale取得
+                Vector2 defaultCollSize = coll.size;
+                Vector2 defaultCollOff  = coll.offset;
+                Vector3 defaultScale    = tra.localScale;
 
-            //ハムスターSprite変更
-            tra.rotation   = Quaternion.Euler(0.0f, 180.0f, 0.0f);
-            ima.sprite     = hamsterSprite[1];
-            tra.localScale = new Vector3(0.9f, 1.0f, 1.0f);
-            yield return new WaitForSeconds(delayTime);
-            ima.sprite     = hamsterSprite[2];
-            tra.localScale = new Vector3(1.0f, 0.8f, 1.0f);
+                //各動作遅延時間
+                float delayTime = 0.5f;
 
-            //右端(画面外)に移動設定
-            float moveSpeed   = 12.0f;
-            float acceleRate  = 1.0f;
-            float rightPosX   = PLAY_SCREEN_WIDTH / 2.0f + 100.0f;
-            Vector2 targetPos = new Vector2(rightPosX, defaultPos.y);
-            float mvoeTime    = GetMoveTime(tra, moveSpeed, acceleRate, targetPos);
+                //ハムスターSprite変更
+                tra.rotation   = Quaternion.Euler(0.0f, 180.0f, 0.0f);
+                ima.sprite     = hamsterSprite[1];
+                tra.localScale = new Vector3(0.9f, 1.0f, 1.0f);
+                yield return new WaitForSeconds(delayTime);
+                ima.sprite     = hamsterSprite[2];
+                tra.localScale = new Vector3(1.0f, 0.8f, 1.0f);
 
-            //揺れ設定
-            float rotSpeed = 2.0f;      //揺れ速度
-            float maxRot   = 10.0f;     //揺れ角度
-            int moveCount  = -1;        //1サイクル動作回数(カウントしない場合は - 1指定)
-            float stopTime = 0.0f;      //停止時間
-            int breakCount = -1;        //終了サイクル数(無限ループの場合は - 1指定)
-            float endTime  = mvoeTime;  //揺れ終了時間(時間で止めない場合は - 1指定)
+                //右端(画面外)に移動設定
+                float moveSpeed   = 12.0f;
+                float acceleRate  = 1.0f;
+                float rightPosX   = PLAY_SCREEN_WIDTH / 2.0f + 100.0f;
+                Vector2 targetPos = new Vector2(rightPosX, defaultPos.y);
+                float mvoeTime    = GetMoveTime(tra, moveSpeed, acceleRate, targetPos);
 
-            //移動開始
-            StartCoroutine(ShakeMovement(tra, rotSpeed, maxRot, moveCount, stopTime, breakCount, endTime));
-            StartCoroutine(MoveMovement(tra, moveSpeed, acceleRate, targetPos));
-            yield return new WaitForSeconds(mvoeTime + delayTime);
+                //揺れ設定
+                float rotSpeed = 2.0f;      //揺れ速度
+                float maxRot   = 10.0f;     //揺れ角度
+                int moveCount  = -1;        //1サイクル動作回数(カウントしない場合は - 1指定)
+                float stopTime = 0.0f;      //停止時間
+                int breakCount = -1;        //終了サイクル数(無限ループの場合は - 1指定)
+                float endTime  = mvoeTime;  //揺れ終了時間(時間で止めない場合は - 1指定)
 
-            //収穫ライン右端に移動し反転
-            tra.SetParent(blockBoxTra, false);
-            tra.anchoredPosition = new Vector2(rightPosX, lowestLinePosY);
-            tra.rotation         = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-            coll.size            = new Vector2(50.0f, 30.0f);
-            coll.offset          = new Vector2(-30.0f, 0.0f);
+                //移動開始
+                StartCoroutine(ShakeMovement(tra, rotSpeed, maxRot, moveCount, stopTime, breakCount, endTime));
+                StartCoroutine(MoveMovement(tra, moveSpeed, acceleRate, targetPos));
+                yield return new WaitForSeconds(mvoeTime + delayTime);
 
-            //左端に移動
-            float leftPosX = -rightPosX;
-            targetPos      = new Vector2(leftPosX, lowestLinePosY);
-            mvoeTime       = GetMoveTime(tra, moveSpeed, acceleRate, targetPos);
-            endTime        = mvoeTime;
+                //収穫ライン右端に移動し反転
+                tra.SetParent(blockBoxTra, false);
+                tra.anchoredPosition = new Vector2(rightPosX, lowestLinePosY);
+                tra.rotation         = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+                coll.size            = new Vector2(50.0f, 30.0f);
+                coll.offset          = new Vector2(-30.0f, 0.0f);
 
-            //移動開始
-            StartCoroutine(ShakeMovement(tra, rotSpeed, maxRot, moveCount, stopTime, breakCount, endTime));
-            StartCoroutine(MoveMovement(tra, moveSpeed, acceleRate, targetPos));
-            yield return new WaitForSeconds(mvoeTime + delayTime);
+                //左端に移動
+                float leftPosX = -rightPosX;
+                targetPos      = new Vector2(leftPosX, lowestLinePosY);
+                mvoeTime       = GetMoveTime(tra, moveSpeed, acceleRate, targetPos);
+                endTime        = mvoeTime;
 
-            //元の場所の右端に移動
-            tra.SetParent(parentTra, false);
-            tra.anchoredPosition = new Vector2(rightPosX, defaultPos.y);
+                //移動開始
+                StartCoroutine(ShakeMovement(tra, rotSpeed, maxRot, moveCount, stopTime, breakCount, endTime));
+                StartCoroutine(MoveMovement(tra, moveSpeed, acceleRate, targetPos));
+                yield return new WaitForSeconds(mvoeTime + delayTime);
 
-            //元の場所に移動
-            mvoeTime = GetMoveTime(tra, moveSpeed, acceleRate, defaultPos);
-            endTime  = mvoeTime;
+                //元の場所の右端に移動
+                tra.SetParent(parentTra, false);
+                tra.anchoredPosition = new Vector2(rightPosX, defaultPos.y);
 
-            //移動開始
-            StartCoroutine(MoveMovement(tra, moveSpeed, acceleRate, defaultPos));
-            yield return new WaitForSeconds(mvoeTime);
+                //元の場所に移動
+                mvoeTime = GetMoveTime(tra, moveSpeed, acceleRate, defaultPos);
+                endTime  = mvoeTime;
 
-            //ハムスターSprite変更
-            ima.sprite = hamsterSprite[0];
-            tra.anchoredPosition = defaultPos;
-            coll.size            = defaultCollSize;
-            coll.offset          = defaultCollOff;
-            tra.localScale       = defaultScale;
+                //移動開始
+                StartCoroutine(MoveMovement(tra, moveSpeed, acceleRate, defaultPos));
+                yield return new WaitForSeconds(mvoeTime);
 
-            //終了判定
-            SPECIAL_HARVEST  = false;
-            specialHavestNow = false;
-        }
-        else
-        {
-            //収穫NG動作(左右揺れ)
-            tra.anchoredPosition = defaultPos;
-            float shakeSpeed     = 20.0f;    //移動速度
-            float shakeOffsetX   = 10.0f;    //移動座標X
-            float shakeOffsetY   = 0.0f;     //移動座標Y
-            int   shakeTimes     = 4;        //揺れ回数
-            float delayTime      = 0.0f;     //移動間の遅延時間
-            StartCoroutine(SlideShakeMovement(tra, shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime));
+                //ハムスターSprite変更
+                ima.sprite = hamsterSprite[0];
+                tra.anchoredPosition = defaultPos;
+                coll.size            = defaultCollSize;
+                coll.offset          = defaultCollOff;
+                tra.localScale       = defaultScale;
+
+                //終了判定
+                SPECIAL_HARVEST  = false;
+                specialHavestNow = false;
+                noTaps = false;
+            }
+            else
+            {
+                //収穫NG動作(左右揺れ)
+                tra.anchoredPosition = defaultPos;
+                float shakeSpeed     = 20.0f;    //移動速度
+                float shakeOffsetX   = 10.0f;    //移動座標X
+                float shakeOffsetY   = 0.0f;     //移動座標Y
+                int   shakeTimes     = 4;        //揺れ回数
+                float delayTime      = 0.0f;     //移動間の遅延時間
+                StartCoroutine(SlideShakeMovement(tra, shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime));
+            }
         }
     }
 

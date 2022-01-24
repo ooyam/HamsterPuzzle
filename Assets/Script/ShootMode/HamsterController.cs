@@ -43,7 +43,7 @@ namespace ShootMode
         float topLimit;                    //投擲ラインY座標上限
         float[] sideLimit;                 //投擲ラインX座標上限
         float lineStartPosX = 70.0f;       //投擲ラインのスタート位置X
-        float lineStartPosY = 30.0f;       //投擲ラインのスタート位置Y
+        float lineStartPosY = -20.0f;      //投擲ラインのスタート位置Y
         Vector3 lineStartPos;              //投擲ラインのスタート位置
         string[] blockTag;                 //ブロックタグリスト
 
@@ -142,6 +142,21 @@ namespace ShootMode
                         blockMan.ThrowBlockPosChange((spriteNum == 2) ? 0 : 1);
                         break;
                     }
+                }
+
+                //ゲーム終了時
+                if (!GAME_START || GAME_OVER || GAME_CLEAR)
+                {
+                    //軌道線を消す
+                    if (displayLine)
+                    {
+                        line.positionCount = 0;
+                        displayLine = false;
+                    }
+
+                    tra.SetSiblingIndex(1);
+                    blockMan.ThrowBlockPosChange((spriteNum == 2) ? 0 : 1);
+                    break;
                 }
             }
 

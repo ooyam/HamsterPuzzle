@@ -366,9 +366,6 @@ public class BlockManager_Tutorial : MonoBehaviour
             StartCoroutine(LineDown());
             yield return new WaitWhile(() => blockGenerateNow == true);
             yield return new WaitForSeconds(0.5f);  //0.5秒遅延
-
-            //ブロック最大ライン数更新
-            NowLineNumUpdate();
             if (GAME_OVER) break;
         }
     }
@@ -390,6 +387,9 @@ public class BlockManager_Tutorial : MonoBehaviour
         //---------------------------------------------
         for (int posIndex = 0; posIndex < blockPosIndex.Count; posIndex++)
         { if (throwBlockIndex != posIndex && nextThrowBlockIndex != posIndex) blockPosIndex[posIndex][1]++; }
+
+        //ブロック最大ライン数更新
+        NowLineNumUpdate();
 
         //一行下げる
         while (true)
@@ -479,10 +479,12 @@ public class BlockManager_Tutorial : MonoBehaviour
     //========================================================================
     //ブロック接続失敗
     //========================================================================
-    IEnumerator BlockConnectMiss()
+    //blackOutTime; 暗転時間
+    //========================================================================
+    IEnumerator BlockConnectMiss(float blackOutTime)
     {
         throwNow = false;
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(blackOutTime);
         ThrowBlockPosChange(hamsterScr.spriteNum % 2);
         blockTra[throwBlockIndex].SetSiblingIndex(0);
         yield return null;
@@ -502,13 +504,15 @@ public class BlockManager_Tutorial : MonoBehaviour
             (tutorialMan.descriptionNum == 9 && obj.tag != "Cabbage"))
         {
             //投擲失敗
-            StartCoroutine(BlockConnectMiss());
+            float blackOutTime = tutorialMan.GetBlackOutTime();
+            StartCoroutine(BlockConnectMiss(blackOutTime));
             StartCoroutine(tutorialMan.RedoThrow());
         }
         else
         {
             //ブロックボックスの子オブジェクトに変更
             blockTra[throwBlockIndex].SetParent(blockBoxTra, true);
+            blockTra[throwBlockIndex].SetSiblingIndex(0);
 
             int conObjIndex       = blockObj.IndexOf(obj);                         //接続ブロックの番号取得
             int[] conObjPosIndex  = blockPosIndex[conObjIndex];                    //接続ブロックの座標番号
@@ -556,12 +560,12 @@ public class BlockManager_Tutorial : MonoBehaviour
             //接触がCabbageだった場合
             else if (obj.tag == "Cabbage")
             {
-                //フィルターフェードアウト
-                StartCoroutine(tutorialMan.FilterHide());
+                //フィルター[4]フェードアウト
+                StartCoroutine(tutorialMan.FilterHide(4));
             }
 
             //ブロック削除
-            AdjacentSameTagBlockJudgment(throwBlockIndex);
+            if (!GAME_OVER) AdjacentSameTagBlockJudgment(throwBlockIndex);
 
             //投擲終了
             throwNow = false;
@@ -592,13 +596,14 @@ public class BlockManager_Tutorial : MonoBehaviour
 
         //ブロックボックスの子オブジェクトに変更
         blockTra[throwBlockIndex].SetParent(blockBoxTra, true);
-        
+        blockTra[throwBlockIndex].SetSiblingIndex(0);
+
         //座標指定
         blockTra[throwBlockIndex].anchoredPosition = blockPos[refPatNum][1][arrangementColumnIndex];
         blockPosIndex[throwBlockIndex] = new int[] { refPatNum, 1, arrangementColumnIndex };
 
         //ブロック削除
-        AdjacentSameTagBlockJudgment(throwBlockIndex);
+        if (!GAME_OVER) AdjacentSameTagBlockJudgment(throwBlockIndex);
 
         //投擲終了
         throwNow = false;
@@ -854,7 +859,7 @@ public class BlockManager_Tutorial : MonoBehaviour
         float changeScale     = 1.5f;   //変更後の拡大率
         float defaultScale    = 1.0f;   //初期拡大率
         int   scalingTimes    = 1;      //拡縮回数
-        float scalingWaitTime = GetScaleChangeTime(blockTra[0], scalingSpeed, changeScale, defaultScale, scalingTimes);  //拡縮待機時間
+        float scalingWaitTime = GetScaleChangeTime(blockTra[deleteObjIndex[0]], scalingSpeed, changeScale, defaultScale, scalingTimes);  //拡縮待機時間
 
         //左右揺れ設定
         float shakeSpeed    = 20.0f;    //移動速度
@@ -862,9 +867,10 @@ public class BlockManager_Tutorial : MonoBehaviour
         float shakeOffsetY  = 0.0f;     //移動座標Y
         int shakeTimes      = 4;        //揺れ回数
         float delayTime     = 0.0f;     //移動間の遅延時間
-        float shakeWaitTime = GetSlideShakeTime(blockTra[0], shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime);  //揺れ待機時間
+        float shakeWaitTime = GetSlideShakeTime(blockTra[deleteObjIndex[0]], shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime) + 0.1f;  //揺れ待機時間
 
         //時間差設定
+        int setSiblingIndex = blockObj.Count - 2;      //子オブジェクトセット番号
         int delObjCount     = deleteObjIndex.Length;   //削除ブロック数
         float[] indexArray  = new float[delObjCount];  //インデックス番号
         float[] DirectWait  = new float[delObjCount];  //演出開始時間
@@ -875,12 +881,12 @@ public class BlockManager_Tutorial : MonoBehaviour
         {
             indexArray[index]   = index;
             DirectWait[index]   = (index == 0) ? 0.0f : UnityEngine.Random.Range(0.0f, 0.2f) + DirectWait[index - 1];
-            fallWait[index]     = DirectWait[index] + ((connect) ? scalingWaitTime : shakeWaitTime) + 0.1f;
+            fallWait[index]     = DirectWait[index] + ((connect) ? scalingWaitTime : shakeWaitTime);
             directingEnd[index] = false;
             fallStart[index]    = false;
 
-            //子オブジェクトインデックス番号最後尾に変更(雲を除く)
-            blockTra[deleteObjIndex[index]].SetSiblingIndex(blockBoxTra.childCount - 2);
+            //子オブジェクトインデックス番号最後尾に変更(ブロックの最前)
+            blockTra[deleteObjIndex[index]].SetSiblingIndex(setSiblingIndex);
         }
 
         int loopTimes     = 0;  //処理回数

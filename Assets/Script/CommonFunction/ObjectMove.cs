@@ -567,16 +567,15 @@ namespace MoveFunction
 
 
         //========================================================================
-        //色変更(2色点滅)動作  ※Image or Text の使用ない方は null を指定する
+        //色変更動作(Image.color)
         //========================================================================
         //ima;          変更対象Image
-        //tex;          変更対象Text
         //changeSpeed;  変更速度
         //colArray;     変更色の配列(0:現在の色)
         //compArray;    比較番号指定配列(0:R 1:G 2:B 3:A)
         //chengeCount;  ループ回数(配列1周で1カウント、-1指定で無限再生)
         //========================================================================
-        public static IEnumerator PaletteChange(Image ima, Text tex, float changeSpeed, Color[] colArray, int[] compArray, int chengeCount)
+        public static IEnumerator ImagePaletteChange(Image ima, float changeSpeed, Color[] colArray, int[] compArray, int chengeCount)
         {
             float oneFrameTime = 0.02f;            //1フレーム時間
             int loopTimes      = 0;                //繰り返し回数
@@ -588,62 +587,182 @@ namespace MoveFunction
             float nextCompCol = colArray[nextIndex][compArray[nowIndex]];   //比較色指定
             float judgeRange  = 5.0f / 255.0f;                              //判定範囲
 
-            if (tex == null)
+            ima.color = colArray[nowIndex];
+            while (infinite || loopTimes < chengeCount)
             {
-                //-------------------------
-                //Image
-                //-------------------------
-                ima.color = colArray[nowIndex];
-                while (infinite || loopTimes < chengeCount)
+                ima.color = Color.Lerp(ima.color, colArray[nextIndex], changeSpeed);
+                float nowCompCol = ima.color[compArray[nowIndex]];
+                if (nowCompCol + judgeRange >= nextCompCol && nextCompCol >= nowCompCol - judgeRange)
                 {
-                    ima.color = Color.Lerp(ima.color, colArray[nextIndex], changeSpeed);
-                    float nowCompCol = ima.color[compArray[nowIndex]];
-                    if (nowCompCol + judgeRange >= nextCompCol && nextCompCol >= nowCompCol - judgeRange)
-                    {
-                        nowIndex = nextIndex;
-                        nextIndex = (nextIndex + 1 >= colCount) ? 0 : nextIndex + 1;
-                        nextCompCol = colArray[nextIndex][compArray[nowIndex]];
-                        loopTimes++;
+                    nowIndex    = nextIndex;
+                    nextIndex   = (nextIndex + 1 >= colCount) ? 0 : nextIndex + 1;
+                    nextCompCol = colArray[nextIndex][compArray[nowIndex]];
+                    loopTimes++;
 
-                        //無限ループ終了判定
-                        if (infinite && COLOR_CHANGE_INFINITE_END && nowIndex == 0)
-                        {
-                            COLOR_CHANGE_INFINITE_END = false;
-                            break;
-                        }
+                    //無限ループ終了判定
+                    if (infinite && COLOR_CHANGE_INFINITE_END && nowIndex == 0)
+                    {
+                        COLOR_CHANGE_INFINITE_END = false;
+                        break;
                     }
-                    yield return new WaitForSecondsRealtime(oneFrameTime);
                 }
-                ima.color = colArray[nowIndex];
+                yield return new WaitForSecondsRealtime(oneFrameTime);
             }
-            else
+            ima.color = colArray[nowIndex];
+        }
+
+        //========================================================================
+        //色変更動作(ImagePaletteChange) に要する時間計算
+        //========================================================================
+        //ima;          変更対象Image
+        //changeSpeed;  変更速度
+        //colArray;     変更色の配列(0:現在の色)
+        //compArray;    比較番号指定配列(0:R 1:G 2:B 3:A)
+        //chengeCount;  ループ回数(配列1周で1カウント、-1指定で無限再生)
+        //========================================================================
+        public static float GetImagePaletteChangeTime(Image ima, float changeSpeed, Color[] colArray, int[] compArray, int chengeCount)
+        {
+            //クローン作製
+            Image cloneIma = CloneCreate_Image(ima);
+            float moveTime = 0.0f;
+
+            float oneFrameTime = 0.02f;            //1フレーム時間
+            int loopTimes      = 0;                //繰り返し回数
+            int colCount       = colArray.Length;  //変更色の数
+            bool infinite      = chengeCount < 0;  //無限ループ？
+
+            int nowIndex       = 0;    //現在の色
+            int nextIndex      = 1;    //次の色
+            float nextCompCol  = colArray[nextIndex][compArray[nowIndex]];   //比較色指定
+            float judgeRange   = 5.0f / 255.0f;                              //判定範囲
+
+            cloneIma.color = colArray[nowIndex];
+            while (infinite || loopTimes < chengeCount)
             {
-                //-------------------------
-                //Text
-                //-------------------------
-                tex.color = colArray[nowIndex];
-                while (infinite || loopTimes < chengeCount)
+                cloneIma.color = Color.Lerp(cloneIma.color, colArray[nextIndex], changeSpeed);
+                float nowCompCol = cloneIma.color[compArray[nowIndex]];
+                if (nowCompCol + judgeRange >= nextCompCol && nextCompCol >= nowCompCol - judgeRange)
                 {
-                    tex.color = Color.Lerp(tex.color, colArray[nextIndex], changeSpeed);
-                    float nowCompCol = tex.color[compArray[nowIndex]];
-                    if (nowCompCol + judgeRange >= nextCompCol && nextCompCol >= nowCompCol - judgeRange)
-                    {
-                        nowIndex = nextIndex;
-                        nextIndex = (nextIndex + 1 >= colCount) ? 0 : nextIndex + 1;
-                        nextCompCol = colArray[nextIndex][compArray[nowIndex]];
-                        loopTimes++;
+                    nowIndex    = nextIndex;
+                    nextIndex   = (nextIndex + 1 >= colCount) ? 0 : nextIndex + 1;
+                    nextCompCol = colArray[nextIndex][compArray[nowIndex]];
+                    loopTimes++;
 
-                        //無限ループ終了判定
-                        if (infinite && COLOR_CHANGE_INFINITE_END && nowIndex == 0)
-                        {
-                            COLOR_CHANGE_INFINITE_END = false;
-                            break;
-                        }
+                    //無限ループ終了判定
+                    if (infinite && COLOR_CHANGE_INFINITE_END && nowIndex == 0)
+                    {
+                        COLOR_CHANGE_INFINITE_END = false;
+                        break;
                     }
-                    yield return new WaitForSecondsRealtime(oneFrameTime);
                 }
-                tex.color = colArray[nowIndex];
+
+                //時間計算
+                moveTime += oneFrameTime;
             }
+            cloneIma.color = colArray[nowIndex];
+
+            Destroy(cloneIma.gameObject); //クローン削除
+            return moveTime;              //時間を返す
+        }
+
+
+        //========================================================================
+        //色変更動作(Text.color)
+        //========================================================================
+        //tex;          変更対象Text
+        //changeSpeed;  変更速度
+        //colArray;     変更色の配列(0:現在の色)
+        //compArray;    比較番号指定配列(0:R 1:G 2:B 3:A)
+        //chengeCount;  ループ回数(一色変更で1カウント、-1指定で無限再生)
+        //========================================================================
+        public static IEnumerator TextPaletteChange(Text tex, float changeSpeed, Color[] colArray, int[] compArray, int chengeCount)
+        {
+            float oneFrameTime = 0.02f;            //1フレーム時間
+            int loopTimes      = 0;                //繰り返し回数
+            int colCount       = colArray.Length;  //変更色の数
+            bool infinite      = chengeCount < 0;  //無限ループ？
+
+            int nowIndex       = 0;    //現在の色
+            int nextIndex      = 1;    //次の色
+            float nextCompCol  = colArray[nextIndex][compArray[nowIndex]];   //比較色指定
+            float judgeRange   = 5.0f / 255.0f;                              //判定範囲
+
+            tex.color = colArray[nowIndex];
+            while (infinite || loopTimes < chengeCount)
+            {
+                tex.color = Color.Lerp(tex.color, colArray[nextIndex], changeSpeed);
+                float nowCompCol = tex.color[compArray[nowIndex]];
+                if (nowCompCol + judgeRange >= nextCompCol && nextCompCol >= nowCompCol - judgeRange)
+                {
+                    nowIndex    = nextIndex;
+                    nextIndex   = (nextIndex + 1 >= colCount) ? 0 : nextIndex + 1;
+                    nextCompCol = colArray[nextIndex][compArray[nowIndex]];
+                    loopTimes++;
+
+                    //無限ループ終了判定
+                    if (infinite && COLOR_CHANGE_INFINITE_END && nowIndex == 0)
+                    {
+                        COLOR_CHANGE_INFINITE_END = false;
+                        break;
+                    }
+                }
+                yield return new WaitForSecondsRealtime(oneFrameTime);
+            }
+            tex.color = colArray[nowIndex];
+        }
+
+        //========================================================================
+        //色変更動作(TextPaletteChange) に要する時間計算
+        //========================================================================
+        //tex;          変更対象Text
+        //changeSpeed;  変更速度
+        //colArray;     変更色の配列(0:現在の色)
+        //compArray;    比較番号指定配列(0:R 1:G 2:B 3:A)
+        //chengeCount;  ループ回数(一色変更で1カウント、-1指定で無限再生)
+        //========================================================================
+        public static float GetTextPaletteChangeTime(Text tex, float changeSpeed, Color[] colArray, int[] compArray, int chengeCount)
+        {
+            //クローン作成
+            Text cloneTex = CloneCreate_Text(tex);
+            float moveTime = 0.0f;
+
+            float oneFrameTime = 0.02f;            //1フレーム時間
+            int loopTimes      = 0;                //繰り返し回数
+            int colCount       = colArray.Length;  //変更色の数
+            bool infinite      = chengeCount < 0;  //無限ループ？
+
+            int nowIndex       = 0;    //現在の色
+            int nextIndex      = 1;    //次の色
+            float nextCompCol  = colArray[nextIndex][compArray[nowIndex]];   //比較色指定
+            float judgeRange   = 5.0f / 255.0f;                              //判定範囲
+
+            cloneTex.color = colArray[nowIndex];
+            while (infinite || loopTimes < chengeCount)
+            {
+                cloneTex.color   = Color.Lerp(cloneTex.color, colArray[nextIndex], changeSpeed);
+                float nowCompCol = cloneTex.color[compArray[nowIndex]];
+                if (nowCompCol + judgeRange >= nextCompCol && nextCompCol >= nowCompCol - judgeRange)
+                {
+                    nowIndex    = nextIndex;
+                    nextIndex   = (nextIndex + 1 >= colCount) ? 0 : nextIndex + 1;
+                    nextCompCol = colArray[nextIndex][compArray[nowIndex]];
+                    loopTimes++;
+
+                    //無限ループ終了判定
+                    if (infinite && COLOR_CHANGE_INFINITE_END && nowIndex == 0)
+                    {
+                        COLOR_CHANGE_INFINITE_END = false;
+                        break;
+                    }
+                }
+
+                //時間計算
+                moveTime += oneFrameTime;
+            }
+            cloneTex.color = colArray[nowIndex];
+
+            Destroy(cloneTex.gameObject);  //クローン削除
+            return moveTime;               //時間を返す
         }
 
 
@@ -660,6 +779,26 @@ namespace MoveFunction
             cloneTra.SetParent(parentTra, false);
             cloneTra.localRotation = tra.localRotation;
             return cloneTra;
+        }
+        //========================================================================
+        //ima;  　動作オブジェクトのImage
+        //========================================================================
+        public static Image CloneCreate_Image(Image ima)
+        {
+            GameObject clone = GameObject.Instantiate(ima.gameObject) as GameObject;
+            Image cloneIma   = clone.GetComponent<Image>();
+            cloneIma.color   = ima.color;
+            return cloneIma;
+        }
+        //========================================================================
+        //tex;  　動作オブジェクトのText
+        //========================================================================
+        public static Text CloneCreate_Text(Text tex)
+        {
+            GameObject clone = GameObject.Instantiate(tex.gameObject) as GameObject;
+            Text cloneTex    = clone.GetComponent<Text>();
+            cloneTex.color   = tex.color;
+            return cloneTex;
         }
     }
 }

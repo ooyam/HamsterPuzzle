@@ -2293,7 +2293,7 @@ GameObject:
   - component: {fileID: 492358446}
   m_Layer: 5
   m_Name: GroundCollider
-  m_TagString: UpperLimit
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

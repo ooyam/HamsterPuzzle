@@ -25,7 +25,6 @@ public class BlockController : MonoBehaviour
     {
         if (!fastContact)
         {
-            fastContact = true;
             GameObject connectObj = col.gameObject;
             string connectObjTag  = connectObj.tag;
             int tagIndex = Array.IndexOf(blockTag, connectObjTag);
@@ -33,12 +32,14 @@ public class BlockController : MonoBehaviour
             {
                 //ëºÉuÉçÉbÉNê⁄êG
                 GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>().BlockConnect(connectObj);
+                fastContact = true;
                 Destroy(this);
             }
             else if (connectObjTag == "UpperLimit")
             {
                 //è„å¿ê⁄êG
                 GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>().UpperLimitConnect();
+                fastContact = true;
                 Destroy(this);
             }
         }

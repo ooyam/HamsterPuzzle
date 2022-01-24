@@ -40,7 +40,8 @@ public class BlinkingOperation : MonoBehaviour
     IEnumerator BlinkingStart()
     {
         yield return new WaitForSecondsRealtime(waitTime);
-        StartCoroutine(PaletteChange(ima, tex, changeSpeed, colArray, compArray, chengeCount));
+        if (ima != null) StartCoroutine(ImagePaletteChange(ima, changeSpeed, colArray, compArray, chengeCount));
+        if (tex != null) StartCoroutine(TextPaletteChange(tex, changeSpeed, colArray, compArray, chengeCount));
         if(endTime > 0)
         {
             yield return new WaitForSecondsRealtime(endTime);

@@ -44,23 +44,21 @@ namespace ShootMode_Tutorial
         GameObject[] filterObj;       //フィルターObj
         Image fullFilterIma;          //全面フィルターgImae
         Image[][] fadeFilter;         //フェードImage
-        int displayFilterIndex;       //表示中のImage番号
         GameObject[] textObj;         //テキストObj
         Image[] fadeTextFilter;       //フェードText用フィルター
-        int displayTextIndex;         //表示中のText番号
 
         [System.NonSerialized]
         public int descriptionNum = 0;     //説明番号
         float minDispalyTime      = 1.5f;  //説明最低表示時間
         float imaFadeSpeed        = 0.2f;  //フェード速度
-        float destroyWaitTime     = 0.3f;  //フェードアウト待機時間
 
-        int[] alphaFadeComp = new int[] { 3, 3, 3 };                                                          //比較番号指定配列(0:R 1:G 2:B 3:A)
-        Color[] appearance  = new Color[] { new Color(1, 1, 1, 0), Color.white };                             //透明 → 白
-        Color[] transparent = new Color[] { Color.white, new Color(1, 1, 1, 0) };                             //白 → 透明
-        Color[] filterColor = new Color[] { new Color(0, 0, 0, 160.0f / 255.0f), Color.clear };               //黒半透明 → 透明
-        Color[] blackout    = new Color[] { Color.clear, Color.black, new Color(0, 0, 0, 160.0f / 255.0f) };  //透明 → 黒 → 黒半透明
-        Color[] lineColor   = new Color[] { Color.white, new Color(1, 1, 1, 50.0f / 255.0f) };                //白 → 半透明
+        int[] alphaFadeComp = new int[] { 3, 3 };                                                //比較番号指定配列(0:R 1:G 2:B 3:A)
+        Color[] appearance  = new Color[] { new Color(1, 1, 1, 0), Color.white };                //透明 → 白
+        Color[] transparent = new Color[] { Color.white, new Color(1, 1, 1, 0) };                //白 → 透明
+        Color[] filterColor = new Color[] { new Color(0, 0, 0, 160.0f / 255.0f), Color.clear };  //黒半透明 → 透明
+        Color[] blackout    = new Color[] { Color.clear, Color.black };                          //透明 → 黒
+        Color[] lightUp     = new Color[] { Color.black, new Color(0, 0, 0, 160.0f / 255.0f) };  //黒 → 黒半透明
+        Color[] lineColor   = new Color[] { Color.white, new Color(1, 1, 1, 50.0f / 255.0f) };   //白 → 半透明
 
         [System.NonSerialized]
         public bool throwWait;            //投擲待機フラグ
@@ -68,6 +66,7 @@ namespace ShootMode_Tutorial
         public bool specialHamsterWait;   //スペシャルオラフ待機フラグ
         [System.NonSerialized]
         public bool throwBlockChangeWait; //nextブロックタップ待機フラグ
+        bool rethrow;                     //投擲やり直しフラグ
 
         void Start()
         {
@@ -137,17 +136,24 @@ namespace ShootMode_Tutorial
         public IEnumerator RedoThrow()
         {
             throwWait = false;             //投擲可能フラグfalse
+            rethrow   = true;              //投擲やり直しフラグtrue
             descriptionNum--;              //説明番号戻し
-            StartCoroutine(FilterHide());  //フィルター非表示
-            StartCoroutine(PaletteChange(fullFilterIma, null, imaFadeSpeed, blackout, alphaFadeComp, 2));  //暗転
-            yield return new WaitForSeconds(destroyWaitTime);  //暗転待機
+            if (descriptionNum == 2) StartCoroutine(FilterHide(1));  //フィルター非表示[1](パプリカ投擲)
+            else StartCoroutine(FilterHide(4));                      //フィルター非表示[4](キャベツ投擲)
+            yield return StartCoroutine(ImagePaletteChange(fullFilterIma, imaFadeSpeed, blackout, alphaFadeComp, 1)); //暗転
+            StartCoroutine(ImagePaletteChange(fullFilterIma, imaFadeSpeed, lightUp, alphaFadeComp, 1));               //明転
 
-            //パプリカ投擲時
-            if (descriptionNum == 2) TextShow(19);            //テキスト[19]表示
-            else TextShow(20);                                //テキスト[20]表示
+            if (descriptionNum == 2) TextShow(19);            //テキスト[19]表示(パプリカ投擲)
+            else TextShow(20);                                //テキスト[20]表示(キャベツ投擲)
             yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
-            throwWait = true;                                 //投擲可能フラグtrue
             StartCoroutine(WaitTap());                        //タップ待機
+        }
+        //========================================================================
+        //暗転時間算出
+        //========================================================================
+        public float GetBlackOutTime()
+        {
+            return GetImagePaletteChangeTime(fullFilterIma, imaFadeSpeed, blackout, alphaFadeComp, 1);
         }
 
         //========================================================================
@@ -159,39 +165,43 @@ namespace ShootMode_Tutorial
             {
                 case 0:  //シュートモードへようこそ～
                     SoundMan.YesTapSE();
-                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
                     TextShow(0);                                      //テキスト[0]表示
+                    FullFilterSwitch(true);                           //全面フィルターフェード表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 1:  //画面の上の方に野菜ブロックが見えるかな～
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
-                    FilterShow(0, true);                              //フィルター[0]表示
+                    yield return StartCoroutine(TextHide(0));         //テキスト非表示[0]
                     TextShow(1);                                      //テキスト[1]表示
+                    FullFilterSwitch(false);                          //全面フィルターフェード非表示
+                    FilterShow(0, true);                              //フィルター[0]表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 2:  //まずはオラフくんをタップして～
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    StartCoroutine(FilterHide());                     //フィルター非表示
-                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    yield return StartCoroutine(TextHide(1));         //テキスト非表示[1]
                     TextShow(2);                                      //テキスト[2]表示
+                    StartCoroutine(FilterHide(0));                    //フィルター非表示[0]
+                    FullFilterSwitch(true);                           //全面フィルターフェード表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 3:  //パプリカ投擲待機
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+
+                    if (rethrow)
+                    {
+                        yield return StartCoroutine(TextHide(19));    //テキスト非表示[19](投擲やり直し時)
+                        rethrow = false;                              //投擲やり直しフラグfalse
+                    }
+                    else yield return StartCoroutine(TextHide(2));    //テキスト非表示[2](通常時)
+
+                    FullFilterSwitch(false);                          //全面フィルターフェード非表示
                     FilterShow(1, true);                              //フィルター[1]表示
                     StartCoroutine(HandMove(0));                      //手表示[0]
                     throwWait = true;                                 //投擲可能フラグtrue
@@ -201,8 +211,7 @@ namespace ShootMode_Tutorial
                     SoundMan.YesTapSE();
                     throwWait = false;                                        //投擲可能フラグfalse
                     HandHide();                                               //手非表示
-                    StartCoroutine(FilterHide());                             //フィルター非表示
-                    yield return new WaitForSecondsRealtime(destroyWaitTime); //テキスト非表示待機
+                    StartCoroutine(FilterHide(1));                            //フィルター非表示[1]
                     FilterShow(2, true);                                      //フィルター[2]表示
                     TextShow(3);                                              //テキスト[3]表示
                     yield return new WaitForSecondsRealtime(minDispalyTime);  //最低表示時間待機
@@ -211,17 +220,16 @@ namespace ShootMode_Tutorial
 
                 case 5:  //収穫待機
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                               //テキスト非表示
-                    yield return new WaitForSecondsRealtime(destroyWaitTime); //テキスト非表示待機
-                    Time.timeScale = 1;                                       //時間を戻す
-                    StartCoroutine(FilterHide());                             //フィルター非表示
+                    yield return StartCoroutine(TextHide(3));         //テキスト非表示[3]
+                    Time.timeScale = 1;                               //時間を戻す
+                    StartCoroutine(FilterHide(2));                    //フィルター非表示[2]
                     break;
 
                 case 6:  //収穫した野菜は～
                     SoundMan.YesTapSE();
-                    StartCoroutine(HandMove(1));                      //手表示[1]
-                    FilterShow(3, true);                              //フィルター[3]表示
                     TextShow(4);                                      //テキスト[4]表示
+                    FilterShow(3, true);                              //フィルター[3]表示
+                    StartCoroutine(HandMove(1));                      //手表示[1]
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
@@ -229,10 +237,9 @@ namespace ShootMode_Tutorial
                 case 7:  //画面上部で～
                     SoundMan.YesTapSE();
                     HandHide();                                       //手非表示
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    StartCoroutine(HandMove(2));                      //手表示[2]
+                    yield return StartCoroutine(TextHide(4));         //テキスト非表示[4]
                     TextShow(5);                                      //テキスト[5]表示
+                    StartCoroutine(HandMove(2));                      //手表示[2]
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
@@ -240,44 +247,47 @@ namespace ShootMode_Tutorial
                 case 8:  //次に、その他の収穫方法を～
                     SoundMan.YesTapSE();
                     HandHide();                                       //手非表示
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    StartCoroutine(FilterHide());                     //フィルター非表示
-                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    yield return StartCoroutine(TextHide(5));         //テキスト非表示[5]
                     TextShow(6);                                      //テキスト[6]表示
+                    StartCoroutine(FilterHide(3));                    //フィルター非表示[3]
+                    FullFilterSwitch(true);                           //全面フィルターフェード表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 9:  //キャベツ投擲待機
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+
+                    if (rethrow)
+                    {
+                        yield return StartCoroutine(TextHide(20));    //テキスト非表示[20](投擲やり直し時)
+                        rethrow = false;                              //投擲やり直しフラグfalse
+                    }
+                    else yield return StartCoroutine(TextHide(6));    //テキスト非表示[6](通常時)
+
                     throwWait = true;                                 //投擲可能フラグtrue
-                    StartCoroutine(HandMove(3));                      //手表示[3]
-                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    FullFilterSwitch(false);                          //全面フィルターフェード非表示
                     FilterShow(4, true);                              //フィルター[4]表示
+                    StartCoroutine(HandMove(3));                      //手表示[3]
                     break;
 
                 case 10:  //キャベツを収穫した時～
                     SoundMan.YesTapSE();
                     throwWait = false;                                //投擲可能フラグfalse
                     HandHide();                                       //手非表示
-                    StartCoroutine(FilterHide());                     //フィルター非表示
-                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
                     TextShow(7);                                      //テキスト[7]表示
+                    FullFilterSwitch(true);                           //全面フィルターフェード表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 11:  //画面右下のオラフくんが～
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    StartCoroutine(HandMove(4));                      //手表示[4]
-                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
-                    FilterShow(5, true);                              //フィルター[5]表示
+                    yield return StartCoroutine(TextHide(7));         //テキスト非表示[7]
                     TextShow(8);                                      //テキスト[8]表示
+                    FullFilterSwitch(false);                          //全面フィルターフェード非表示
+                    FilterShow(5, true);                              //フィルター[5]表示
+                    StartCoroutine(HandMove(4));                      //手表示[4]
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     specialHamsterWait = true;                        //スペシャルオラフ待機フラグtrue
                     break;
@@ -285,27 +295,25 @@ namespace ShootMode_Tutorial
                 case 12:  //スペシャルオラフ待機
                     SoundMan.YesTapSE();
                     specialHamsterWait = false;                       //スペシャルオラフ待機フラグfalse
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    StartCoroutine(FilterHide());                     //フィルター非表示
+                    yield return StartCoroutine(TextHide(8));         //テキスト非表示[8]
+                    StartCoroutine(FilterHide(5));                    //フィルター非表示[5]
                     break;
 
                 case 13:  //スペシャルオラフくんは～
                     SoundMan.YesTapSE();
-                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
                     TextShow(9);                                      //テキスト[9]表示
+                    FullFilterSwitch(true);                           //全面フィルターフェード表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 14:  //おっと、次に持っているブロックは～
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    StartCoroutine(HandMove(5));                      //手表示[5]
-                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
-                    FilterShow(6, true);                              //フィルター[6]表示
+                    yield return StartCoroutine(TextHide(9));         //テキスト非表示[9]
                     TextShow(10);                                     //テキスト[10]表示
+                    FullFilterSwitch(false);                          //全面フィルターフェード非表示
+                    FilterShow(6, true);                              //フィルター[6]表示
+                    StartCoroutine(HandMove(5));                      //手表示[5]
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     throwBlockChangeWait = true;                      //nextブロックタップ待機フラグtrue
                     break;
@@ -314,8 +322,7 @@ namespace ShootMode_Tutorial
                     SoundMan.YesTapSE();
                     throwBlockChangeWait = false;                     //nextブロックタップ待機フラグfalse
                     HandHide();                                       //手非表示
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
+                    yield return StartCoroutine(TextHide(10));        //テキスト非表示[10]
                     TextShow(11);                                     //テキスト[11]表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
@@ -323,22 +330,20 @@ namespace ShootMode_Tutorial
 
                 case 16:  //次にフィーバータイムについて～
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    StartCoroutine(FilterHide());                     //フィルター非表示
-                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    yield return StartCoroutine(TextHide(11));        //テキスト非表示[11]
                     TextShow(12);                                     //テキスト[12]表示
+                    StartCoroutine(FilterHide(6));                    //フィルター非表示[6]
+                    FullFilterSwitch(true);                           //全面フィルターフェード表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 17:  //ブロッコリー投擲待機
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
-                    throwWait = true;                                 //投擲可能フラグtrue
+                    yield return StartCoroutine(TextHide(12));        //テキスト非表示[12]
+                    FullFilterSwitch(false);                          //全面フィルターフェード非表示
                     StartCoroutine(HandMove(6));                      //手表示[6]
+                    throwWait = true;                                 //投擲可能フラグtrue
                     break;
 
                 case 18:  //ブロックをすべて収穫出来たね～
@@ -346,33 +351,31 @@ namespace ShootMode_Tutorial
                     Time.timeScale = 0;                                       //時間停止
                     throwWait = false;                                        //投擲可能フラグfalse
                     HandHide();                                               //手非表示
-                    FullFilterSwitch(true, true);                             //全面フィルターフェード表示
                     TextShow(13);                                             //テキスト[13]表示
+                    FullFilterSwitch(true);                                   //全面フィルターフェード表示
                     yield return new WaitForSecondsRealtime(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                                //タップ待機
                     break;
 
                 case 19:  //フィーバー開始演出待機
                     SoundMan.YesTapSE();
+                    yield return StartCoroutine(TextHide(13));        //テキスト非表示[13]
+                    FullFilterSwitch(false);                          //全面フィルターフェード非表示
                     Time.timeScale = 1;                               //時間を戻す
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
                     break;
 
                 case 20:  //フィーバータイムは～
                     SoundMan.YesTapSE();
                     Time.timeScale = 0;                                       //時間停止
-                    FullFilterSwitch(true, true);                             //全面フィルターフェード表示
                     TextShow(14);                                             //テキスト[14]表示
+                    FullFilterSwitch(true);                                   //全面フィルターフェード表示
                     yield return new WaitForSecondsRealtime(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                                //タップ待機
                     break;
 
                 case 21:  //地面に落ちたブロックは収穫はできないよ～
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                               //テキスト非表示
-                    yield return new WaitForSecondsRealtime(destroyWaitTime); //テキスト非表示待機
+                    yield return StartCoroutine(TextHide(14));                //テキスト非表示[14]
                     TextShow(15);                                             //テキスト[15]表示
                     yield return new WaitForSecondsRealtime(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                                //タップ待機
@@ -380,31 +383,29 @@ namespace ShootMode_Tutorial
 
                 case 22:  //フィーバー待機
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                               //テキスト非表示
-                    yield return new WaitForSecondsRealtime(destroyWaitTime); //テキスト非表示待機
-                    Time.timeScale = 1;                                       //時間を戻す
-                    StartCoroutine(HandMove(7));                              //手表示[7]
-                    FullFilterSwitch(true, false);                            //全面フィルターフェード非表示
+                    yield return StartCoroutine(TextHide(15));        //テキスト非表示[15]
+                    Time.timeScale = 1;                               //時間を戻す
+                    FullFilterSwitch(false);                          //全面フィルターフェード非表示
+                    StartCoroutine(HandMove(7));                      //手表示[7]
                     break;
 
                 case 23:  //うまくキャッチできたかな～
                     SoundMan.YesTapSE();
                     HandHide();                                       //手非表示
-                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
                     TextShow(16);                                     //テキスト[16]表示
+                    FullFilterSwitch(true);                           //全面フィルターフェード表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 24:  //このラインより下にブロックが来たら～
                     SoundMan.YesTapSE();
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    StartCoroutine(HandMove(8));                      //手表示[8]
-                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
-                    FilterShow(7, true);                              //フィルター[7]表示
+                    yield return StartCoroutine(TextHide(16));        //テキスト非表示[16]
                     TextShow(17);                                     //テキスト[17]表示
+                    FullFilterSwitch(false);                          //全面フィルターフェード非表示
+                    FilterShow(7, true);                              //フィルター[7]表示
                     gameOverLineIma.color = lineColor[0];             //ゲームオーバーラインはっきり
+                    StartCoroutine(HandMove(8));                      //手表示[8]
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
@@ -413,19 +414,17 @@ namespace ShootMode_Tutorial
                     SoundMan.YesTapSE();
                     gameOverLineIma.color = lineColor[1];             //ゲームオーバーライン戻す
                     HandHide();                                       //手非表示
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    StartCoroutine(FilterHide());                     //フィルター非表示
-                    FullFilterSwitch(true, true);                     //全面フィルターフェード表示
+                    yield return StartCoroutine(TextHide(17));        //テキスト非表示[17]
                     TextShow(18);                                     //テキスト[18]表示
+                    StartCoroutine(FilterHide(7));                    //フィルター非表示[7]
+                    FullFilterSwitch(true);                           //全面フィルターフェード表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
                     StartCoroutine(WaitTap());                        //タップ待機
                     break;
 
                 case 26:  //強制クリア
-                    StartCoroutine(TextHide());                       //テキスト非表示
-                    yield return new WaitForSeconds(destroyWaitTime); //テキスト非表示待機
-                    FullFilterSwitch(true, false);                    //全面フィルターフェード非表示
+                    yield return StartCoroutine(TextHide(18));        //テキスト非表示[18]
+                    FullFilterSwitch(false);                          //全面フィルターフェード非表示
                     GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager_Tutorial>().ForcedClear();
                     break;
             }
@@ -434,43 +433,42 @@ namespace ShootMode_Tutorial
         //========================================================================
         //テキスト表示
         //========================================================================
-        //textIndex;  生成するテキスト番号
+        //textIndex;  表示するテキスト番号
         //========================================================================
         void TextShow(int textIndex)
         {
             //テキスト生成
             textObj[textIndex].SetActive(true);
-            displayTextIndex = textIndex;
 
             //テキストフェード(対象Image, 対象Text, 変更速度, 変更色の配列(0:現在の色), 比較番号(0:R 1:G 2:B 3:A), 動作回数)
-            StartCoroutine(PaletteChange(fadeTextFilter[displayTextIndex], null, imaFadeSpeed, transparent, alphaFadeComp, 1));
+            StartCoroutine(ImagePaletteChange(fadeTextFilter[textIndex], imaFadeSpeed, transparent, alphaFadeComp, 1));
         }
 
         //========================================================================
         //テキスト非表示
         //========================================================================
-        IEnumerator TextHide()
+        //textIndex;  非表示にするテキスト番号
+        //========================================================================
+        IEnumerator TextHide(int textIndex)
         {
-            StartCoroutine(PaletteChange(fadeTextFilter[displayTextIndex], null, imaFadeSpeed, appearance, alphaFadeComp, 1));
-            yield return new WaitForSecondsRealtime(destroyWaitTime);
-            textObj[displayTextIndex].SetActive(false);
+            yield return StartCoroutine(ImagePaletteChange(fadeTextFilter[textIndex], imaFadeSpeed, appearance, alphaFadeComp, 1));
+            textObj[textIndex].SetActive(false);
         }
 
         //========================================================================
         //フィルター表示
         //========================================================================
-        //filterIndex;  生成するフィルター番号
+        //filterIndex;  表示するフィルター番号
         //fade;         フェードあり？
         //========================================================================
         void FilterShow(int filterIndex, bool fade)
         {
             //テキスト生成
             filterObj[filterIndex].SetActive(true);
-            displayFilterIndex = filterIndex;
 
             foreach (Image filter in fadeFilter[filterIndex])
             {
-                if (fade) StartCoroutine(PaletteChange(filter, null, imaFadeSpeed, new Color[] { filterColor[1], filterColor[0] }, alphaFadeComp, 1));
+                if (fade) StartCoroutine(ImagePaletteChange(filter, imaFadeSpeed, new Color[] { filterColor[1], filterColor[0] }, alphaFadeComp, 1));
                 else filter.color = filterColor[0];
             }
         }
@@ -478,34 +476,29 @@ namespace ShootMode_Tutorial
         //========================================================================
         //フィルター非表示
         //========================================================================
-        public IEnumerator FilterHide()
+        //filterIndex;  非表示にするフィルター番号
+        //========================================================================
+        public IEnumerator FilterHide(int filterIndex)
         {
-            foreach (Image filter in fadeFilter[displayFilterIndex])
-            {
-                StartCoroutine(PaletteChange(filter, null, 0.02f, filterColor, alphaFadeComp, 1));
-            }
-            yield return new WaitForSecondsRealtime(destroyWaitTime);
-            filterObj[displayFilterIndex].SetActive(false);
+            int filterCount = fadeFilter[filterIndex].Length;
+            foreach (Image filter in fadeFilter[filterIndex])
+            { StartCoroutine(ImagePaletteChange(filter, imaFadeSpeed, filterColor, alphaFadeComp, 1)); }
+
+            float waitTime = GetImagePaletteChangeTime(fadeFilter[filterIndex][filterCount - 1], imaFadeSpeed, filterColor, alphaFadeComp, 1);
+            yield return new WaitForSecondsRealtime(waitTime);
+            filterObj[filterIndex].SetActive(false);
         }
 
         //========================================================================
-        //全面フィルターのフェード
+        //全面フィルターの表示切り替え
         //========================================================================
-        //fade;     フェードあり？
         //display;  表示？
         //========================================================================
-        void FullFilterSwitch(bool fade, bool display)
+        void FullFilterSwitch(bool display)
         {
-            if (fade)
-            {
-                //テキストフェード(対象Image, 対象Text, 変更速度, 変更色の配列(0:現在の色), 比較番号(0:R 1:G 2:B 3:A), 動作回数)
-                Color[] ColArray = (display) ? new Color[] { filterColor[1], filterColor[0] } : filterColor;
-                StartCoroutine(PaletteChange(fullFilterIma, null, imaFadeSpeed, ColArray, alphaFadeComp, 1));
-            }
-            else
-            {
-                fullFilterIma.color = (display) ? filterColor[0] : filterColor[1];
-            }
+            //テキストフェード(対象Image, 対象Text, 変更速度, 変更色の配列(0:現在の色), 比較番号(0:R 1:G 2:B 3:A), 動作回数)
+            Color[] ColArray = (display) ? new Color[] { filterColor[1], filterColor[0] } : filterColor;
+            StartCoroutine(ImagePaletteChange(fullFilterIma, imaFadeSpeed, ColArray, alphaFadeComp, 1));
         }
 
 
@@ -610,14 +603,14 @@ namespace ShootMode_Tutorial
             while (handShow)
             {
                 handTra.anchoredPosition = handPos[0];                                                      //手座標指定
-                StartCoroutine(PaletteChange(handIma, null, imaFadeSpeed, appearance, alphaFadeComp, 1));   //出現
+                StartCoroutine(ImagePaletteChange(handIma, imaFadeSpeed, appearance, alphaFadeComp, 1));    //出現
                 StartCoroutine(ScaleChange(handTra, handScalingSpeed[1], handSize[0], handSize[0], 1));     //縮小
                 yield return new WaitForSeconds(scaleTime);                                                 //縮小待機
                 yield return new WaitForSeconds(stopTime);                                                  //一旦停止
                 StartCoroutine(MoveMovement(handTra, handMoveSpeed, 1.0f, handPos[1]));                     //下に移動
                 yield return new WaitForSeconds(moveTime);                                                  //移動待機
                 yield return new WaitForSeconds(stopTime);                                                  //一旦停止
-                StartCoroutine(PaletteChange(handIma, null, imaFadeSpeed, transparent, alphaFadeComp, 1));  //透過
+                StartCoroutine(ImagePaletteChange(handIma, imaFadeSpeed, transparent, alphaFadeComp, 1));   //透過
                 StartCoroutine(ScaleChange(handTra, handScalingSpeed[0], handSize[1], handSize[1], 1));     //拡大
                 yield return new WaitForSeconds(scaleTime);                                                 //拡大待機
                 yield return new WaitForSeconds(interval);                                                  //インターバル
