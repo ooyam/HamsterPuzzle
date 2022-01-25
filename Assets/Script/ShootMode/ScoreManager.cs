@@ -122,7 +122,7 @@ namespace ShootMode
                 targetIndex[index] = (int)tarVeg[index];
                 targetNumIma[targetIndex[index]][0].sprite = targetNumSpr[onesPlace];
                 targetNumIma[targetIndex[index]][1].sprite = (tensPlace == 0) ? targetNumSpr[ten] : targetNumSpr[tensPlace];
-                if (tensPlace == 0) targetNumTra[index].anchoredPosition = new Vector2(tarNumPosFixX, 0.0f);
+                if (tensPlace == 0) targetNumTra[targetIndex[index]].anchoredPosition = new Vector2(tarNumPosFixX, 0.0f);
                 clearJudge[index] = false;
             }
 

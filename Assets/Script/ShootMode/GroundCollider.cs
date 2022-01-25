@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using static ShootMode.ShootModeDefine;
 
 namespace ShootMode
@@ -9,11 +10,17 @@ namespace ShootMode
     {
         ScoreManager scoreMan;
         BlockManager blockMan;
+        string[] vegName;
 
         void Start()
         {
             scoreMan = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager>();
             blockMan = GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>();
+            var vegetableType = Enum.GetValues(typeof(VegetableType));
+            int vegTypeNum = vegetableType.Length;
+            vegName = new string[vegTypeNum];
+            foreach (VegetableType vegeValue in vegetableType)
+            { vegName[(int)vegeValue] = Enum.GetName(typeof(VegetableType), vegeValue); }
         }
 
         //========================================================================
@@ -21,17 +28,22 @@ namespace ShootMode
         //========================================================================
         void OnTriggerExit2D(Collider2D col)
         {
-            if (FEVER_START)
+            GameObject obj = col.gameObject;
+            string objTag = obj.tag;
+            if (Array.IndexOf(vegName, objTag) >= 0)
             {
-                //ロスト
-                Destroy(col.gameObject);
+                if (FEVER_START)
+                {
+                    //ロスト
+                    Destroy(col.gameObject);
+                }
+                else
+                {
+                    //収穫完了
+                    scoreMan.HarvestVegetable(col.gameObject.tag);
+                }
+                blockMan.fallCompleteCount++;
             }
-            else
-            {
-                //収穫完了
-                scoreMan.HarvestVegetable(col.gameObject.tag);
-            }
-            blockMan.fallCompleteCount++;
         }
     }
 }

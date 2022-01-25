@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using SoundFunction;
+using ShootMode;
+using static ShootMode.ShootModeDefine;
 using static MoveFunction.ObjectMove;
 
 namespace ShootMode_Tutorial
@@ -113,10 +115,13 @@ namespace ShootMode_Tutorial
             while (true)
             {
                 yield return new WaitForSecondsRealtime(0.02f);
-                if (Input.GetMouseButtonDown(0))
+                if (!SETTING_DISPLAY)
                 {
-                    NextDescriptionStart();
-                    break;
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        NextDescriptionStart();
+                        break;
+                    }
                 }
             }
         }
@@ -558,7 +563,7 @@ namespace ShootMode_Tutorial
                     handPos[1] = new Vector2(420.0f, -650.0f);                              //指差し動作折返し座標設定
                     handTra.anchoredPosition = new Vector2(20.0f, -650.0f);                 //画面中央へ
                     handIma.color   = appearance[1];                                        //alpha値戻し
-                    float moveSpeed = 7.0f;                                                 //手の移動速度
+                    float moveSpeed = 10.0f;                                                 //手の移動速度
                     float moveTime  = GetMoveTime(handTra, moveSpeed, 1.0f, handPos[0]);    //動作時間取得
                     StartCoroutine(MoveMovement(handTra, moveSpeed, 1.0f, handPos[0]));     //中央から左へ
                     yield return new WaitForSeconds(moveTime);                              //動作待機

@@ -84,8 +84,11 @@ public class BlockManager_Tutorial : MonoBehaviour
     int[] throwBlockOrder = new int[] {2, 1, 1, 0}; //投擲ブロック
     int nextThrowBlockOrderIndex = 0;               //次投擲ブロック生成index
 
+    ScoreManager_Tutorial scoreMan;  //ScoreManager_Tutorial
+
     IEnumerator Start()
     {
+        scoreMan      = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager_Tutorial>();
         blockCloudTra = blockBoxTra.GetChild(blockBoxTra.childCount - 1).GetComponent<RectTransform>();
         blockCloudPos = blockCloudTra.anchoredPosition;
         hamsterScr    = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController_Tutorial>();
@@ -850,83 +853,94 @@ public class BlockManager_Tutorial : MonoBehaviour
     //========================================================================
     IEnumerator BlockDeleteStart(int[] deleteObjIndex, bool connect)
     {
-        blockDeleteNow     = true;   //ブロック削除中フラグ
-        bool blockDelete   = true;   //ブロックリスト削除実施フラグ
-        float oneFrameTime = 0.02f;  //1フレームの時間
+        blockDeleteNow   = true;   //ブロック削除中フラグ
+        bool blockDelete = true;   //ブロックリスト削除実施フラグ
 
-        //拡縮設定
-        Vector3 scalingSpeed  = new Vector3(0.05f, 0.05f, 0.05f);  //拡縮速度
-        float changeScale     = 1.5f;   //変更後の拡大率
-        float defaultScale    = 1.0f;   //初期拡大率
-        int   scalingTimes    = 1;      //拡縮回数
-        float scalingWaitTime = GetScaleChangeTime(blockTra[deleteObjIndex[0]], scalingSpeed, changeScale, defaultScale, scalingTimes);  //拡縮待機時間
-
-        //左右揺れ設定
-        float shakeSpeed    = 20.0f;    //移動速度
-        float shakeOffsetX  = 20.0f;    //移動座標X
-        float shakeOffsetY  = 0.0f;     //移動座標Y
-        int shakeTimes      = 4;        //揺れ回数
-        float delayTime     = 0.0f;     //移動間の遅延時間
-        float shakeWaitTime = GetSlideShakeTime(blockTra[deleteObjIndex[0]], shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime) + 0.1f;  //揺れ待機時間
-
-        //時間差設定
-        int setSiblingIndex = blockObj.Count - 2;      //子オブジェクトセット番号
-        int delObjCount     = deleteObjIndex.Length;   //削除ブロック数
-        float[] indexArray  = new float[delObjCount];  //インデックス番号
-        float[] DirectWait  = new float[delObjCount];  //演出開始時間
-        float[] fallWait    = new float[delObjCount];  //落下開始時間
-        bool[] directingEnd = new bool[delObjCount];   //落下前演出終了？
-        bool[] fallStart    = new bool[delObjCount];   //落下開始？
-        for (int index = 0; index < delObjCount; index++)
+        //接触削除の場合
+        if (connect)
         {
-            indexArray[index]   = index;
-            DirectWait[index]   = (index == 0) ? 0.0f : UnityEngine.Random.Range(0.0f, 0.2f) + DirectWait[index - 1];
-            fallWait[index]     = DirectWait[index] + ((connect) ? scalingWaitTime : shakeWaitTime);
-            directingEnd[index] = false;
-            fallStart[index]    = false;
+            //拡縮設定
+            Vector3 scalingSpeed  = new Vector3(0.05f, 0.05f, 0.05f);  //拡縮速度
+            float changeScale     = 1.5f;   //変更後の拡大率
+            float defaultScale    = 1.0f;   //初期拡大率
+            int scalingTimes      = 1;      //拡縮回数
+            float scalingWaitTime = GetScaleChangeTime(blockTra[deleteObjIndex[0]], scalingSpeed, changeScale, defaultScale, scalingTimes);  //拡縮待機時間
 
-            //子オブジェクトインデックス番号最後尾に変更(ブロックの最前)
-            blockTra[deleteObjIndex[index]].SetSiblingIndex(setSiblingIndex);
-        }
-
-        int loopTimes     = 0;  //処理回数
-        float elapsedTime = 0;  //経過時間
-        foreach (int delInd in deleteObjIndex)
-        {
-            while (true)
+            //時間差設定
+            float oneFrameTime  = 0.02f;                   //1フレームの時間
+            int setSiblingIndex = blockObj.Count - 2;      //子オブジェクトセット番号
+            int delObjCount     = deleteObjIndex.Length;   //削除ブロック数
+            float[] directWait  = new float[delObjCount];  //演出開始時間
+            float[] fallWait    = new float[delObjCount];  //落下開始時間
+            bool[] directingEnd = new bool[delObjCount];   //落下前演出終了？
+            bool[] fallStart    = new bool[delObjCount];   //落下開始？
+            for (int index = 0; index < delObjCount; index++)
             {
-                //落下前演出
-                if (!directingEnd[loopTimes] && elapsedTime >= DirectWait[loopTimes])
-                {
-                    directingEnd[loopTimes] = true;
-                    if (connect) StartCoroutine(ScaleChange(blockTra[delInd], scalingSpeed, changeScale, defaultScale, scalingTimes));        //ブロック拡縮
-                    else StartCoroutine(SlideShakeMovement(blockTra[delInd], shakeSpeed, shakeOffsetX, shakeOffsetY, shakeTimes, delayTime)); //ブロック左右揺れ
-                }
+                directWait[index]   = (index == 0) ? 0.0f : UnityEngine.Random.Range(0.0f, 0.2f) + directWait[index - 1];
+                fallWait[index]     = directWait[index] + scalingWaitTime;
+                directingEnd[index] = false;
+                fallStart[index]    = false;
 
-                //落下開始
-                for (int index = 0; index <= loopTimes; index++)
-                {
-                    if (!fallStart[index] && elapsedTime > fallWait[index])
-                    {
-                        blockRig[deleteObjIndex[index]].bodyType = RigidbodyType2D.Dynamic;
-                        blockRig[deleteObjIndex[index]].gravityScale = 1.5f;
-                        fallStart[index] = true;
-                    }
-                }
-
-                elapsedTime += oneFrameTime;
-                if (loopTimes == delObjCount - 1)
-                { if (Array.IndexOf(fallStart, false) < 0) break; }
-                else if (directingEnd[loopTimes]) break;
-
-                yield return new WaitForFixedUpdate();
+                //子オブジェクトインデックス番号最後尾に変更(ブロックの最前)
+                blockTra[deleteObjIndex[index]].SetSiblingIndex(setSiblingIndex);
             }
-            loopTimes++;
-        }
 
-        //自由落下ブロック判定
-        yield return new WaitForSeconds(0.2f);
-        if (connect) blockDelete = !FreeFallBlockJudgment();
+            int loopTimes     = 0;  //処理回数
+            float elapsedTime = 0;  //経過時間
+            foreach (int delInd in deleteObjIndex)
+            {
+                while (true)
+                {
+                    //落下前演出
+                    if (!directingEnd[loopTimes] && elapsedTime >= directWait[loopTimes])
+                    {
+                        directingEnd[loopTimes] = true;
+                        StartCoroutine(ScaleChange(blockTra[delInd], scalingSpeed, changeScale, defaultScale, scalingTimes));
+                    }
+
+                    //落下開始
+                    for (int index = 0; index <= loopTimes; index++)
+                    {
+                        if (!fallStart[index] && elapsedTime > fallWait[index])
+                        {
+                            blockRig[deleteObjIndex[index]].bodyType = RigidbodyType2D.Dynamic;
+                            blockRig[deleteObjIndex[index]].gravityScale = 1.5f;
+                            fallStart[index] = true;
+                        }
+                    }
+
+                    elapsedTime += oneFrameTime;
+                    if (loopTimes == delObjCount - 1)
+                    { if (Array.IndexOf(fallStart, false) < 0) break; }
+                    else if (directingEnd[loopTimes]) break;
+
+                    yield return new WaitForFixedUpdate();
+                }
+                loopTimes++;
+            }
+
+            //自由落下ブロック判定
+            yield return new WaitForSeconds(0.2f);
+            blockDelete = !FreeFallBlockJudgment();
+
+        }
+        //自由落下の場合
+        else
+        {
+            //時間差設定
+            int setSiblingIndex = blockObj.Count - 2;      //子オブジェクトセット番号
+            for (int index = 0; index < deleteObjIndex.Length; index++)
+            {
+                //演出開始遅延時間の設定
+                if (index != 0) yield return new WaitForSeconds(UnityEngine.Random.Range(0.0f, 0.1f));
+
+                //子オブジェクトインデックス番号最後尾に変更(ブロックの最前)
+                blockTra[deleteObjIndex[index]].SetSiblingIndex(setSiblingIndex);
+
+                //演出開始
+                blockObj[deleteObjIndex[index]].AddComponent<FreeFallBlock>();
+            }
+        }
 
         //接触削除時､自由落下ブロックが追加で発生した場合は実施しない
         if (blockDelete)
@@ -1020,6 +1034,9 @@ public class BlockManager_Tutorial : MonoBehaviour
             int[] effPos = blockPosIndex[conObjIndex];
             effTra.anchoredPosition = blockPos[effPos[0]][effPos[1]][effPos[2]];
 
+            //スコア
+            scoreMan.HarvestVegetable(obj.tag);
+
             //ブロック削除
             BlockDelete(new int[] { conObjIndex });
 
@@ -1046,6 +1063,7 @@ public class BlockManager_Tutorial : MonoBehaviour
         float feverTime   = UnityEngine.Random.Range(5.0f, 10.0f);
         float elapsedTime = 0.0f;
         int generateCount = 0;
+        List<RectTransform> generateBlockTraList = new List<RectTransform>();
 
         while (feverTime > elapsedTime)
         {
@@ -1063,12 +1081,23 @@ public class BlockManager_Tutorial : MonoBehaviour
             blockRigi.gravityScale = 0.5f;
             blockColl.enabled      = true;
             blockColl.isTrigger    = false;
+            generateBlockTraList.Add(blockRectTra);
             generateCount++;
 
             //ブロック生成スパン
             float generateTime = UnityEngine.Random.Range(0.05f, 0.2f);
             yield return new WaitForSeconds(generateTime);
             elapsedTime += generateTime;
+        }
+
+        //ブロック削除予備検知動作開始
+        for (int index = 0; index < generateCount; index++)
+        {
+            if (generateBlockTraList[index] != null)
+            {
+                if (generateBlockTraList[index].gameObject)
+                    StartCoroutine(PreliminaryDetectio(generateBlockTraList[index]));
+            }
         }
 
         //ブロック削除待機
@@ -1084,6 +1113,29 @@ public class BlockManager_Tutorial : MonoBehaviour
             StartCoroutine(LineBlockGenerate(3, false));
             //ハムスター元の位置へ
             StartCoroutine(ferverHumScr.ReturnFirstPosition());
+        }
+    }
+
+    //========================================================================
+    //ブロック削除予備検出(下限を超えたら削除)
+    //========================================================================
+    //watchedTra; 監視オブジェクトRectTransform
+    //========================================================================
+    IEnumerator PreliminaryDetectio(RectTransform watchedTra)
+    {
+        float lowerLlimit = -2000.0f; //下限
+        float chackTime = 0.5f;     //点検時間
+        GameObject watchedObj = watchedTra.gameObject;
+
+        while (watchedObj)
+        {
+            if (watchedTra.anchoredPosition.y <= lowerLlimit)
+            {
+                fallCompleteCount++;
+                Destroy(watchedObj);
+                break;
+            }
+            yield return new WaitForSeconds(chackTime);
         }
     }
 

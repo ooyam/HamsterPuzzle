@@ -79,7 +79,7 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\r\u753B\u9762\u4E0A\u90E8\u306E<color=#0000CD>target</color>\u3067\n\u8868\u793A\u3057\u3066\u3044\u308B\u91CE\u83DC\u3092\r\u3001\n<color=#FF4500>\u3059\u3079\u3066\u53CE\u7A6B</color>\u51FA\u6765\u305F\u3089\u3001\n<color=#FF69B4>\u30B2\u30FC\u30E0\u30AF\u30EA\u30A2</color>\u3060\u3088!!\r<size=20>\n\n</size>\u53CE\u7A6B\u304C\u5B8C\u4E86\u3057\u305F\u91CE\u83DC\u306B\u306F<size=30>\n\n</size>   
-    \u304C\u3064\u3044\u3066\u3044\u308B\u3088"
+    \u304C\u3064\u3044\u3066\u3044\u308B\u3088\u3002"
 --- !u!1 &2226941626323719199
 GameObject:
   m_ObjectHideFlags: 0
