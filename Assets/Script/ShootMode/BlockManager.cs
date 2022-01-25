@@ -734,8 +734,8 @@ namespace ShootMode
             if (deleteIndexCount > 0)
             {
                 //座標の上から順にソート
-                int[] deleteIndexArray = new int[deleteIndexCount];  //最終的なソート後の配列
-                int minInd = 0;                                      //現状の最小index格納用変数
+                List<int> deleteBlocks = new List<int>();  //最終的なソート後のリスト
+                int minInd = 0;                            //現状の最小index格納用変数
                 for (int nowAddIndex = 0; nowAddIndex < deleteIndexCount; nowAddIndex++)
                 {
                     //リストのカウント分ループ
@@ -743,7 +743,7 @@ namespace ShootMode
                     foreach (int delInd in deleteIndexList)
                     {
                         //使用済分は処理しない
-                        if (Array.IndexOf(deleteIndexArray, delInd) < 0)
+                        if (!deleteBlocks.Contains(delInd))
                         {
                             if (firstTry)
                             {
@@ -756,15 +756,15 @@ namespace ShootMode
                         }
                     }
 
-                    //最小値を配列に格納
-                    deleteIndexArray[nowAddIndex] = minInd;
+                    //最小値をリストに格納
+                    deleteBlocks.Add(minInd);
                 }
 
                 //削除中リストに追加
-                nowDeleteIndex.AddRange(deleteIndexList);
+                nowDeleteIndex.AddRange(deleteBlocks);
 
                 //削除実行
-                StartCoroutine(BlockDeleteStart(deleteIndexArray, false));
+                StartCoroutine(BlockDeleteStart(deleteBlocks.ToArray(), false));
 
                 //削除ブロック有判定
                 return true;

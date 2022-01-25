@@ -787,14 +787,41 @@ public class BlockManager_Tutorial : MonoBehaviour
         { if (topLineConnectList.IndexOf(actIndex) < 0) deleteIndexList.Add(actIndex); }
 
         //配列に変換して削除実行
-        if (deleteIndexList.Count > 0)
+        int deleteIndexCount = deleteIndexList.Count;
+        if (deleteIndexCount > 0)
         {
+            //座標の上から順にソート
+            List<int> deleteBlocks = new List<int>();  //最終的なソート後のリスト
+            int minInd = 0;                            //現状の最小index格納用変数
+            for (int nowAddIndex = 0; nowAddIndex < deleteIndexCount; nowAddIndex++)
+            {
+                //リストのカウント分ループ
+                bool firstTry = true;
+                foreach (int delInd in deleteIndexList)
+                {
+                    //使用済分は処理しない
+                    if (!deleteBlocks.Contains(delInd))
+                    {
+                        if (firstTry)
+                        {
+                            //初期値の設定
+                            minInd = delInd;
+                            firstTry = false;
+                        }
+                        //最小値取得
+                        else if (blockPosIndex[minInd][1] > blockPosIndex[delInd][1]) minInd = delInd;
+                    }
+                }
+
+                //最小値をリストに格納
+                deleteBlocks.Add(minInd);
+            }
+
             //削除中リストに追加
-            nowDeleteIndex.AddRange(deleteIndexList);
+            nowDeleteIndex.AddRange(deleteBlocks);
 
             //削除実行
-            int[] deleteBlocks = deleteIndexList.ToArray();
-            StartCoroutine(BlockDeleteStart(deleteBlocks, false));
+            StartCoroutine(BlockDeleteStart(deleteBlocks.ToArray(), false));
 
             //削除ブロック有判定
             return true;
