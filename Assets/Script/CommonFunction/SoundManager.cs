@@ -6,25 +6,88 @@ namespace SoundFunction
 {
     public class SoundManager : MonoBehaviour
     {
+        //---------------------------------
+        //共通
+        //---------------------------------
+        [Header("共通")]
         [Header("BGM")]
-        public AudioClip[] bgm;
+        [SerializeField]
+        AudioClip[] bgm;
         [Header("Yesタップ")]
-        public AudioClip yesTap;
+        [SerializeField]
+        AudioClip yesTap;
         [Header("noタップ")]
-        public AudioClip noTap;
-        [Header("ハムスター移動")]
-        public AudioClip panelChange;
-        [Header("収穫")]
-        public AudioClip[] harvest;  //通常:0  列(横):1  行(縦):2
-        [Header("咀嚼")]
-        public AudioClip eat;
+        [SerializeField]
+        AudioClip noTap;
         [Header("ゲームオーバー")]
-        public AudioClip[] gameOver;
+        [SerializeField]
+        AudioClip[] gameOver;
         [Header("ゲームクリア")]
-        public AudioClip gameClear;
+        [SerializeField]
+        AudioClip gameClear;
 
-        private AudioSource audio_SE;  //SE_AudioSource    
-        private AudioSource audio_BGM; //BGM_AudioSource
+        //---------------------------------
+        //パズルモード
+        //---------------------------------
+        [Space(20)]
+        [Header("パズルモード")]
+        [Header("ハムスター移動")]
+        [SerializeField]
+        AudioClip panelChange;
+        [Header("収穫")]
+        [SerializeField]
+        AudioClip[] harvest;  //通常:0  列(横):1  行(縦):2
+        [Header("咀嚼")]
+        [SerializeField]
+        AudioClip eat;
+
+        //---------------------------------
+        //シュートモード
+        //---------------------------------
+        [Space(20)]
+        [Header("シュートモード")]
+        [Header("スタート歩き")]
+        [SerializeField]
+        AudioClip startWalk;
+        [Header("投擲")]
+        [SerializeField]
+        AudioClip bloackThrow;
+        [Header("跳ね返り")]
+        [SerializeField]
+        AudioClip rebound;
+        [Header("ブロック接触")]
+        [SerializeField]
+        AudioClip connect;
+        [Header("接触削除開始")]
+        [SerializeField]
+        AudioClip connectDelete;
+        [Header("自由落下開始")]
+        [SerializeField]
+        AudioClip freeFall;
+        [Header("収穫")]
+        [SerializeField]
+        AudioClip harvestShoot;
+        [Header("スペシャルタップ")]
+        [SerializeField]
+        AudioClip specialTap;
+        [Header("スペシャル歩き")]
+        [SerializeField]
+        AudioClip specialWalk;
+        [Header("スペシャル収穫")]
+        [SerializeField]
+        AudioClip specialHarvest;
+        [Header("フィーバー開始")]
+        [SerializeField]
+        AudioClip feverStart;
+        [Header("フィーバー収穫")]
+        [SerializeField]
+        AudioClip feverHarvest;
+        [Header("nextブロック交換")]
+        [SerializeField]
+        AudioClip blockCange;
+
+        AudioSource audio_SE;  //SE_AudioSource    
+        AudioSource audio_BGM; //BGM_AudioSource
         [System.NonSerialized]
         public int bgmIndex;
 
@@ -44,6 +107,10 @@ namespace SoundFunction
             }
         }
 
+        //=============================================
+        //BGM
+        //=============================================
+        //BGM開始
         public void BGM_Start(int seIndex)
         {
             bgmIndex = seIndex;
@@ -56,7 +123,7 @@ namespace SoundFunction
                 StartCoroutine(BGM_Volume_Fade(volume));
             }
         }
-
+        //BGM再開
         public void BGM_Restart()
         {
             if (EnvironmentalSetting.bgm)
@@ -66,7 +133,7 @@ namespace SoundFunction
                 StartCoroutine(BGM_Volume_Fade(volume));
             }
         }
-
+        //BGM音量フェード
         IEnumerator BGM_Volume_Fade(float volume)
         {
             while (EnvironmentalSetting.bgm)
@@ -81,44 +148,117 @@ namespace SoundFunction
                 }
             }
         }
-
+        //BGM音量設定
         public void BGM_Volume(float volume)
-        {
-            audio_BGM.volume = volume;
-        }
+        { audio_BGM.volume = volume; }
 
+
+        //=============================================
+        //共通
+        //=============================================
+
+        //SEを止める
+        public void SE_Stop()
+        { audio_SE.Stop(); }
+
+        //SE音量設定
         public void SE_Volume(float volume)
+        { audio_SE.volume = volume; }
+
+        //Yes
+        public void YesTapSE()
+        { audio_SE.PlayOneShot(yesTap); }
+
+        //No
+        public void NoTapSE()
+        { audio_SE.PlayOneShot(noTap); }
+
+        //ゲームオーバー
+        public void GameOverSE(int seIndex)
+        { audio_SE.PlayOneShot(gameOver[seIndex]); }
+
+        //ゲームクリア
+        public void GameClearSE()
+        { audio_SE.PlayOneShot(gameClear); }
+
+
+        //=============================================
+        //パズルモード
+        //=============================================
+
+        //パネル移動
+        public void PanelChangeSE()
+        { audio_SE.PlayOneShot(panelChange); }
+
+        //パネル揃った
+        public void HarvestSE(int seIndex)
+        { audio_SE.PlayOneShot(harvest[seIndex]); }
+
+        //食べる
+        public void EatSE()
+        { audio_SE.PlayOneShot(eat); }
+
+
+        //=============================================
+        //シュートモード
+        //=============================================
+
+        //投擲
+        public void StartWalkSE_Shoot()
         {
-            audio_SE.volume = volume;
+            audio_SE.clip = startWalk;
+            audio_SE.Play();
         }
 
-        public void YesTapSE()
+        //投擲
+        public void ThrowSE_Shoot()
+        { audio_SE.PlayOneShot(bloackThrow); }
+
+        //跳ね返り
+        public void ReboundSE_Shoot()
+        { audio_SE.PlayOneShot(rebound); }
+
+        //ブロック接触
+        public void ConnectSE_Shoot()
+        { audio_SE.PlayOneShot(connect); }
+
+        //接触削除開始
+        public void ConnectDeleteSE_Shoot()
+        { audio_SE.PlayOneShot(connectDelete); }
+
+        //自由落下開始
+        public void FeeFallSE_Shoot()
+        { audio_SE.PlayOneShot(freeFall); }
+
+        //収穫
+        public void HarvestSE_Shoot_Shoot()
+        { audio_SE.PlayOneShot(harvestShoot); }
+
+        //スペシャルタップ
+        public void SpecialTapSE_Shoot()
+        { audio_SE.PlayOneShot(specialTap); }
+
+        //スペシャル歩く
+        public void SpecialWalkSE_Shoot()
         {
-            audio_SE.PlayOneShot(yesTap);
+            audio_SE.clip = specialWalk;
+            audio_SE.Play();
         }
-        public void NoTapSE()
-        {
-            audio_SE.PlayOneShot(noTap);
-        }
-        public void PanelChangeSE()
-        {
-            audio_SE.PlayOneShot(panelChange);
-        }
-        public void HarvestSE(int seIndex)
-        {
-            audio_SE.PlayOneShot(harvest[seIndex]);
-        }
-        public void EatSE()
-        {
-            audio_SE.PlayOneShot(eat);
-        }
-        public void GameOverSE(int seIndex)
-        {
-            audio_SE.PlayOneShot(gameOver[seIndex]);
-        }
-        public void GameClearSE()
-        {
-            audio_SE.PlayOneShot(gameClear);
-        }
+
+        //スペシャル収穫
+        public void SpecialHarvestSE_Shoot()
+        { audio_SE.PlayOneShot(specialHarvest); }
+
+        //フィーバー開始
+        public void FeverStartSE_Shoot()
+        { audio_SE.PlayOneShot(feverStart); }
+
+        //フィーバー収穫
+        public void FeverHarvestSE_Shoot()
+        { audio_SE.PlayOneShot(feverHarvest); }
+
+        //nextブロック交換
+        public void BlockCangeSE_Shoot()
+        { audio_SE.PlayOneShot(blockCange); }
     }
 }

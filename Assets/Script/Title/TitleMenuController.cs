@@ -297,72 +297,84 @@ public class TitleMenuController : MonoBehaviour
         //シュートモード
         //========================================================================
         VegetableType[][] shootTargetVeg = new VegetableType[stageNum[shootModeNum] + 1][];
-        shootTargetVeg[0]  = new VegetableType[] { VegetableType.Paprika, VegetableType.Cabbage, VegetableType.Broccoli };
-        shootTargetVeg[1]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Carrot };
-        shootTargetVeg[2]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Paprika, VegetableType.Pumpkin };
-        shootTargetVeg[3]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Pumpkin, VegetableType.Carrot, VegetableType.Paprika };
-        shootTargetVeg[4]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Corn, VegetableType.Pumpkin, VegetableType.Carrot, VegetableType.Paprika };
-        shootTargetVeg[5]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage, VegetableType.Corn, VegetableType.Pumpkin, VegetableType.Carrot, VegetableType.Paprika };
-        shootTargetVeg[6]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Carrot };
-        shootTargetVeg[7]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Paprika };
-        shootTargetVeg[8]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Pumpkin };
-        shootTargetVeg[9]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Corn };
-        shootTargetVeg[10] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage };
-        shootTargetVeg[11] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Carrot };
-        shootTargetVeg[12] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Paprika };
-        shootTargetVeg[13] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Pumpkin };
-        shootTargetVeg[14] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Corn };
-        shootTargetVeg[15] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage };
-        shootTargetVeg[16] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Carrot };
-        shootTargetVeg[17] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Paprika };
-        shootTargetVeg[18] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Pumpkin };
-        shootTargetVeg[19] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Corn };
-        shootTargetVeg[20] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Corn };
+        //Broccoli, Cabbage, Paprika
+        shootTargetVeg[0]  = new VegetableType[] { VegetableType.Paprika,  VegetableType.Cabbage, VegetableType.Broccoli };
+        shootTargetVeg[1]  = new VegetableType[] { VegetableType.Broccoli };
+        shootTargetVeg[2]  = new VegetableType[] { VegetableType.Cabbage,  VegetableType.Paprika };
+        shootTargetVeg[3]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage };
+        shootTargetVeg[4]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage, VegetableType.Paprika };
+        shootTargetVeg[5]  = new VegetableType[] { VegetableType.Paprika };
+        //Broccoli, Cabbage, Paprika, Carrot
+        shootTargetVeg[6]  = new VegetableType[] { VegetableType.Carrot };
+        shootTargetVeg[7]  = new VegetableType[] { VegetableType.Cabbage,  VegetableType.Carrot };
+        shootTargetVeg[8]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Paprika };
+        shootTargetVeg[9]  = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage, VegetableType.Carrot };
+        shootTargetVeg[10] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage, VegetableType.Paprika, VegetableType.Carrot };
+        //Broccoli, Cabbage, Paprika, Carrot, Pumpkin
+        shootTargetVeg[11] = new VegetableType[] { VegetableType.Pumpkin };
+        shootTargetVeg[12] = new VegetableType[] { VegetableType.Carrot,   VegetableType.Pumpkin };
+        shootTargetVeg[13] = new VegetableType[] { VegetableType.Paprika,  VegetableType.Carrot,  VegetableType.Pumpkin };
+        shootTargetVeg[14] = new VegetableType[] { VegetableType.Cabbage,  VegetableType.Paprika, VegetableType.Carrot,  VegetableType.Pumpkin };
+        shootTargetVeg[15] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage, VegetableType.Paprika, VegetableType.Carrot, VegetableType.Pumpkin };
+        //Broccoli, Cabbage, Paprika, Carrot, Pumpkin, Corn
+        shootTargetVeg[16] = new VegetableType[] { VegetableType.Corn };
+        shootTargetVeg[17] = new VegetableType[] { VegetableType.Cabbage,  VegetableType.Carrot };
+        shootTargetVeg[18] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage, VegetableType.Corn,    VegetableType.Carrot, VegetableType.Pumpkin };
+        shootTargetVeg[19] = new VegetableType[] { VegetableType.Broccoli, VegetableType.Cabbage, VegetableType.Paprika, VegetableType.Carrot, VegetableType.Pumpkin, VegetableType.Corn };
+        shootTargetVeg[20] = new VegetableType[] { VegetableType.Carrot,   VegetableType.Cabbage, VegetableType.Pumpkin, VegetableType.Broccoli };
 
         int[][] shootTargetVegNum = new int[stageNum[shootModeNum] + 1][];
+        //Broccoli, Cabbage, Paprika
         shootTargetVegNum[0]  = new int[] { 4, 50, 14 };
-        shootTargetVegNum[1]  = new int[] { 2, 7 };
-        shootTargetVegNum[2]  = new int[] { 3, 8, 9 };
-        shootTargetVegNum[3]  = new int[] { 4, 10, 21, 32 };
-        shootTargetVegNum[4]  = new int[] { 5, 43, 54, 65, 76 };
-        shootTargetVegNum[5]  = new int[] { 6, 87, 98, 15, 86, 99 };
-        shootTargetVegNum[6]  = new int[] { 7, 3 };
-        shootTargetVegNum[7]  = new int[] { 8, 3 };
-        shootTargetVegNum[8]  = new int[] { 9, 3 };
-        shootTargetVegNum[9]  = new int[] { 10, 3 };
-        shootTargetVegNum[10] = new int[] { 11, 3 };
-        shootTargetVegNum[11] = new int[] { 12, 3 };
-        shootTargetVegNum[12] = new int[] { 13, 3 };
-        shootTargetVegNum[13] = new int[] { 14, 3 };
-        shootTargetVegNum[14] = new int[] { 15, 3 };
-        shootTargetVegNum[15] = new int[] { 16, 3 };
-        shootTargetVegNum[16] = new int[] { 17, 3 };
-        shootTargetVegNum[17] = new int[] { 18, 3 };
-        shootTargetVegNum[18] = new int[] { 19, 3 };
-        shootTargetVegNum[19] = new int[] { 20, 3 };
-        shootTargetVegNum[19] = new int[] { 21, 3 };
+        shootTargetVegNum[1]  = new int[] { 10 };
+        shootTargetVegNum[2]  = new int[] { 10, 10 };
+        shootTargetVegNum[3]  = new int[] { 25, 17 };
+        shootTargetVegNum[4]  = new int[] { 20, 22, 14 };
+        shootTargetVegNum[5]  = new int[] { 40 };
+        //Broccoli, Cabbage, Paprika, Carrot
+        shootTargetVegNum[6]  = new int[] { 18 };
+        shootTargetVegNum[7]  = new int[] { 18, 24 };
+        shootTargetVegNum[8]  = new int[] { 31, 41 };
+        shootTargetVegNum[9]  = new int[] { 30, 30, 30 };
+        shootTargetVegNum[10] = new int[] { 27, 24, 13, 46 };
+        //Broccoli, Cabbage, Paprika, Carrot, Pumpkin
+        shootTargetVegNum[11] = new int[] { 33 };
+        shootTargetVegNum[12] = new int[] { 29, 19 };
+        shootTargetVegNum[13] = new int[] { 40, 33, 44 };
+        shootTargetVegNum[14] = new int[] { 30, 30, 30, 30 };
+        shootTargetVegNum[15] = new int[] { 36, 30, 39, 33, 42 };
+        //Broccoli, Cabbage, Paprika, Carrot, Pumpkin, Corn
+        shootTargetVegNum[16] = new int[] { 48 };
+        shootTargetVegNum[17] = new int[] { 37, 48 };
+        shootTargetVegNum[18] = new int[] { 30, 20, 25, 20, 31 };
+        shootTargetVegNum[19] = new int[] { 27, 21, 25, 31, 37, 30 };
+        shootTargetVegNum[20] = new int[] { 40, 38, 24, 18 };
 
         float[] shootGenerateTime = new float[stageNum[shootModeNum] + 1];
+        //Broccoli, Cabbage, Paprika
         shootGenerateTime[0]  = 20.0f;
         shootGenerateTime[1]  = 20.0f;
         shootGenerateTime[2]  = 20.0f;
         shootGenerateTime[3]  = 20.0f;
         shootGenerateTime[4]  = 20.0f;
         shootGenerateTime[5]  = 15.0f;
+        //Broccoli, Cabbage, Paprika, Carrot
         shootGenerateTime[6]  = 15.0f;
         shootGenerateTime[7]  = 15.0f;
         shootGenerateTime[8]  = 15.0f;
         shootGenerateTime[9]  = 15.0f;
-        shootGenerateTime[10] = 10.0f;
-        shootGenerateTime[11] = 10.0f;
-        shootGenerateTime[12] = 10.0f;
-        shootGenerateTime[13] = 10.0f;
-        shootGenerateTime[14] = 10.0f;
-        shootGenerateTime[15] = 5.0f;
-        shootGenerateTime[16] = 5.0f;
-        shootGenerateTime[17] = 5.0f;
-        shootGenerateTime[18] = 5.0f;
-        shootGenerateTime[19] = 5.0f;
+        shootGenerateTime[10] = 15.0f;
+        //Broccoli, Cabbage, Paprika, Carrot, Pumpkin
+        shootGenerateTime[11] = 14.0f;
+        shootGenerateTime[12] = 13.0f;
+        shootGenerateTime[13] = 12.0f;
+        shootGenerateTime[14] = 11.0f;
+        shootGenerateTime[15] = 10.0f;
+        //Broccoli, Cabbage, Paprika, Carrot, Pumpkin, Corn
+        shootGenerateTime[16] = 9.0f;
+        shootGenerateTime[17] = 8.0f;
+        shootGenerateTime[18] = 7.0f;
+        shootGenerateTime[19] = 6.0f;
         shootGenerateTime[20] = 5.0f;
 
         //チュートリアルボタンに関数指定
@@ -646,12 +658,9 @@ public class TitleMenuController : MonoBehaviour
             ShootModeManager.blickGenerateTime = blickGenerateTime;
             ShootModeManager.stageNum          = stageNum;
             int useVegNum = 3;
-            //if (stageNum > 4)  useVegNum = 4;
-            //if (stageNum > 9)  useVegNum = 5;
-            //if (stageNum > 14) useVegNum = 6;
-            if (stageNum > 0)  useVegNum = 4;
-            if (stageNum > 1)  useVegNum = 5;
-            if (stageNum > 2) useVegNum  = 6;
+            if (stageNum > 5)  useVegNum = 4;
+            if (stageNum > 10) useVegNum = 5;
+            if (stageNum > 15) useVegNum = 6;
             ShootModeManager.useVegNum     = useVegNum;
         }
     }

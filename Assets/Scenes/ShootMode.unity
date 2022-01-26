@@ -567,16 +567,29 @@ MonoBehaviour:
   - {fileID: 8300000, guid: a0ab8c4868ad7de42ac21cb59088dc47, type: 3}
   yesTap: {fileID: 8300000, guid: 8d245e032a5f5c043b9695efd0c7b3c3, type: 3}
   noTap: {fileID: 8300000, guid: b36e507407c15c04182a7cca63c46ae3, type: 3}
+  gameOver:
+  - {fileID: 8300000, guid: eaca350e3c769594593618c7d3246e6c, type: 3}
+  - {fileID: 8300000, guid: 8b1e0997dded43b4c926188f1cc3c630, type: 3}
+  gameClear: {fileID: 8300000, guid: dd4f89f9eabde7943aebddfecee9db6f, type: 3}
   panelChange: {fileID: 8300000, guid: 3bf2545527a2ecc4099de186f8ef69c0, type: 3}
   harvest:
   - {fileID: 8300000, guid: 9d709ef853a0a3b41a40cad720ba8fa9, type: 3}
   - {fileID: 8300000, guid: c39912056bbe6f444906d62ec9fa2ca6, type: 3}
   - {fileID: 8300000, guid: 2465c19251141da45999143f01700ac7, type: 3}
   eat: {fileID: 8300000, guid: 1ad6b5adc3443964e8c1d8b5d8f77968, type: 3}
-  gameOver:
-  - {fileID: 8300000, guid: eaca350e3c769594593618c7d3246e6c, type: 3}
-  - {fileID: 8300000, guid: 8b1e0997dded43b4c926188f1cc3c630, type: 3}
-  gameClear: {fileID: 8300000, guid: dd4f89f9eabde7943aebddfecee9db6f, type: 3}
+  startWalk: {fileID: 0}
+  bloackThrow: {fileID: 0}
+  rebound: {fileID: 0}
+  connect: {fileID: 0}
+  connectDelete: {fileID: 0}
+  freeFall: {fileID: 0}
+  harvestShoot: {fileID: 0}
+  specialTap: {fileID: 0}
+  specialWalk: {fileID: 0}
+  specialHarvest: {fileID: 0}
+  feverStart: {fileID: 0}
+  feverHarvest: {fileID: 0}
+  blockCange: {fileID: 0}
 --- !u!4 &128329207
 Transform:
   m_ObjectHideFlags: 0
@@ -2352,7 +2365,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -960}
+  m_Offset: {x: 0, y: -800}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}

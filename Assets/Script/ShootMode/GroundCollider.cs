@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using SoundFunction;
 using static ShootMode.ShootModeDefine;
 
 namespace ShootMode
@@ -10,12 +11,14 @@ namespace ShootMode
     {
         ScoreManager scoreMan;
         BlockManager blockMan;
+        SoundManager soundMan;
         string[] vegName;
 
         void Start()
         {
             scoreMan = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager>();
             blockMan = GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>();
+            soundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
             var vegetableType = Enum.GetValues(typeof(VegetableType));
             int vegTypeNum = vegetableType.Length;
             vegName = new string[vegTypeNum];
@@ -39,6 +42,9 @@ namespace ShootMode
                 }
                 else
                 {
+                    //SE
+                    soundMan.HarvestSE_Shoot_Shoot();
+
                     //ŽûŠnŠ®—¹
                     scoreMan.HarvestVegetable(col.gameObject.tag);
                 }

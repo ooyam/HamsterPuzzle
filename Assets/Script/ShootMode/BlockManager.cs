@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using ShootMode;
+using SoundFunction;
 using static ShootMode.ShootModeDefine;
 using static ShootMode.ShootModeManager;
 using static MoveFunction.ObjectMove;
@@ -83,8 +84,11 @@ namespace ShootMode
         public float blockDiameter = 120.0f;       //ブロック直径
         float[] blockRotDirecting  = new float[] { 90.0f, 270.0f };  //演出用ブロック角度
 
+        SoundManager soundMan;  //SoundManager
+
         IEnumerator Start()
         {
+            soundMan      = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
             blockCloudTra = blockBoxTra.GetChild(blockBoxTra.childCount - 1).GetComponent<RectTransform>();
             blockCloudPos = blockCloudTra.anchoredPosition;
             hamsterScr    = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController>();
@@ -222,7 +226,11 @@ namespace ShootMode
         public void NextThrowBlockTap()
         {
             if (GAME_START  && !GAME_OVER && !SPECIAL_HARVEST && !FEVER_START && !SETTING_DISPLAY && !throwNow && !blockDeleteNow && !blockChangeNow)
+            {
+                //SE
+                soundMan.BlockCangeSE_Shoot();
                 StartCoroutine(ThrowBlockChange());
+            }
         }
 
         //========================================================================
@@ -444,6 +452,9 @@ namespace ShootMode
         //========================================================================
         public IEnumerator BlockThrow(Vector3[] linePoints)
         {
+            //SE
+            soundMan.ThrowSE_Shoot();
+
             throwNow = true;
             blockCollider[1].enabled = true;
             float oneFrameTime = 0.02f;
@@ -458,7 +469,12 @@ namespace ShootMode
                 float[] endPos = new float[]{ linePoints[targetIndex].x + maxRangeFix, linePoints[targetIndex].x - maxRangeFix };
                 if (throwBlockPos.x <= endPos[0] && throwBlockPos.x >= endPos[1])
                 {
-                    if(pointsCount - 1 > targetIndex) targetIndex++;
+                    if (pointsCount - 1 > targetIndex)
+                    {
+                        //SE
+                        soundMan.ReboundSE_Shoot();
+                        targetIndex++;
+                    }
                 }
                 yield return new WaitForSeconds(oneFrameTime);
             }
@@ -636,7 +652,13 @@ namespace ShootMode
                 StartCoroutine(BlockDeleteStart(deleteBlocks, true));
             }
             //投擲ブロック生成
-            else StartCoroutine(ThrowBlockGenerate());
+            else
+            {
+                //SE
+                soundMan.ConnectSE_Shoot();
+
+                StartCoroutine(ThrowBlockGenerate());
+            }
         }
 
         //========================================================================
@@ -864,6 +886,8 @@ namespace ShootMode
                         //落下前演出
                         if (!directingEnd[loopTimes] && elapsedTime >= directWait[loopTimes])
                         {
+                            //SE
+                            soundMan.ConnectDeleteSE_Shoot();
                             directingEnd[loopTimes] = true;
                             StartCoroutine(ScaleChange(blockTra[delInd], scalingSpeed, changeScale, defaultScale, scalingTimes));
                         }
@@ -906,6 +930,9 @@ namespace ShootMode
 
                     //子オブジェクトインデックス番号最後尾に変更(ブロックの最前)
                     blockTra[deleteObjIndex[index]].SetSiblingIndex(setSiblingIndex);
+
+                    //SE
+                    soundMan.FeeFallSE_Shoot();
 
                     //演出開始
                     blockObj[deleteObjIndex[index]].AddComponent<FreeFallBlock>();
@@ -990,6 +1017,9 @@ namespace ShootMode
             int conObjIndex = blockObj.IndexOf(obj);
             if (conObjIndex >= 0)
             {
+                //SE
+                soundMan.SpecialHarvestSE_Shoot();
+
                 //現在の投擲ブロック取得
                 GameObject nowThrowBlockObj     = blockObj[throwBlockIndex];
                 GameObject nowNextThrowBlockObj = blockObj[nextThrowBlockIndex];
@@ -1073,7 +1103,13 @@ namespace ShootMode
             fallCompleteCount = 0;
 
             //クリア判定
-            if (GAME_CLEAR) StartCoroutine(ShootModeMan.GameClear());
+            if (GAME_CLEAR)
+            {
+                //ゲームクリア
+                StartCoroutine(ShootModeMan.GameClear());
+                //ハムスター元の位置へ
+                StartCoroutine(ferverHumScr.ReturnFirstPosition());
+            }
             else
             {
                 //ブロック3行生成

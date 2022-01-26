@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using ShootMode_Tutorial;
+using SoundFunction;
 using static ShootMode.ShootModeDefine;
 using static ShootMode_Tutorial.ShootModeManager_Tutorial;
 using static MoveFunction.ObjectMove;
@@ -85,10 +86,12 @@ public class BlockManager_Tutorial : MonoBehaviour
     int nextThrowBlockOrderIndex = 0;               //次投擲ブロック生成index
 
     ScoreManager_Tutorial scoreMan;  //ScoreManager_Tutorial
+    SoundManager soundMan;           //SoundManager
 
     IEnumerator Start()
     {
         scoreMan      = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager_Tutorial>();
+        soundMan      = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
         blockCloudTra = blockBoxTra.GetChild(blockBoxTra.childCount - 1).GetComponent<RectTransform>();
         blockCloudPos = blockCloudTra.anchoredPosition;
         hamsterScr    = hamsterBoxTra.GetChild(0).gameObject.GetComponent<HamsterController_Tutorial>();
@@ -226,7 +229,11 @@ public class BlockManager_Tutorial : MonoBehaviour
     public void NextThrowBlockTap()
     {
         if (GAME_START  && !GAME_OVER && !SPECIAL_HARVEST && !FEVER_START && !SETTING_DISPLAY && !throwNow && !blockDeleteNow && !blockChangeNow)
+        {
+            //SE
+            soundMan.BlockCangeSE_Shoot();
             StartCoroutine(ThrowBlockChange());
+        }
     }
 
     //========================================================================
@@ -459,6 +466,9 @@ public class BlockManager_Tutorial : MonoBehaviour
     //========================================================================
     public IEnumerator BlockThrow(Vector3[] linePoints)
     {
+        //SE
+        soundMan.ThrowSE_Shoot();
+
         throwNow = true;
         blockCollider[1].enabled = true;
         float oneFrameTime = 0.02f;
@@ -473,7 +483,12 @@ public class BlockManager_Tutorial : MonoBehaviour
             float[] endPos = new float[]{ linePoints[targetIndex].x + maxRangeFix, linePoints[targetIndex].x - maxRangeFix };
             if (throwBlockPos.x <= endPos[0] && throwBlockPos.x >= endPos[1])
             {
-                if(pointsCount - 1 > targetIndex) targetIndex++;
+                if (pointsCount - 1 > targetIndex)
+                {
+                    //SE
+                    soundMan.ReboundSE_Shoot();
+                    targetIndex++;
+                }
             }
             yield return new WaitForSeconds(oneFrameTime);
         }
@@ -620,7 +635,7 @@ public class BlockManager_Tutorial : MonoBehaviour
     void AdjacentSameTagBlockJudgment(int index)
     {
         List<int> referenceBlockIndexList = new List<int>();  //参照するブロックのリスト
-        List<int> scannedIndexList        = new List<int>();  //検索済リスト
+        List<int> scannedIndexList = new List<int>();  //検索済リスト
         referenceBlockIndexList.Add(index);                   //初期基準ブロック追加
         string referenceTag = blockObj[index].tag;            //基準タグ
 
@@ -693,7 +708,13 @@ public class BlockManager_Tutorial : MonoBehaviour
             StartCoroutine(BlockDeleteStart(deleteBlocks, true));
         }
         //投擲ブロック生成
-        else StartCoroutine(ThrowBlockGenerate());
+        else
+        {
+            //SE
+            soundMan.ConnectSE_Shoot();
+
+            StartCoroutine(ThrowBlockGenerate());
+        }
     }
 
     //========================================================================
@@ -921,6 +942,8 @@ public class BlockManager_Tutorial : MonoBehaviour
                     //落下前演出
                     if (!directingEnd[loopTimes] && elapsedTime >= directWait[loopTimes])
                     {
+                        //SE
+                        soundMan.ConnectDeleteSE_Shoot();
                         directingEnd[loopTimes] = true;
                         StartCoroutine(ScaleChange(blockTra[delInd], scalingSpeed, changeScale, defaultScale, scalingTimes));
                     }
@@ -963,6 +986,9 @@ public class BlockManager_Tutorial : MonoBehaviour
 
                 //子オブジェクトインデックス番号最後尾に変更(ブロックの最前)
                 blockTra[deleteObjIndex[index]].SetSiblingIndex(setSiblingIndex);
+
+                //SE
+                soundMan.FeeFallSE_Shoot();
 
                 //演出開始
                 blockObj[deleteObjIndex[index]].AddComponent<FreeFallBlock>();
@@ -1050,6 +1076,9 @@ public class BlockManager_Tutorial : MonoBehaviour
         int conObjIndex = blockObj.IndexOf(obj);
         if (conObjIndex >= 0)
         {
+            //SE
+            soundMan.SpecialHarvestSE_Shoot();
+
             //現在の投擲ブロック取得
             GameObject nowThrowBlockObj     = blockObj[throwBlockIndex];
             GameObject nowNextThrowBlockObj = blockObj[nextThrowBlockIndex];
@@ -1133,7 +1162,12 @@ public class BlockManager_Tutorial : MonoBehaviour
         fallCompleteCount = 0;
 
         //クリア判定
-        if (GAME_CLEAR) StartCoroutine(ShootModeMan.GameClear());
+        if (GAME_CLEAR)
+        {
+            StartCoroutine(ShootModeMan.GameClear());
+            //ハムスター元の位置へ
+            StartCoroutine(ferverHumScr.ReturnFirstPosition());
+        }
         else
         {
             //ブロック3行生成

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using ShootMode;
+using SoundFunction;
 using static ShootMode.ShootModeDefine;
 using static MoveFunction.ObjectMove;
 
@@ -34,6 +35,7 @@ public class SpecialHamster : MonoBehaviour
 
     string[] blockTag;        //ブロックタグリスト
     BlockManager blockMan;    //BlockManager
+    SoundManager soundMan;    //SoundManager
 
     void Start()
     {
@@ -51,6 +53,7 @@ public class SpecialHamster : MonoBehaviour
         foreach (VegetableType value in vegetableType)
         { blockTag[(int)value] = Enum.GetName(typeof(VegetableType), value); }
         blockMan = GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>();
+        soundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
     }
 
     //========================================================================
@@ -122,6 +125,9 @@ public class SpecialHamster : MonoBehaviour
         {
             if (specialAvailable && !FEVER_START && !SETTING_DISPLAY)
             {
+                //SE
+                soundMan.SpecialTapSE_Shoot();
+
                 //タップ禁止
                 noTaps = true;
 
@@ -173,6 +179,9 @@ public class SpecialHamster : MonoBehaviour
                 int breakCount = -1;        //終了サイクル数(無限ループの場合は - 1指定)
                 float endTime  = mvoeTime;  //揺れ終了時間(時間で止めない場合は - 1指定)
 
+                //歩きSE
+                soundMan.SpecialWalkSE_Shoot();
+
                 //移動開始
                 StartCoroutine(ShakeMovement(tra, rotSpeed, maxRot, moveCount, stopTime, breakCount, endTime));
                 StartCoroutine(MoveMovement(tra, moveSpeed, acceleRate, targetPos));
@@ -207,6 +216,9 @@ public class SpecialHamster : MonoBehaviour
                 //移動開始
                 StartCoroutine(MoveMovement(tra, moveSpeed, acceleRate, defaultPos));
                 yield return new WaitForSeconds(mvoeTime);
+
+                //歩きSE停止
+                soundMan.SE_Stop();
 
                 //ハムスターSprite変更
                 ima.sprite = hamsterSprite[0];

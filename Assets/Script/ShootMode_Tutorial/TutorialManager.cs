@@ -119,6 +119,7 @@ namespace ShootMode_Tutorial
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
+                        SoundMan.YesTapSE();
                         NextDescriptionStart();
                         break;
                     }
@@ -169,7 +170,6 @@ namespace ShootMode_Tutorial
             switch (descriptionNum)
             {
                 case 0:  //シュートモードへようこそ～
-                    SoundMan.YesTapSE();
                     TextShow(0);                                      //テキスト[0]表示
                     FullFilterSwitch(true);                           //全面フィルターフェード表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
@@ -177,7 +177,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 1:  //画面の上の方に野菜ブロックが見えるかな～
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(0));         //テキスト非表示[0]
                     TextShow(1);                                      //テキスト[1]表示
                     FullFilterSwitch(false);                          //全面フィルターフェード非表示
@@ -187,7 +186,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 2:  //まずはオラフくんをタップして～
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(1));         //テキスト非表示[1]
                     TextShow(2);                                      //テキスト[2]表示
                     StartCoroutine(FilterHide(0));                    //フィルター非表示[0]
@@ -197,8 +195,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 3:  //パプリカ投擲待機
-                    SoundMan.YesTapSE();
-
                     if (rethrow)
                     {
                         yield return StartCoroutine(TextHide(19));    //テキスト非表示[19](投擲やり直し時)
@@ -213,7 +209,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 4:  //パプリカがつながったね～
-                    SoundMan.YesTapSE();
                     throwWait = false;                                        //投擲可能フラグfalse
                     HandHide();                                               //手非表示
                     StartCoroutine(FilterHide(1));                            //フィルター非表示[1]
@@ -224,14 +219,12 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 5:  //収穫待機
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(3));         //テキスト非表示[3]
                     Time.timeScale = 1;                               //時間を戻す
                     StartCoroutine(FilterHide(2));                    //フィルター非表示[2]
                     break;
 
                 case 6:  //収穫した野菜は～
-                    SoundMan.YesTapSE();
                     TextShow(4);                                      //テキスト[4]表示
                     FilterShow(3, true);                              //フィルター[3]表示
                     StartCoroutine(HandMove(1));                      //手表示[1]
@@ -240,7 +233,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 7:  //画面上部で～
-                    SoundMan.YesTapSE();
                     HandHide();                                       //手非表示
                     yield return StartCoroutine(TextHide(4));         //テキスト非表示[4]
                     TextShow(5);                                      //テキスト[5]表示
@@ -250,7 +242,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 8:  //次に、その他の収穫方法を～
-                    SoundMan.YesTapSE();
                     HandHide();                                       //手非表示
                     yield return StartCoroutine(TextHide(5));         //テキスト非表示[5]
                     TextShow(6);                                      //テキスト[6]表示
@@ -261,8 +252,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 9:  //キャベツ投擲待機
-                    SoundMan.YesTapSE();
-
                     if (rethrow)
                     {
                         yield return StartCoroutine(TextHide(20));    //テキスト非表示[20](投擲やり直し時)
@@ -277,7 +266,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 10:  //キャベツを収穫した時～
-                    SoundMan.YesTapSE();
                     throwWait = false;                                //投擲可能フラグfalse
                     HandHide();                                       //手非表示
                     TextShow(7);                                      //テキスト[7]表示
@@ -287,7 +275,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 11:  //画面右下のオラフくんが～
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(7));         //テキスト非表示[7]
                     TextShow(8);                                      //テキスト[8]表示
                     FullFilterSwitch(false);                          //全面フィルターフェード非表示
@@ -298,14 +285,12 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 12:  //スペシャルオラフ待機
-                    SoundMan.YesTapSE();
                     specialHamsterWait = false;                       //スペシャルオラフ待機フラグfalse
                     yield return StartCoroutine(TextHide(8));         //テキスト非表示[8]
                     StartCoroutine(FilterHide(5));                    //フィルター非表示[5]
                     break;
 
                 case 13:  //スペシャルオラフくんは～
-                    SoundMan.YesTapSE();
                     TextShow(9);                                      //テキスト[9]表示
                     FullFilterSwitch(true);                           //全面フィルターフェード表示
                     yield return new WaitForSeconds(minDispalyTime);  //最低表示時間待機
@@ -313,7 +298,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 14:  //おっと、次に持っているブロックは～
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(9));         //テキスト非表示[9]
                     TextShow(10);                                     //テキスト[10]表示
                     FullFilterSwitch(false);                          //全面フィルターフェード非表示
@@ -324,7 +308,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 15:  //手持ちのブロックが入れ替わったね～
-                    SoundMan.YesTapSE();
                     throwBlockChangeWait = false;                     //nextブロックタップ待機フラグfalse
                     HandHide();                                       //手非表示
                     yield return StartCoroutine(TextHide(10));        //テキスト非表示[10]
@@ -334,7 +317,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 16:  //次にフィーバータイムについて～
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(11));        //テキスト非表示[11]
                     TextShow(12);                                     //テキスト[12]表示
                     StartCoroutine(FilterHide(6));                    //フィルター非表示[6]
@@ -344,7 +326,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 17:  //ブロッコリー投擲待機
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(12));        //テキスト非表示[12]
                     FullFilterSwitch(false);                          //全面フィルターフェード非表示
                     StartCoroutine(HandMove(6));                      //手表示[6]
@@ -352,7 +333,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 18:  //ブロックをすべて収穫出来たね～
-                    SoundMan.YesTapSE();
                     Time.timeScale = 0;                                       //時間停止
                     throwWait = false;                                        //投擲可能フラグfalse
                     HandHide();                                               //手非表示
@@ -363,14 +343,12 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 19:  //フィーバー開始演出待機
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(13));        //テキスト非表示[13]
                     FullFilterSwitch(false);                          //全面フィルターフェード非表示
                     Time.timeScale = 1;                               //時間を戻す
                     break;
 
                 case 20:  //フィーバータイムは～
-                    SoundMan.YesTapSE();
                     Time.timeScale = 0;                                       //時間停止
                     TextShow(14);                                             //テキスト[14]表示
                     FullFilterSwitch(true);                                   //全面フィルターフェード表示
@@ -379,7 +357,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 21:  //地面に落ちたブロックは収穫はできないよ～
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(14));                //テキスト非表示[14]
                     TextShow(15);                                             //テキスト[15]表示
                     yield return new WaitForSecondsRealtime(minDispalyTime);  //最低表示時間待機
@@ -387,7 +364,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 22:  //フィーバー待機
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(15));        //テキスト非表示[15]
                     Time.timeScale = 1;                               //時間を戻す
                     FullFilterSwitch(false);                          //全面フィルターフェード非表示
@@ -395,7 +371,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 23:  //うまくキャッチできたかな～
-                    SoundMan.YesTapSE();
                     HandHide();                                       //手非表示
                     TextShow(16);                                     //テキスト[16]表示
                     FullFilterSwitch(true);                           //全面フィルターフェード表示
@@ -404,7 +379,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 24:  //このラインより下にブロックが来たら～
-                    SoundMan.YesTapSE();
                     yield return StartCoroutine(TextHide(16));        //テキスト非表示[16]
                     TextShow(17);                                     //テキスト[17]表示
                     FullFilterSwitch(false);                          //全面フィルターフェード非表示
@@ -416,7 +390,6 @@ namespace ShootMode_Tutorial
                     break;
 
                 case 25:  //操作方法は分かったかな～
-                    SoundMan.YesTapSE();
                     gameOverLineIma.color = lineColor[1];             //ゲームオーバーライン戻す
                     HandHide();                                       //手非表示
                     yield return StartCoroutine(TextHide(17));        //テキスト非表示[17]

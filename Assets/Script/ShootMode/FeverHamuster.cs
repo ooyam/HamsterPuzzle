@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using ShootMode;
+using SoundFunction;
 using static ShootMode.ShootModeDefine;
 using static MoveFunction.ObjectMove;
 
@@ -29,6 +30,7 @@ namespace ShootMode
         string[] blockTag;       //ブロックタグリスト
         BlockManager blockMan;   //BlockManager
         ScoreManager scoreMan;   //ScoreManager
+        SoundManager soundMan;   //SoundManager
         GameObject mainHamObj;   //メインハムスターBoxオブジェクト
         Camera mainCamera;       //メインカメラ
         bool hamsterMove;        //移動開始フラグ
@@ -58,7 +60,11 @@ namespace ShootMode
             { blockTag[(int)value] = Enum.GetName(typeof(VegetableType), value); }
             blockMan   = GameObject.FindWithTag("BlockManager").GetComponent<BlockManager>();
             scoreMan   = GameObject.FindWithTag("ScoreManager").GetComponent<ScoreManager>();
+            soundMan   = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
             mainHamObj = GameObject.FindWithTag("HamsterBox");
+
+            //SE
+            soundMan.FeverStartSE_Shoot();
 
             //フィーバー開始オブジェクト画面中央まで移動
             float moveSpeed   = 15.0f;
@@ -179,6 +185,8 @@ namespace ShootMode
                 int tagIndex = Array.IndexOf(blockTag, connectObjTag);
                 if (0 <= tagIndex)
                 {
+                    //SE
+                    soundMan.FeverHarvestSE_Shoot();
                     blockMan.fallCompleteCount++;
                     scoreMan.HarvestVegetable(connectObjTag);
                     Destroy(connectObj);
