@@ -441,7 +441,7 @@ public class TitleMenuController : MonoBehaviour
         if (selectMode)
         {
             soundMan.YesTapSE();
-            StartCoroutine(PuzzleStageDisplay((displayStageNum[puzzleModeNum] <= maxDisplay) ? 0 : 1));
+            StartCoroutine(PuzzleStageDisplay((displayStageNum[puzzleModeNum] < maxDisplay) ? 0 : 1));
             nowDisplayMode = puzzleModeNum;
         }
         else
@@ -463,7 +463,7 @@ public class TitleMenuController : MonoBehaviour
     IEnumerator PuzzleStageDisplay(int disPageNum)
     {
         displayPageNum = disPageNum;
-        if (displayStageNum[puzzleModeNum] <= maxDisplay)
+        if (displayStageNum[puzzleModeNum] < maxDisplay)
         {
             //矢印動作させない
             moveArrow[puzzleModeNum] = false;
@@ -559,7 +559,7 @@ public class TitleMenuController : MonoBehaviour
         if (selectMode)
         {
             soundMan.YesTapSE();
-            StartCoroutine(ShootStageDisplay((displayStageNum[shootModeNum] <= maxDisplay) ? 0 : 1));
+            StartCoroutine(ShootStageDisplay((displayStageNum[shootModeNum] < maxDisplay) ? 0 : 1));
             nowDisplayMode = shootModeNum;
         }
         else
@@ -581,7 +581,7 @@ public class TitleMenuController : MonoBehaviour
     IEnumerator ShootStageDisplay(int disPageNum)
     {
         displayPageNum = disPageNum;
-        if (displayStageNum[shootModeNum] <= maxDisplay)
+        if (displayStageNum[shootModeNum] < maxDisplay)
         {
             //矢印動作させない
             moveArrow[shootModeNum] = false;
@@ -714,7 +714,7 @@ public class TitleMenuController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (stageSelect && (displayStageNum[puzzleModeNum] > maxDisplay || displayStageNum[shootModeNum] > maxDisplay))
+        if (stageSelect && (displayStageNum[puzzleModeNum] >= maxDisplay || displayStageNum[shootModeNum] >= maxDisplay))
         {
             //タップ位置のオブジェクト有無確認
             if (Input.GetMouseButtonDown(0))

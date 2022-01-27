@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 using SoundFunction;
 using static ShootMode.ShootModeDefine;
@@ -12,6 +13,10 @@ namespace ShootMode
         [Header("背景オブジェクトTra")]
         [SerializeField]
         RectTransform backGroundTra;
+
+        [Header("背景Sprite")]
+        [SerializeField]
+        Sprite[] backGroundSpr;
 
         [Header("全消しフィーバーハムスタープレハブ")]
         [SerializeField]
@@ -73,6 +78,16 @@ namespace ShootMode
             if (stageNum >= 8 && stageNum <= 14) bgmIndex = 2;
             else if (stageNum >= 15) bgmIndex = 3;
             soundManScr.BGM_Start(bgmIndex);
+
+            Image backGroundIma = backGroundTra.GetComponent<Image>();
+            if (stageNum < 6)
+                backGroundIma.sprite = backGroundSpr[0];
+            else if (stageNum < 11)
+                backGroundIma.sprite = backGroundSpr[1];
+            else if (stageNum < 16)
+                backGroundIma.sprite = backGroundSpr[2];
+            else
+                backGroundIma.sprite = backGroundSpr[3];
         }
 
         //========================================================================

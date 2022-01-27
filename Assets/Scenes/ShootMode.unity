@@ -578,6 +578,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 2465c19251141da45999143f01700ac7, type: 3}
   eat: {fileID: 8300000, guid: 1ad6b5adc3443964e8c1d8b5d8f77968, type: 3}
   startWalk: {fileID: 0}
+  pull: {fileID: 0}
   bloackThrow: {fileID: 0}
   rebound: {fileID: 0}
   connect: {fileID: 0}
@@ -588,6 +589,7 @@ MonoBehaviour:
   specialWalk: {fileID: 0}
   specialHarvest: {fileID: 0}
   feverStart: {fileID: 0}
+  feverBGM: {fileID: 0}
   feverHarvest: {fileID: 0}
   blockCange: {fileID: 0}
 --- !u!4 &128329207
@@ -1817,7 +1819,6 @@ GameObject:
   - component: {fileID: 387283806}
   - component: {fileID: 387283809}
   - component: {fileID: 387283808}
-  - component: {fileID: 387283807}
   - component: {fileID: 387283810}
   m_Layer: 5
   m_Name: BackGround
@@ -1852,23 +1853,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1080, y: 1920}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &387283807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 387283805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1018cf1b1200f97428c06ff20fcaf2af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  backGroundSpr:
-  - {fileID: -8153711970650844425, guid: 1c84fc1f9005795439546e44446bd80e, type: 3}
-  - {fileID: -910345561213352911, guid: 2da7eed32ee26d141b9fef6c1db97ffd, type: 3}
-  - {fileID: 8504736281878408008, guid: 222cd9efa60164b4f9d98ec9d5cc3d1c, type: 3}
-  - {fileID: 3949809424129340475, guid: 59a2f76036da95243b2afb0eeb20217d, type: 3}
 --- !u!114 &387283808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8881,6 +8865,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backGroundTra: {fileID: 387283806}
+  backGroundSpr:
+  - {fileID: -8153711970650844425, guid: 1c84fc1f9005795439546e44446bd80e, type: 3}
+  - {fileID: -910345561213352911, guid: 2da7eed32ee26d141b9fef6c1db97ffd, type: 3}
+  - {fileID: 8504736281878408008, guid: 222cd9efa60164b4f9d98ec9d5cc3d1c, type: 3}
+  - {fileID: 3949809424129340475, guid: 59a2f76036da95243b2afb0eeb20217d, type: 3}
   feverPre: {fileID: 4791005486498556496, guid: a5df19e6e63cce64b85858bd19cebcf8,
     type: 3}
   gameOverObjPre: {fileID: 1113682842864230541, guid: f78667f1ffd8b494ea829e0a887ade7e,

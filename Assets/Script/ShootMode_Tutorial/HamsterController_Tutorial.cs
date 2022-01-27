@@ -54,6 +54,8 @@ namespace ShootMode_Tutorial
         string[] blockTag;                 //ブロックタグリスト
         SoundManager soundMan;             //SoundManager
 
+        bool buttonPush; //多重タップ防止(スマホのみ？)
+
         void Start()
         {
             tra       = GetComponent<RectTransform>();
@@ -91,25 +93,31 @@ namespace ShootMode_Tutorial
                 {
                     if (tutorialMan.throwWait)
                     {
-                        //投擲指示手非表示
-                        tutorialMan.HandHide();
+                        //多重タップ防止
+                        if (!buttonPush)
+                        {
+                            buttonPush = true;
 
-                        //SE
-                        soundMan.PullSE_Shoot();
+                            //投擲指示手非表示
+                            tutorialMan.HandHide();
 
-                        //sprite変更
-                        spriteNum  = (spriteNum == 0) ? 2 : 3;
-                        ima.sprite = hamsterSprite[spriteNum];
+                            //SE
+                            soundMan.PullSE_Shoot();
 
-                        //ブロックの位置変更
-                        tra.SetSiblingIndex(0);
-                        blockMan.ThrowBlockPosChange(spriteNum);
+                            //sprite変更
+                            spriteNum = (spriteNum == 0) ? 2 : 3;
+                            ima.sprite = hamsterSprite[spriteNum];
 
-                        //線の色変更
-                        ren.material.color = nowBlockColor;
+                            //ブロックの位置変更
+                            tra.SetSiblingIndex(0);
+                            blockMan.ThrowBlockPosChange(spriteNum);
 
-                        //投擲準備
-                        StartCoroutine(PreparingThrowBlock());
+                            //線の色変更
+                            ren.material.color = nowBlockColor;
+
+                            //投擲準備
+                            StartCoroutine(PreparingThrowBlock());
+                        }
                     }
                 }
             }
@@ -135,8 +143,10 @@ namespace ShootMode_Tutorial
                     DrawLine(linePos);
 
                     //ブロックを投げる
-                    if (!Input.GetMouseButton(0))
+                    if (Input.GetMouseButtonUp(0))
                     {
+                        buttonPush = false;
+
                         line.positionCount = 0;
                         StartCoroutine(blockMan.BlockThrow(linePos));
                         break;
@@ -152,8 +162,10 @@ namespace ShootMode_Tutorial
                     }
 
                     //投擲をやめる
-                    if (!Input.GetMouseButton(0))
+                    if (Input.GetMouseButtonUp(0))
                     {
+                        buttonPush = false;
+
                         //子オブジェクト番号変更(ブロックの前にでる)
                         tra.SetSiblingIndex(1);
                         blockMan.ThrowBlockPosChange((spriteNum == 2) ? 0 : 1);
@@ -164,6 +176,8 @@ namespace ShootMode_Tutorial
                 //ゲーム終了時
                 if (!GAME_START || GAME_OVER || GAME_CLEAR)
                 {
+                    buttonPush = false;
+
                     //軌道線を消す
                     if (displayLine)
                     {
