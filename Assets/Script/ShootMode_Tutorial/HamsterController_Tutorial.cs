@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ShootMode_Tutorial;
 using ShootMode;
+using SoundFunction;
 using System;
 using static ShootMode.ShootModeDefine;
 
@@ -51,6 +52,7 @@ namespace ShootMode_Tutorial
         float lineStartPosY = -20.0f;       //投擲ラインのスタート位置Y
         Vector3 lineStartPos;              //投擲ラインのスタート位置
         string[] blockTag;                 //ブロックタグリスト
+        SoundManager soundMan;             //SoundManager
 
         void Start()
         {
@@ -59,6 +61,7 @@ namespace ShootMode_Tutorial
             line      = GetComponent<LineRenderer>();
             ren       = GetComponent<Renderer>();
             mainCamra = Camera.main;
+            soundMan  = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
 
             differenceY   = CANVAS_HEIGHT / 2.0f;
             differenceX   = CANVAS_WIDTH  / 2.0f;
@@ -90,6 +93,9 @@ namespace ShootMode_Tutorial
                     {
                         //投擲指示手非表示
                         tutorialMan.HandHide();
+
+                        //SE
+                        soundMan.PullSE_Shoot();
 
                         //sprite変更
                         spriteNum  = (spriteNum == 0) ? 2 : 3;
@@ -129,7 +135,7 @@ namespace ShootMode_Tutorial
                     DrawLine(linePos);
 
                     //ブロックを投げる
-                    if (Input.GetMouseButtonUp(0))
+                    if (!Input.GetMouseButton(0))
                     {
                         line.positionCount = 0;
                         StartCoroutine(blockMan.BlockThrow(linePos));
@@ -146,7 +152,7 @@ namespace ShootMode_Tutorial
                     }
 
                     //投擲をやめる
-                    if (Input.GetMouseButtonUp(0))
+                    if (!Input.GetMouseButton(0))
                     {
                         //子オブジェクト番号変更(ブロックの前にでる)
                         tra.SetSiblingIndex(1);

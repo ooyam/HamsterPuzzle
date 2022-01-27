@@ -4894,6 +4894,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 2465c19251141da45999143f01700ac7, type: 3}
   eat: {fileID: 8300000, guid: 1ad6b5adc3443964e8c1d8b5d8f77968, type: 3}
   startWalk: {fileID: 8300000, guid: a0988d25689ba374f8cb311aa744e580, type: 3}
+  pull: {fileID: 8300000, guid: 97657baa147401149ac73e063b447ee2, type: 3}
   bloackThrow: {fileID: 8300000, guid: a966d39d8f8f0b343a37ef0419263ecb, type: 3}
   rebound: {fileID: 8300000, guid: e4c2f1b872aa8454b9e0e338e7626e49, type: 3}
   connect: {fileID: 8300000, guid: 9bccf222d293c5f42a3d43b04263bf0b, type: 3}
@@ -4904,6 +4905,7 @@ MonoBehaviour:
   specialWalk: {fileID: 8300000, guid: 6789db178c18ac345995c05fd2684c2c, type: 3}
   specialHarvest: {fileID: 8300000, guid: 98d28a7e55667384c9158ce774547efd, type: 3}
   feverStart: {fileID: 8300000, guid: e13e499757ad0a5459015e617f4f8108, type: 3}
+  feverBGM: {fileID: 8300000, guid: c5612e92b3a56eb4e816bf2fda07a6d6, type: 3}
   feverHarvest: {fileID: 8300000, guid: d684f6a615bce2648a728951ffa58c8c, type: 3}
   blockCange: {fileID: 8300000, guid: 16c6091d508be9443b3437c200c5b8ff, type: 3}
 --- !u!4 &1013144073

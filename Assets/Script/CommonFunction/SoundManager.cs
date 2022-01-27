@@ -49,6 +49,9 @@ namespace SoundFunction
         [Header("スタート歩き")]
         [SerializeField]
         AudioClip startWalk;
+        [Header("引っ張り")]
+        [SerializeField]
+        AudioClip pull;
         [Header("投擲")]
         [SerializeField]
         AudioClip bloackThrow;
@@ -79,6 +82,9 @@ namespace SoundFunction
         [Header("フィーバー開始")]
         [SerializeField]
         AudioClip feverStart;
+        [Header("フィーバーBGM")]
+        [SerializeField]
+        AudioClip feverBGM;
         [Header("フィーバー収穫")]
         [SerializeField]
         AudioClip feverHarvest;
@@ -134,17 +140,35 @@ namespace SoundFunction
             }
         }
         //BGM音量フェード
-        IEnumerator BGM_Volume_Fade(float volume)
+        public IEnumerator BGM_Volume_Fade(float volume)
         {
-            while (EnvironmentalSetting.bgm)
+            float oneFlameTime = 0.02f;
+            if (audio_BGM.volume < volume)
             {
-                float oneFlameTime = 0.02f;
-                audio_BGM.volume += oneFlameTime;
-                yield return new WaitForSecondsRealtime(oneFlameTime);
-                if (audio_BGM.volume >= volume - 0.02f)
+                //フェードイン
+                while (EnvironmentalSetting.bgm)
                 {
-                    audio_BGM.volume = volume;
-                    break;
+                    audio_BGM.volume += oneFlameTime;
+                    yield return new WaitForSecondsRealtime(oneFlameTime);
+                    if (audio_BGM.volume >= volume - oneFlameTime)
+                    {
+                        audio_BGM.volume = volume;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                //フェードアウト
+                while (EnvironmentalSetting.bgm)
+                {
+                    audio_BGM.volume -= oneFlameTime;
+                    yield return new WaitForSecondsRealtime(oneFlameTime);
+                    if (audio_BGM.volume <= volume + oneFlameTime)
+                    {
+                        audio_BGM.volume = volume;
+                        break;
+                    }
                 }
             }
         }
@@ -203,12 +227,16 @@ namespace SoundFunction
         //シュートモード
         //=============================================
 
-        //投擲
+        //スタート
         public void StartWalkSE_Shoot()
         {
             audio_SE.clip = startWalk;
             audio_SE.Play();
         }
+
+        //引っ張り
+        public void PullSE_Shoot()
+        { audio_SE.PlayOneShot(pull); }
 
         //投擲
         public void ThrowSE_Shoot()
@@ -252,6 +280,15 @@ namespace SoundFunction
         //フィーバー開始
         public void FeverStartSE_Shoot()
         { audio_SE.PlayOneShot(feverStart); }
+
+        //フィーバーBGM
+        public IEnumerator FeverBGM_Shoot()
+        {
+            yield return StartCoroutine(BGM_Volume_Fade(0.0f));
+            audio_BGM.clip = feverBGM;
+            audio_BGM.Play();
+            yield return StartCoroutine(BGM_Volume_Fade(0.5f));
+        }
 
         //フィーバー収穫
         public void FeverHarvestSE_Shoot()

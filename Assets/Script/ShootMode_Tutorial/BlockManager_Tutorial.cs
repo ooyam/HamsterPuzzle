@@ -229,11 +229,7 @@ public class BlockManager_Tutorial : MonoBehaviour
     public void NextThrowBlockTap()
     {
         if (GAME_START  && !GAME_OVER && !SPECIAL_HARVEST && !FEVER_START && !SETTING_DISPLAY && !throwNow && !blockDeleteNow && !blockChangeNow)
-        {
-            //SE
-            soundMan.BlockCangeSE_Shoot();
             StartCoroutine(ThrowBlockChange());
-        }
     }
 
     //========================================================================
@@ -243,6 +239,8 @@ public class BlockManager_Tutorial : MonoBehaviour
     {
         if (tutorialMan.throwBlockChangeWait)
         {
+            //SE
+            soundMan.BlockCangeSE_Shoot();
 
             blockChangeNow = true;
 
@@ -1170,8 +1168,13 @@ public class BlockManager_Tutorial : MonoBehaviour
         }
         else
         {
+            //BGM再開
+            yield return StartCoroutine(soundMan.BGM_Volume_Fade(0.0f));
+            soundMan.BGM_Start(soundMan.bgmIndex);
+
             //ブロック3行生成
             StartCoroutine(LineBlockGenerate(3, false));
+
             //ハムスター元の位置へ
             StartCoroutine(ferverHumScr.ReturnFirstPosition());
         }

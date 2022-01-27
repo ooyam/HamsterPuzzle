@@ -66,6 +66,9 @@ namespace ShootMode
             //SE
             soundMan.FeverStartSE_Shoot();
 
+            //BGM
+            StartCoroutine(soundMan.FeverBGM_Shoot());
+
             //フィーバー開始オブジェクト画面中央まで移動
             float moveSpeed   = 15.0f;
             float acceleRate  = 1.0f;
