@@ -121,9 +121,9 @@ public class SpecialHamster : MonoBehaviour
     //========================================================================
     IEnumerator OneLineHarvest()
     {
-        if (!noTaps)
+        if (!noTaps && !GAME_CLEAR && !GAME_OVER)
         {
-            if (specialAvailable && !FEVER_START && !SETTING_DISPLAY)
+            if (specialAvailable && !FEVER_START && !SETTING_DISPLAY && !PREPARATION_THROW)
             {
                 //SE
                 soundMan.SpecialTapSE_Shoot();

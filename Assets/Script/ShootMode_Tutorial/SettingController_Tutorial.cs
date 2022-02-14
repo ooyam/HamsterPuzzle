@@ -80,7 +80,7 @@ namespace ShootMode_Tutorial
             }
 
             //各ボタンに関数指定
-            Transform[] childrenTra = new Transform[] { tra.GetChild(0), tra.GetChild(1) };
+            Transform[] childrenTra = new Transform[] { tra.parent.GetChild(1), tra.parent.GetChild(2) };
             tra.GetComponent<Button>().onClick.AddListener(() => SettingButtonDown());                          //設定ボタン
             childrenTra[0].GetChild(0).GetComponent<Button>().onClick.AddListener(() => BGM_ButtonDown());      //BGM
             childrenTra[0].GetChild(1).GetComponent<Button>().onClick.AddListener(() => SE_ButtonDown());       //SE

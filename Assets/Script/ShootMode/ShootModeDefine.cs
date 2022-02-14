@@ -32,6 +32,7 @@ namespace ShootMode
         public static bool SPECIAL_HARVEST      = false;  //スペシャルハムスター動作中？
         public static bool FEVER_START          = false;  //フィーバー動作中？
         public static bool TUTORIAL_DESCRIPTION = false;  //チュートリアル説明中？
+        public static bool PREPARATION_THROW    = false;  //ハムスター投擲準備中？
 
         //フラグリセット
         public static void FlagReset()
@@ -43,6 +44,7 @@ namespace ShootMode
             SPECIAL_HARVEST      = false;
             FEVER_START          = false;
             TUTORIAL_DESCRIPTION = false;
+            PREPARATION_THROW    = false;
         }
     }
 }

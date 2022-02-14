@@ -141,14 +141,26 @@ namespace ShootMode_Tutorial
         //========================================================================
         public IEnumerator ReturnFirstPosition()
         {
-            //元の位置に戻る
+            //移動設定
             hamsterMove      = false;
             float moveSpeed  = 5.0f;
             float acceleRate = 1.0f;
             float mvoeTime   = GetMoveTime(tra, moveSpeed, acceleRate, defaultPos);
+
+            //揺れ設定
+            float rotSpeed = 1.0f;      //揺れ速度
+            float maxRot   = 10.0f;     //揺れ角度
+            int moveCount  = -1;        //1サイクル動作回数(カウントしない場合は - 1指定)
+            float stopTime = 0.0f;      //停止時間
+            int breakCount = -1;        //終了サイクル数(無限ループの場合は - 1指定)
+
+            //sprite・角度設定
             tra.GetChild(0).GetComponent<Image>().sprite = hamsterDefSpr;
             if (tra.anchoredPosition.x > defaultPos.x) tra.rotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
+
+            //動作開始
             StartCoroutine(MoveMovement(tra, moveSpeed, acceleRate, defaultPos));
+            StartCoroutine(ShakeMovement(tra, rotSpeed, maxRot, moveCount, stopTime, breakCount, mvoeTime));
             yield return new WaitForSeconds(mvoeTime);
 
             //メインハムスター表示

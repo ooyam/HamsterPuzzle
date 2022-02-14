@@ -73,6 +73,8 @@ public class BlockManager_Tutorial : MonoBehaviour
     [System.NonSerialized]
     public bool blockGenerateNow;              //生成中？
     [System.NonSerialized]
+    public bool afterFeverBlockGenerate;       //フィーバー後生成中？
+    [System.NonSerialized]
     public bool throwNow;                      //投擲中？
     [System.NonSerialized]
     public bool blockDeleteNow;                //ブロック削除中？
@@ -228,7 +230,7 @@ public class BlockManager_Tutorial : MonoBehaviour
     //========================================================================
     public void NextThrowBlockTap()
     {
-        if (GAME_START  && !GAME_OVER && !SPECIAL_HARVEST && !FEVER_START && !SETTING_DISPLAY && !throwNow && !blockDeleteNow && !blockChangeNow)
+        if (GAME_START && !GAME_CLEAR && !GAME_OVER && !SPECIAL_HARVEST && !FEVER_START && !SETTING_DISPLAY && !PREPARATION_THROW && !throwNow && !blockDeleteNow && !blockChangeNow)
             StartCoroutine(ThrowBlockChange());
     }
 
@@ -1171,12 +1173,14 @@ public class BlockManager_Tutorial : MonoBehaviour
             //BGM再開
             yield return StartCoroutine(soundMan.BGM_Volume_Fade(0.0f));
             soundMan.BGM_Start(soundMan.bgmIndex);
-
-            //ブロック3行生成
-            StartCoroutine(LineBlockGenerate(3, false));
+            afterFeverBlockGenerate = true;
 
             //ハムスター元の位置へ
             StartCoroutine(ferverHumScr.ReturnFirstPosition());
+
+            //ブロック3行生成
+            StartCoroutine(LineBlockGenerate(3, false));
+            afterFeverBlockGenerate = false;
         }
     }
 

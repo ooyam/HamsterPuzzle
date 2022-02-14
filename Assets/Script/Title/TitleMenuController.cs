@@ -357,16 +357,16 @@ public class TitleMenuController : MonoBehaviour
         shootGenerateTime[2]  = 20.0f;
         shootGenerateTime[3]  = 20.0f;
         shootGenerateTime[4]  = 20.0f;
-        shootGenerateTime[5]  = 15.0f;
+        shootGenerateTime[5]  = 20.0f;
         //Broccoli, Cabbage, Paprika, Carrot
         shootGenerateTime[6]  = 15.0f;
         shootGenerateTime[7]  = 15.0f;
-        shootGenerateTime[8]  = 15.0f;
-        shootGenerateTime[9]  = 15.0f;
-        shootGenerateTime[10] = 15.0f;
+        shootGenerateTime[8]  = 14.0f;
+        shootGenerateTime[9]  = 14.0f;
+        shootGenerateTime[10] = 13.0f;
         //Broccoli, Cabbage, Paprika, Carrot, Pumpkin
-        shootGenerateTime[11] = 14.0f;
-        shootGenerateTime[12] = 13.0f;
+        shootGenerateTime[11] = 13.0f;
+        shootGenerateTime[12] = 12.0f;
         shootGenerateTime[13] = 12.0f;
         shootGenerateTime[14] = 11.0f;
         shootGenerateTime[15] = 10.0f;
@@ -440,7 +440,6 @@ public class TitleMenuController : MonoBehaviour
 
         if (selectMode)
         {
-            soundMan.YesTapSE();
             StartCoroutine(PuzzleStageDisplay((displayStageNum[puzzleModeNum] < maxDisplay) ? 0 : 1));
             nowDisplayMode = puzzleModeNum;
         }
@@ -462,7 +461,12 @@ public class TitleMenuController : MonoBehaviour
     //========================================================================
     IEnumerator PuzzleStageDisplay(int disPageNum)
     {
-        displayPageNum = disPageNum;
+        if (displayPageNum != disPageNum)
+        {
+            soundMan.YesTapSE();
+            displayPageNum = disPageNum;
+        }
+
         if (displayStageNum[puzzleModeNum] < maxDisplay)
         {
             //矢印動作させない
@@ -558,7 +562,6 @@ public class TitleMenuController : MonoBehaviour
 
         if (selectMode)
         {
-            soundMan.YesTapSE();
             StartCoroutine(ShootStageDisplay((displayStageNum[shootModeNum] < maxDisplay) ? 0 : 1));
             nowDisplayMode = shootModeNum;
         }
@@ -580,7 +583,12 @@ public class TitleMenuController : MonoBehaviour
     //========================================================================
     IEnumerator ShootStageDisplay(int disPageNum)
     {
-        displayPageNum = disPageNum;
+        if (displayPageNum != disPageNum)
+        {
+            soundMan.YesTapSE();
+            displayPageNum = disPageNum;
+        }
+
         if (displayStageNum[shootModeNum] < maxDisplay)
         {
             //矢印動作させない
@@ -714,7 +722,9 @@ public class TitleMenuController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (stageSelect && (displayStageNum[puzzleModeNum] >= maxDisplay || displayStageNum[shootModeNum] >= maxDisplay))
+        if (stageSelect &&
+            ((displayStageNum[puzzleModeNum] >= maxDisplay && nowDisplayMode == puzzleModeNum) ||
+            (displayStageNum[shootModeNum] >= maxDisplay && nowDisplayMode == shootModeNum)))
         {
             //タップ位置のオブジェクト有無確認
             if (Input.GetMouseButtonDown(0))

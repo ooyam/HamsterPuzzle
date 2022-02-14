@@ -49,8 +49,6 @@ namespace ShootMode
         string[] blockTag;                 //ブロックタグリスト
         SoundManager soundMan;             //SoundManager
 
-        bool buttonPush; //多重タップ防止(スマホのみ？)
-
         void Start()
         {
             tra       = GetComponent<RectTransform>();
@@ -87,9 +85,9 @@ namespace ShootMode
                 if (!blockMan.throwNow && !blockMan.blockDeleteNow && !blockMan.blockChangeNow && !SPECIAL_HARVEST && !FEVER_START && !SETTING_DISPLAY)
                 {
                     //多重タップ防止
-                    if (!buttonPush)
+                    if (!PREPARATION_THROW)
                     {
-                        buttonPush = true;
+                        PREPARATION_THROW = true;
 
                         //SE
                         soundMan.PullSE_Shoot();
@@ -132,9 +130,9 @@ namespace ShootMode
                     DrawLine(linePos);
 
                     //ブロックを投げる
-                    if (Input.GetMouseButtonUp(0))
+                    if (!Input.GetMouseButton(0))
                     {
-                        buttonPush = false;
+                        PREPARATION_THROW = false;
 
                         line.positionCount = 0;
                         StartCoroutine(blockMan.BlockThrow(linePos));
@@ -151,9 +149,9 @@ namespace ShootMode
                     }
 
                     //投擲をやめる
-                    if (Input.GetMouseButtonUp(0))
+                    if (!Input.GetMouseButton(0))
                     {
-                        buttonPush = false;
+                        PREPARATION_THROW = false;
 
                         //子オブジェクト番号変更(ブロックの前にでる)
                         tra.SetSiblingIndex(1);
@@ -165,7 +163,7 @@ namespace ShootMode
                 //ゲーム終了時
                 if (!GAME_START || GAME_OVER || GAME_CLEAR)
                 {
-                    buttonPush = false;
+                    PREPARATION_THROW = false;
 
                     //軌道線を消す
                     if (displayLine)
