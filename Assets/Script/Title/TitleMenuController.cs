@@ -352,23 +352,23 @@ public class TitleMenuController : MonoBehaviour
 
         float[] shootGenerateTime = new float[stageNum[shootModeNum] + 1];
         //Broccoli, Cabbage, Paprika
-        shootGenerateTime[0]  = 20.0f;
-        shootGenerateTime[1]  = 20.0f;
-        shootGenerateTime[2]  = 20.0f;
-        shootGenerateTime[3]  = 20.0f;
-        shootGenerateTime[4]  = 20.0f;
-        shootGenerateTime[5]  = 20.0f;
+        shootGenerateTime[0]  = 15.0f;
+        shootGenerateTime[1]  = 15.0f;
+        shootGenerateTime[2]  = 15.0f;
+        shootGenerateTime[3]  = 15.0f;
+        shootGenerateTime[4]  = 15.0f;
+        shootGenerateTime[5]  = 15.0f;
         //Broccoli, Cabbage, Paprika, Carrot
-        shootGenerateTime[6]  = 15.0f;
-        shootGenerateTime[7]  = 15.0f;
-        shootGenerateTime[8]  = 14.0f;
-        shootGenerateTime[9]  = 14.0f;
-        shootGenerateTime[10] = 13.0f;
+        shootGenerateTime[6]  = 14.0f;
+        shootGenerateTime[7]  = 13.0f;
+        shootGenerateTime[8]  = 12.0f;
+        shootGenerateTime[9]  = 11.0f;
+        shootGenerateTime[10] = 10.0f;
         //Broccoli, Cabbage, Paprika, Carrot, Pumpkin
-        shootGenerateTime[11] = 13.0f;
-        shootGenerateTime[12] = 12.0f;
-        shootGenerateTime[13] = 12.0f;
-        shootGenerateTime[14] = 11.0f;
+        shootGenerateTime[11] = 10.0f;
+        shootGenerateTime[12] = 10.0f;
+        shootGenerateTime[13] = 10.0f;
+        shootGenerateTime[14] = 10.0f;
         shootGenerateTime[15] = 10.0f;
         //Broccoli, Cabbage, Paprika, Carrot, Pumpkin, Corn
         shootGenerateTime[16] = 9.0f;

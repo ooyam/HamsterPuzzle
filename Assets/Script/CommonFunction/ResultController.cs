@@ -1,35 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using SoundFunction;
 using UnityEngine.SceneManagement;
 
 public class ResultController : MonoBehaviour
 {
-    private string titleBackTag = "TitleBack";
-    private string retryTag = "Retry";
-    private Camera mainCamera;
-
     void Start()
     {
-        mainCamera = Camera.main;
+        //ボタンに関数追加
+        Transform tra = transform;
+        tra.GetChild(2).GetComponent<Button>().onClick.AddListener(() => TitlBackButtonDown());
+        tra.GetChild(1).GetComponent<Button>().onClick.AddListener(() => RetryButtonDown());
     }
 
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
-            if (hit2d)
-            {
-                if (hit2d.transform.gameObject.tag == titleBackTag)
-                    TitlBackButtonDown();
-                else if (hit2d.transform.gameObject.tag == retryTag)
-                    RetryButtonDown();
-            }
-        }
-    }
+    //===================================================
+    //タイトルに戻る
+    //===================================================
     void TitlBackButtonDown()
     {
         GameObject SoundManObj = GameObject.FindWithTag("SoundManager");
@@ -37,6 +25,9 @@ public class ResultController : MonoBehaviour
         Destroy(SoundManObj);
         SceneNavigator.Instance.Change("TitleScene", 0.5f);
     }
+    //===================================================
+    //もう一度
+    //===================================================
     void RetryButtonDown()
     {
         GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>().YesTapSE();

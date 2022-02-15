@@ -46,8 +46,8 @@ namespace ShootMode
         GameObject[] messageText;          //メッセージボックス
         bool messageActive = false;        //メッセージボックス表示中？
         string messageTag;                 //メッセージボックスタグ
-        GameObject SoundManObj;            //SoundManagerオブジェクト
-        SoundManager SoundMan;             //SoundManagerスクリプト
+        GameObject soundManObj;            //soundManagerオブジェクト
+        SoundManager soundMan;             //soundManagerスクリプト
 
         void Start()
         {
@@ -62,19 +62,19 @@ namespace ShootMode
                 mesTra.GetChild(0).gameObject,
                 mesTra.GetChild(1).gameObject
             };
-            SoundManObj = GameObject.FindWithTag("SoundManager");
-            SoundMan = SoundManObj.GetComponent<SoundManager>();
+            soundManObj = GameObject.FindWithTag("SoundManager");
+            soundMan = soundManObj.GetComponent<SoundManager>();
 
             if (!EnvironmentalSetting.bgm)
             {
                 bgmImageStatus = 1;
-                SoundMan.BGM_Volume(0.0f);
+                soundMan.BGM_Volume(0.0f);
                 bgmSwitchIma.sprite = switchSprite[bgmImageStatus];
             }
             if (!EnvironmentalSetting.se)
             {
                 seImageStatus = 1;
-                SoundMan.SE_Volume(0.0f);
+                soundMan.SE_Volume(0.0f);
                 seSwitchIma.sprite = switchSprite[seImageStatus];
                 Audio.volume = 0.0f;
             }
@@ -132,7 +132,7 @@ namespace ShootMode
         {
             if (!settingActive)
             {
-                SoundMan.YesTapSE();
+                soundMan.YesTapSE();
                 Time.timeScale = 0.0f;
                 SETTING_DISPLAY = true;
                 settingScreen.SetActive(true);
@@ -147,18 +147,18 @@ namespace ShootMode
         {
             if (bgmImageStatus == 0)
             {
-                SoundMan.NoTapSE();
+                soundMan.NoTapSE();
                 bgmImageStatus = 1;
                 EnvironmentalSetting.bgm = false;
-                SoundMan.BGM_Volume(0.0f);
+                soundMan.BGM_Volume(0.0f);
             }
             else
             {
-                SoundMan.YesTapSE();
+                soundMan.YesTapSE();
                 bgmImageStatus = 0;
                 EnvironmentalSetting.bgm = true;
-                SoundMan.BGM_Volume(1.0f);
-                SoundMan.BGM_Restart();
+                soundMan.BGM_Volume(1.0f);
+                soundMan.BGM_Restart();
             }
             bgmSwitchIma.sprite = switchSprite[bgmImageStatus];
         }
@@ -172,16 +172,16 @@ namespace ShootMode
             {
                 seImageStatus = 1;
                 EnvironmentalSetting.se = false;
-                SoundMan.SE_Volume(0.0f);
+                soundMan.SE_Volume(0.0f);
                 Audio.volume = 0.0f;
             }
             else
             {
                 seImageStatus = 0;
                 EnvironmentalSetting.se = true;
-                SoundMan.SE_Volume(1.0f);
+                soundMan.SE_Volume(1.0f);
                 Audio.volume = 1.0f;
-                SoundMan.YesTapSE();
+                soundMan.YesTapSE();
             }
             seSwitchIma.sprite = switchSprite[seImageStatus];
         }
@@ -191,7 +191,7 @@ namespace ShootMode
         //========================================================================
         void TitlBackButtonDown()
         {
-            SoundMan.YesTapSE();
+            soundMan.YesTapSE();
             settingScreen.SetActive(false);
             settingActive = false;
             messageBox.SetActive(true);
@@ -205,7 +205,7 @@ namespace ShootMode
         //========================================================================
         void RetryButtonDown()
         {
-            SoundMan.YesTapSE();
+            soundMan.YesTapSE();
             settingScreen.SetActive(false);
             settingActive = false;
             messageBox.SetActive(true);
@@ -222,12 +222,12 @@ namespace ShootMode
             if (messageText[0].activeSelf)
             {
                 Audio.Play();
-                Destroy(SoundManObj);
+                Destroy(soundManObj);
                 SceneNavigator.Instance.Change("TitleScene", 0.5f);
             }
             else if (messageText[1].activeSelf)
             {
-                SoundMan.YesTapSE();
+                soundMan.YesTapSE();
                 SceneNavigator.Instance.Change(SceneManager.GetActiveScene().name, 0.5f);
             }
         }
@@ -237,7 +237,7 @@ namespace ShootMode
         //========================================================================
         void NoButtonDown()
         {
-            SoundMan.NoTapSE();
+            soundMan.NoTapSE();
             settingScreen.SetActive(true);
             settingActive = true;
             messageBox.SetActive(false);
@@ -249,7 +249,7 @@ namespace ShootMode
         //========================================================================
         void ExitButtonDown()
         {
-            SoundMan.NoTapSE();
+            soundMan.NoTapSE();
             Time.timeScale = 1.0f;
             SETTING_DISPLAY = false;
             settingScreen.SetActive(false);

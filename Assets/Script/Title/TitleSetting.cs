@@ -7,22 +7,34 @@ using SoundFunction;
 public class TitleSetting : MonoBehaviour
 {
     [Header("BGMスイッチ")]
-    public Image bgmSwitchIma;
-    private int bgmImageStatus = 0;
-    [Header("SEスイッチ")]
-    public Image seSwitchIma;
-    private int seImageStatus = 0;
-    [Header("スイッチSprite")]
-    public Sprite[] switchSprite;  //0:ON 1:OFF
+    [SerializeField]
+    Image bgmSwitchIma;
+    int bgmImageStatus = 0;
 
-    private GameObject settingScreen;
-    private GameObject creditScreen;
-    private bool settingActive = false;
-    private bool creditActive = false;
-    private string settingTag;
-    private GameObject SoundManObj;
-    private SoundManager SoundMan;
-    private Camera mainCamera;
+    [Header("SEスイッチ")]
+    [SerializeField]
+    Image seSwitchIma;
+    int seImageStatus = 0;
+
+    [Header("スイッチSprite")]
+    [SerializeField]
+    Sprite[] switchSprite;  //0:ON 1:OFF
+
+    [Header("ゲーム終了暗転用")]
+    [SerializeField]
+    Image blackOutIma;
+
+    GameObject settingScreen;
+    GameObject creditScreen;
+    GameObject messageScreen;
+    bool settingActive = false;
+    bool creditActive  = false;
+    bool messageActive = false;
+    bool gameEnd = false;
+    string settingTag;
+    GameObject SoundManObj;
+    SoundManager SoundMan;
+    Camera mainCamera;
 
     void Start()
     {
@@ -30,7 +42,8 @@ public class TitleSetting : MonoBehaviour
         mainCamera = Camera.main;
         Transform tra = this.transform;
         settingScreen = tra.GetChild(0).gameObject;
-        creditScreen = tra.GetChild(1).gameObject;
+        creditScreen  = tra.GetChild(1).gameObject;
+        messageScreen = tra.GetChild(2).gameObject;
         settingTag = settingScreen.transform.tag;
         SoundManObj = GameObject.FindWithTag("SoundManager");
         SoundMan = SoundManObj.GetComponent<SoundManager>();
@@ -50,7 +63,7 @@ public class TitleSetting : MonoBehaviour
 
     void Update()
     {
-        if (settingActive)
+        if (!gameEnd && settingActive)
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -118,8 +131,13 @@ public class TitleSetting : MonoBehaviour
         {
             creditScreen.SetActive(false);
             creditActive = false;
+            settingScreen.SetActive(true);
         }
-        else
+        else if (messageActive)
+        {
+            NoDown();
+        }
+        else if (settingActive)
         {
             settingScreen.SetActive(false);
             settingActive = false;
@@ -131,5 +149,44 @@ public class TitleSetting : MonoBehaviour
         SoundMan.YesTapSE();
         creditScreen.SetActive(true);
         creditActive = true;
+        settingScreen.SetActive(false);
+    }
+
+    //ゲーム終了
+    public void GameEndDown()
+    {
+        SoundMan.YesTapSE();
+        messageScreen.SetActive(true);
+        messageActive = true;
+        settingScreen.SetActive(false);
+    }
+    public void NoDown()
+    {
+        SoundMan.NoTapSE();
+        messageScreen.SetActive(false);
+        messageActive = false;
+        settingScreen.SetActive(true);
+    }
+    public void YesDown()
+    {
+        if (!gameEnd) StartCoroutine(GameEnd());
+    }
+    IEnumerator GameEnd()
+    {
+        gameEnd = true;
+        blackOutIma.raycastTarget = true;
+        SoundMan.YesTapSE();
+        StartCoroutine(SoundMan.BGM_Volume_Fade(0.0f));
+        float oneFrameTime = 0.02f;
+        while (blackOutIma.color.a < 0.95f)
+        {
+            blackOutIma.color = Color.Lerp(blackOutIma.color, Color.black, 0.05f);
+            yield return new WaitForSecondsRealtime(oneFrameTime);
+        }
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;   // UnityEditorの実行を停止する処理
+#else
+        Application.Quit();                                // ゲームを終了する処理
+#endif
     }
 }

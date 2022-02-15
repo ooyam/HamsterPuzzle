@@ -11,31 +11,25 @@ public class StartObject : MonoBehaviour
     public RectTransform backGroundTra;
     RectTransform tra;
     SoundManager soundMan;
+    bool walkSe;
 
-    void Start()
+    IEnumerator Start()
     {
         soundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
-        tra = GetComponent<RectTransform>();
-        float posY = tra.anchoredPosition.y;
-
-        float movespeed = 7.0f;                                                       //移動速度
-        float stopTime = GetMoveTime(tra, movespeed, 1.0f, new Vector2(0.0f, posY));  //移動時間計算
-        StartCoroutine(ShakeMovement(tra, 1.0f, 10.0f, -1, 0.0f, -1, stopTime));      //揺れ
-        StartCoroutine(MoveMovement(tra, movespeed, 1.0f, new Vector2(0.0f, posY)));  //移動
-        StartCoroutine(ObjectDelete(stopTime));
 
         //歩きSE
         soundMan.StartWalkSE_Shoot();
-    }
+        walkSe = true;
 
-    //========================================================================
-    //自身の削除動作
-    //========================================================================
-    //waitTime; 削除開始までの待機時間
-    //========================================================================
-    IEnumerator ObjectDelete(float waitTime)
-    {
-        yield return new WaitForSeconds(waitTime);
+        //移動開始
+        tra = GetComponent<RectTransform>();
+        float posY = tra.anchoredPosition.y;
+        float movespeed = 7.0f;                                                       //移動速度
+        float stopTime = GetMoveTime(tra, movespeed, 1.0f, new Vector2(0.0f, posY));  //移動時間計算
+        StartCoroutine(ShakeMovement(tra, 1.0f, 10.0f, -1, 0.0f, -1, stopTime));      //揺れ
+        yield return StartCoroutine(MoveMovement(tra, movespeed, 1.0f, new Vector2(0.0f, posY)));  //移動
+
+        //ゲーム開始
         RectTransform hamsterTra = tra.GetChild(2).gameObject.GetComponent<RectTransform>();
         hamsterTra.SetParent(backGroundTra, true);
         hamsterTra.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
@@ -43,7 +37,9 @@ public class StartObject : MonoBehaviour
 
         //歩きSE停止
         soundMan.SE_Stop();
+        walkSe = false;
 
+        //パネル倒し
         float rotX = 0.0f;
         while (true)
         {
@@ -53,5 +49,26 @@ public class StartObject : MonoBehaviour
             if (rotX >= 90.0f) break;
         }
         Destroy(this.gameObject);
+    }
+
+    void Update()
+    {
+        if (!GAME_START)
+        {
+            if (walkSe && SETTING_DISPLAY)
+            {
+                //歩きSE停止
+                soundMan.SE_Stop();
+                walkSe = false;
+                soundMan.YesTapSE();
+            }
+
+            if (!walkSe && !SETTING_DISPLAY)
+            {
+                //歩きSE再生
+                soundMan.StartWalkSE_Shoot();
+                walkSe = true;
+            }
+        }
     }
 }

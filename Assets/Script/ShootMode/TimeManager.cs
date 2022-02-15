@@ -14,14 +14,7 @@ public class TimeManager : MonoBehaviour
     //========================================================================
     IEnumerator Start()
     {
-        float countTime = 1.0f;
-        int stratTime = 3;
-        for (int count = 0; count < stratTime; count++)
-        {
-            yield return new WaitForSeconds(countTime);
-            if (count == stratTime) break;
-        }
-        GAME_START = true;
+        yield return new WaitUntil(() => GAME_START == true);
         StartCoroutine(LineBlockGenerateInterval());
     }
 
