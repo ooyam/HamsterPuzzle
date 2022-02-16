@@ -518,7 +518,14 @@ namespace ShootMode
             if (placedUnder || placedOn)
             {
                 //10列パターン
-                if (conBlockPatternTen) arrangementPos[2] = (placedRight) ? conObjPosIndex[2] : conObjPosIndex[2] - 1;
+                if (conBlockPatternTen)
+                {
+                    bool leftLimit  = conObjPosIndex[2] == 0;                //左端のブロックに接触
+                    bool rightLimit = conObjPosIndex[2] == columnNum[1] - 1; //右端のブロックに接触
+                    if (leftLimit) arrangementPos[2] = conObjPosIndex[2];
+                    else if (rightLimit) arrangementPos[2] = conObjPosIndex[2] - 1;
+                    else arrangementPos[2] = (placedRight) ? conObjPosIndex[2] : conObjPosIndex[2] - 1;
+                }
                 //9列パターン
                 else arrangementPos[2] = (placedRight) ? conObjPosIndex[2] + 1 : conObjPosIndex[2];
             }
