@@ -6,19 +6,19 @@ using UnityEngine.SceneManagement;
 
 public class GameClearGraphic : MonoBehaviour
 {
+    [Header("インタースティシャル広告")]
+    [SerializeField]
+    GameObject interstitialObj;
+
     private RectTransform tra;
     private float moveSpeed = 0.0f;
     private Vector2 startScale = new Vector2(0.0f, 0.0f);
     private bool moveEnd = false;
 
-    private GameObject soundManObj; //SoundManager
-    private SoundManager soundMan;  //SoundManager
-
     void OnEnable()
     {
         tra = GetComponent<RectTransform>();
-        soundManObj = GameObject.FindWithTag("SoundManager");
-        soundMan = soundManObj.GetComponent<SoundManager>();
+        SoundManager soundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
         soundMan.BGM_Volume(0.0f);
         soundMan.GameClearSE();
         tra.localScale = startScale;
@@ -46,7 +46,9 @@ public class GameClearGraphic : MonoBehaviour
     {
         float waitTime = 3.0f;
         yield return new WaitForSeconds(waitTime);
-        Destroy(soundManObj);
-        SceneNavigator.Instance.Change("TitleScene", 1.0f);
+
+        //インタースティシャル広告表示
+        if (!PuzzleMainController.tutorial) Instantiate(interstitialObj);
+        else SceneNavigator.Instance.Change("TitleScene", 1.0f);
     }
 }

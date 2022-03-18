@@ -48,10 +48,6 @@ public class TitleMenuController : MonoBehaviour
     GameObject[]    leftArrow     = new GameObject[modeNum];    //左矢印ボタンオブジェクト
     RectTransform[] leftArrowTra  = new RectTransform[modeNum]; //左矢印ボタンRectTransform 
 
-    [Header("SoundManager")]
-    [SerializeField]
-    SoundManager soundMan;
-
     [Header("ハムスターの親オブジェクト")]
     [SerializeField]
     Transform hamsterBox;
@@ -70,6 +66,7 @@ public class TitleMenuController : MonoBehaviour
 
     Camera cameraMain;                         //MainCamera
     RectTransform CanvasTra;                   //CanvasのRectTransform
+    SoundManager soundMan;                     //SoundManager
     int[] displayStageNum = new int[modeNum];  //表示するステージ番号
     int   maxDisplay      = 10;                //最大表示数
     int   displayPageNum  = -1;                //表示しているページ番号
@@ -399,6 +396,7 @@ public class TitleMenuController : MonoBehaviour
         }
         //========================================================================
 
+        soundMan = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
         soundMan.BGM_Start(0);              //BGM開始
         StartCoroutine(HamsterGenerate());  //ハムスター動作開始
     }

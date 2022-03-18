@@ -12484,6 +12484,8 @@ MonoBehaviour:
     type: 3}
   resultScreenPre: {fileID: 775344050423997393, guid: 9f598b21e12672b4ea81d7c291bb5cb5,
     type: 3}
+  interstitialObj: {fileID: 1568619263056086467, guid: 9bf8cbb7938f1cf4aaa43ed38f875a83,
+    type: 3}
 --- !u!1 &2068423297
 GameObject:
   m_ObjectHideFlags: 0

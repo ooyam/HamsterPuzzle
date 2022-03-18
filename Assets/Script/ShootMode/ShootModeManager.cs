@@ -38,6 +38,10 @@ namespace ShootMode
         [SerializeField]
         GameObject resultScreenPre;
 
+        [Header("インタースティシャル広告")]
+        [SerializeField]
+        GameObject interstitialObj;
+
         GameObject soundManObj;
         SoundManager soundManScr;  //SoundManger
 
@@ -146,9 +150,8 @@ namespace ShootMode
                 //クリアステージ番号書き込み
                 GameObject.FindWithTag("SaveDataManager").GetComponent<SaveDataManager>().WriteShootModeSaveData(stageNum);
 
-                //タイトル画面へ戻る
-                Destroy(soundManObj);
-                SceneNavigator.Instance.Change("TitleScene", 1.0f);
+                //インタースティシャル広告表示
+                Instantiate(interstitialObj);
             }
         }
     }

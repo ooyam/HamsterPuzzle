@@ -1045,17 +1045,12 @@ namespace ShootMode
                 //ブロック削除
                 BlockDelete(new int[] { conObjIndex });
 
+                //投擲ブロック番号更新
+                throwBlockIndex = blockObj.IndexOf(nowThrowBlockObj);
+                nextThrowBlockIndex = blockObj.IndexOf(nowNextThrowBlockObj);
+
                 //クリア判定
-                if (GAME_CLEAR)
-                {
-                    StartCoroutine(ShootModeMan.GameClear());
-                }
-                else
-                {
-                    //投擲ブロック番号更新
-                    throwBlockIndex     = blockObj.IndexOf(nowThrowBlockObj);
-                    nextThrowBlockIndex = blockObj.IndexOf(nowNextThrowBlockObj);
-                }
+                if (GAME_CLEAR) StartCoroutine(ShootModeMan.GameClear());
             }
         }
 
